@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Simple Supabase Test</title>
+    <style>
+        body {
+            background: #0f0f0f;
+            color: #fff;
+            font-family: Arial;
+            padding: 40px;
+        }
+        pre {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Testing Supabase API Access</h1>
+    <pre id="output">Testing...</pre>
+
+    <script>
+        const url = 'https://gxgjlxgmqgcqlesdebzw.supabase.co/rest/v1/predictions';
+        const key = 'sb_publishable_zslUYT9DWZTJuhvQ_Uc3ZQ_MszDy0ar';
+
+        async function test() {
+            const output = document.getElementById('output');
+
+            try {
+                output.textContent = 'Attempting fetch to Supabase...\n';
+
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${key}`,
+                        'Content-Type': 'application/json',
+                        'apikey': key
+                    }
+                });
+
+                output.textContent += `Status: ${response.status}\n`;
+                output.textContent += `Status Text: ${response.statusText}\n`;
+
+                const text = await response.text();
+                output.textContent += `Response: ${text}\n`;
+
+                if (response.ok) {
+                    output.textContent += '\n✅ Supabase API is accessible!\n';
+                } else {
+                    output.textContent += '\n❌ Supabase API returned error\n';
+                }
+            } catch (err) {
+                output.textContent = `❌ Error: ${err.message}\n\nSupabase might be blocked in your location (like Firebase was)`;
+            }
+        }
+
+        test();
+    </script>
+</body>
+</html>
