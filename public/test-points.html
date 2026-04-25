@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - Cálculo de Puntos</title>
+    <style>
+        body {
+            background: #0f0f0f;
+            color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 { color: #fbbf24; }
+        .section {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        button {
+            background: #fbbf24;
+            color: black;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 5px;
+        }
+        button:hover {
+            background: #f59e0b;
+        }
+        button.danger {
+            background: #ef4444;
+            color: white;
+        }
+        button.danger:hover {
+            background: #dc2626;
+        }
+        .log {
+            background: rgba(0,0,0,0.5);
+            padding: 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 0.85rem;
+        }
+        .log-item {
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .success { color: #10b981; }
+        .error { color: #ef4444; }
+        .info { color: #60a5fa; }
+        .warning { color: #fbbf24; }
+        input, select {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin: 5px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test - Cálculo de Puntos</h1>
+
+        <div class="section">
+            <h2>Controles</h2>
+            <button class="danger" onclick="cleanDatabase()">🗑️ LIMPIAR TODO</button>
+            <button onclick="testScenario1()">Scenario 1: Predicción sin Resultado</button>
+            <button onclick="testScenario2()">Scenario 2: Resultado NO coincide</button>
+            <button onclick="testScenario3()">Scenario 3: Resultado SÍ coincide</button>
+            <button onclick="loadData()">📊 Recargar Datos</button>
+            <button onclick="window.location.href='/index.html'" style="background: #60a5fa; color: black;">← Volver a App</button>
+        </div>
+
+        <div class="section">
+            <h2>Estado Actual</h2>
+            <div id="status"></div>
+        </div>
+
+        <div class="section">
+            <h2>Log de Operaciones</h2>
+            <div class="log" id="log"></div>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://gxgjlxgmqgcqlesdebzw.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_zslUYT9DWZTJuhvQ_Uc3ZQ_MszDy0ar';
+
+        let logs = [];
+
+        function addLog(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            logs.push({ timestamp, message, type });
+            updateLog();
+        }
+
+        function updateLog() {
+            const logDiv = document.getElementById('log');
+            logDiv.innerHTML = logs.map(l =>
+                `<div class="log-item ${l.type}">[${l.timestamp}] ${l.message}</div>`
+            ).join('');
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        async function loadData() {
+            addLog('Cargando datos de Supabase...', 'info');
+            try {
+                const [preds, ress] = await Promise.all([
+                    fetch(`${SUPABASE_URL}/rest/v1/predictions`, {
+                        headers: {
+                            'apikey': SUPABASE_KEY,
+                            'Authorization': `Bearer ${SUPABASE_KEY}`
+                        }
+                    }).then(r => r.json()),
+                    fetch(`${SUPABASE_URL}/rest/v1/results`, {
+                        headers: {
+                            'apikey': SUPABASE_KEY,
+                            'Authorization': `Bearer ${SUPABASE_KEY}`
+                        }
+                    }).then(r => r.json())
+                ]);
+
+                const statusDiv = document.getElementById('status');
+                let html = '<h3>Predicciones:</h3>';
+                if (preds.length === 0) {
+                    html += '<p style="color: #10b981;">✅ No hay predicciones</p>';
+                } else {
+                    html += '<table style="width:100%; border-collapse: collapse;">';
+                    html += '<tr style="background: rgba(251,191,36,0.1);"><th>Fight</th><th>Player</th><th>Field</th><th>Value</th></tr>';
+                    preds.forEach(p => {
+                        html += `<tr style="border-bottom: 1px solid rgba(255,255,255,0.1);"><td>${p.fight_id}</td><td>${p.player}</td><td>${p.field}</td><td>${p.value}</td></tr>`;
+                    });
+                    html += '</table>';
+                }
+
+                html += '<h3 style="margin-top: 20px;">Resultados:</h3>';
+                if (ress.length === 0) {
+                    html += '<p style="color: #10b981;">✅ No hay resultados</p>';
+                } else {
+                    html += '<table style="width:100%; border-collapse: collapse;">';
+                    html += '<tr style="background: rgba(251,191,36,0.1);"><th>Fight</th><th>Field</th><th>Value</th></tr>';
+                    ress.forEach(r => {
+                        html += `<tr style="border-bottom: 1px solid rgba(255,255,255,0.1);"><td>${r.fight_id}</td><td>${r.field}</td><td>${r.value}</td></tr>`;
+                    });
+                    html += '</table>';
+                }
+
+                html += `<h3 style="margin-top: 20px;">Resumen:</h3>`;
+                html += `<p>${preds.length} predicciones, ${ress.length} resultados</p>`;
+
+                statusDiv.innerHTML = html;
+                addLog(`✅ Datos cargados: ${preds.length} preds, ${ress.length} results`, 'success');
+            } catch (err) {
+                addLog(`❌ Error: ${err.message}`, 'error');
+            }
+        }
+
+        async function cleanDatabase() {
+            if (!confirm('¿SEGURO? Borrará TODOS los datos.')) return;
+            addLog('Limpiando base de datos...', 'warning');
+            try {
+                await Promise.all([
+                    fetch(`${SUPABASE_URL}/rest/v1/predictions`, {
+                        method: 'DELETE',
+                        headers: {
+                            'apikey': SUPABASE_KEY,
+                            'Authorization': `Bearer ${SUPABASE_KEY}`
+                        }
+                    }),
+                    fetch(`${SUPABASE_URL}/rest/v1/results`, {
+                        method: 'DELETE',
+                        headers: {
+                            'apikey': SUPABASE_KEY,
+                            'Authorization': `Bearer ${SUPABASE_KEY}`
+                        }
+                    })
+                ]);
+                addLog('✅ Base de datos limpiada', 'success');
+                loadData();
+            } catch (err) {
+                addLog(`❌ Error: ${err.message}`, 'error');
+            }
+        }
+
+        async function insertPrediction(fightId, player, field, value) {
+            try {
+                const res = await fetch(`${SUPABASE_URL}/rest/v1/predictions`, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': SUPABASE_KEY,
+                        'Authorization': `Bearer ${SUPABASE_KEY}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'resolution=merge-duplicates'
+                    },
+                    body: JSON.stringify({ fight_id: fightId, player, field, value })
+                });
+                if (res.ok) {
+                    addLog(`✅ Predicción: Fight ${fightId}, ${player}, ${field}=${value}`, 'success');
+                } else {
+                    addLog(`❌ Error predicción: ${res.status}`, 'error');
+                }
+            } catch (err) {
+                addLog(`❌ Error: ${err.message}`, 'error');
+            }
+        }
+
+        async function insertResult(fightId, field, value) {
+            try {
+                const res = await fetch(`${SUPABASE_URL}/rest/v1/results`, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': SUPABASE_KEY,
+                        'Authorization': `Bearer ${SUPABASE_KEY}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'resolution=merge-duplicates'
+                    },
+                    body: JSON.stringify({ fight_id: fightId, field, value })
+                });
+                if (res.ok) {
+                    addLog(`✅ Resultado: Fight ${fightId}, ${field}=${value}`, 'success');
+                } else {
+                    addLog(`❌ Error resultado: ${res.status}`, 'error');
+                }
+            } catch (err) {
+                addLog(`❌ Error: ${err.message}`, 'error');
+            }
+        }
+
+        async function testScenario1() {
+            addLog('=== SCENARIO 1: Predicción SIN Resultado ===', 'warning');
+            addLog('Limpiando...', 'info');
+            await cleanDatabase();
+
+            addLog('Insertar predicción para Papá en Fight 1...', 'info');
+            await insertPrediction(1, 'player1', 'winner', 'Marcus Almeida');
+            await insertPrediction(1, 'player1', 'method', 'KO/TKO');
+            await insertPrediction(1, 'player1', 'round', '2');
+
+            await new Promise(r => setTimeout(r, 1000));
+            addLog('Sin resultado aún → PUNTOS DEBERÍA SER = 0', 'warning');
+            addLog('🔄 Abre la app y verifica en Fight 1 que Papá tiene 0 puntos', 'info');
+
+            setTimeout(loadData, 1500);
+        }
+
+        async function testScenario2() {
+            addLog('=== SCENARIO 2: Resultado NO coincide con predicción ===', 'warning');
+            addLog('Usando datos previos...', 'info');
+
+            addLog('Insertar resultado que NO coincide...', 'info');
+            await insertResult(1, 'winner', 'Ryan Spann');  // Predicción era Marcus, resultado es Ryan
+            await insertResult(1, 'method', 'Decisión');   // Predicción era KO/TKO
+            await insertResult(1, 'round', '3');           // Predicción era 2
+
+            await new Promise(r => setTimeout(r, 1000));
+            addLog('Nada coincide → PUNTOS DEBERÍA SER = 0 (sin matches)', 'warning');
+            addLog('🔄 Abre la app y verifica que Papá sigue con 0 puntos', 'info');
+
+            setTimeout(loadData, 1500);
+        }
+
+        async function testScenario3() {
+            addLog('=== SCENARIO 3: Resultado SÍ coincide (parcialmente) ===', 'warning');
+            addLog('Actualizando resultado para que coincida...', 'info');
+
+            // Actualizar solo el winner para que coincida
+            await fetch(`${SUPABASE_URL}/rest/v1/results?fight_id=eq.1&field=eq.winner`, {
+                method: 'PATCH',
+                headers: {
+                    'apikey': SUPABASE_KEY,
+                    'Authorization': `Bearer ${SUPABASE_KEY}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ value: 'Marcus Almeida' })
+            });
+
+            addLog('✅ Winner ahora coincide (Marcus Almeida)', 'success');
+            addLog('❌ Method NO coincide (pred: KO/TKO, result: Decisión)', 'warning');
+            addLog('❌ Round NO coincide (pred: 2, result: 3)', 'warning');
+            addLog('Cálculo: winner match = 1 pt → PUNTOS DEBERÍA SER = 1', 'warning');
+            addLog('🔄 Abre la app y verifica que Papá ahora tiene 1 punto', 'info');
+
+            setTimeout(() => {
+                addLog('Si aún muestra 0, hay un BUG en el cálculo', 'error');
+                loadData();
+            }, 1500);
+        }
+
+        // Cargar al abrir
+        addLog('Página de test lista', 'success');
+        loadData();
+    </script>
+</body>
+</html>
