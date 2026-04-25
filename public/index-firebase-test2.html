@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UFC Vegas 116 - Firebase Test 2</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/firebase@9/dist/firebase-app.js"></script>
+    <script src="https://unpkg.com/firebase@9/dist/firebase-database.js"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f0f0f 0%, #1a1a2e 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        const FirebaseTestApp = () => {
+            const [firebaseLoaded, setFirebaseLoaded] = useState(false);
+            const [error, setError] = useState(null);
+
+            useEffect(() => {
+                try {
+                    if (typeof firebase !== 'undefined') {
+                        setFirebaseLoaded(true);
+                    } else {
+                        setError('Firebase no está disponible');
+                    }
+                } catch (err) {
+                    setError(`Error: ${err.message}`);
+                }
+            }, []);
+
+            return (
+                <div className="min-h-screen flex items-center justify-center bg-gray-900">
+                    <div className="text-center p-8">
+                        <h1 className="text-5xl font-bold mb-4">🥊 UFC Betting App</h1>
+
+                        {error ? (
+                            <div className="text-red-500 text-xl mb-4">
+                                ❌ Error: {error}
+                            </div>
+                        ) : firebaseLoaded ? (
+                            <div className="text-green-500 text-xl mb-4">
+                                ✅ Firebase v9 cargó correctamente!
+                            </div>
+                        ) : (
+                            <div className="text-yellow-500 text-xl mb-4">
+                                ⏳ Cargando Firebase...
+                            </div>
+                        )}
+
+                        <p className="mt-8 text-gray-400">Probando Firebase v9 desde unpkg.com</p>
+                    </div>
+                </div>
+            );
+        };
+
+        ReactDOM.createRoot(document.getElementById('root')).render(<FirebaseTestApp />);
+    </script>
+</body>
+</html>
