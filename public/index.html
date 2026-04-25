@@ -320,15 +320,10 @@
                                         </div>
                                     </div>
 
-                                    {getResultText(fight.id) && (
-                                        <div className="result-section mb-6">
-                                            <p className="font-bold text-green-300">✓ Resultado: {getResultText(fight.id)}</p>
-                                        </div>
-                                    )}
-
-                                    {!getResultText(fight.id) && (
-                                        <div className="bg-orange-500/10 border-l-4 border-orange-500 p-4 rounded mb-6">
-                                            <h4 className="font-bold text-orange-300 mb-3">Ingresar Resultado</h4>
+                                    <div className={`${getResultText(fight.id) ? 'bg-green-500/10 border-green-500' : 'bg-orange-500/10 border-orange-500'} border-l-4 p-4 rounded mb-6`}>
+                                        <h4 className={`font-bold mb-3 ${getResultText(fight.id) ? 'text-green-300' : 'text-orange-300'}`}>
+                                            {getResultText(fight.id) ? '✓ Resultado (puedes cambiar)' : 'Ingresar Resultado'}
+                                        </h4>
                                             <div className="grid grid-cols-3 gap-3">
                                                 <select
                                                     value={results[fight.id]?.winner || ''}
@@ -361,7 +356,7 @@
                                                 </select>
                                             </div>
                                         </div>
-                                    )}
+                                    </div>
 
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                         <div className="bg-blue-500/10 border-l-4 border-blue-500 p-4 rounded">
