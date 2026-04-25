@@ -181,8 +181,8 @@
                     weight: 'Peso Semipesado',
                     round: 3,
                     featured: false,
-                    image1: 'https://images.ufc.com/v1/images/fighters/Marcus-Almeida-36d436fe-fcd5-4f99-b3f6-1b8d8f3d4c5e.png',
-                    image2: 'https://images.ufc.com/v1/images/fighters/Ryan-Spann-5f7e6c4d-3b2a-4f9e-8c1d-2e3f4a5b6c7d.png'
+                    image1: 'https://ui-avatars.com/api/?name=Marcus+Almeida&background=1e3a8a&color=fff&size=200&bold=true',
+                    image2: 'https://ui-avatars.com/api/?name=Ryan+Spann&background=7c2d12&color=fff&size=200&bold=true'
                 },
                 {
                     id: 2,
@@ -191,8 +191,8 @@
                     weight: 'Peso Gallo',
                     round: 3,
                     featured: false,
-                    image1: 'https://images.ufc.com/v1/images/fighters/Montel-Jackson-1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d.png',
-                    image2: 'https://images.ufc.com/v1/images/fighters/Raoni-Barcelos-6f5e4d3c-2b1a-9a8b-7c6d-5e4f3a2b1c0d.png'
+                    image1: 'https://ui-avatars.com/api/?name=Montel+Jackson&background=1e3a8a&color=fff&size=200&bold=true',
+                    image2: 'https://ui-avatars.com/api/?name=Raoni+Barcelos&background=7c2d12&color=fff&size=200&bold=true'
                 },
                 {
                     id: 3,
@@ -201,8 +201,8 @@
                     weight: 'Peso Gallo',
                     round: 3,
                     featured: false,
-                    image1: 'https://images.ufc.com/v1/images/fighters/Adrian-Luna-2c3d4e5f-6a7b-8c9d-0e1f-2a3b4c5d6e7f.png',
-                    image2: 'https://images.ufc.com/v1/images/fighters/Davey-Grant-7f8e9d0c-1b2a-3c4d-5e6f-7a8b9c0d1e2f.png'
+                    image1: 'https://ui-avatars.com/api/?name=Adrian+Luna&background=1e3a8a&color=fff&size=200&bold=true',
+                    image2: 'https://ui-avatars.com/api/?name=Davey+Grant&background=7c2d12&color=fff&size=200&bold=true'
                 },
                 {
                     id: 4,
@@ -211,8 +211,8 @@
                     weight: 'Peso Ligero',
                     round: 3,
                     featured: false,
-                    image1: 'https://images.ufc.com/v1/images/fighters/Rafa-Garcia-3d4e5f6a-7b8c-9d0e-1f2a-3b4c5d6e7f8a.png',
-                    image2: 'https://images.ufc.com/v1/images/fighters/Alexander-Hernandez-8a9b0c1d-2e3f-4a5b-6c7d-8e9f0a1b2c3d.png'
+                    image1: 'https://ui-avatars.com/api/?name=Rafa+Garcia&background=1e3a8a&color=fff&size=200&bold=true',
+                    image2: 'https://ui-avatars.com/api/?name=Alexander+Hernandez&background=7c2d12&color=fff&size=200&bold=true'
                 },
                 {
                     id: 5,
@@ -221,8 +221,8 @@
                     weight: 'Peso Pluma Femenil',
                     round: 3,
                     featured: false,
-                    image1: 'https://images.ufc.com/v1/images/fighters/Norma-Dumont-4e5f6a7b-8c9d-0e1f-2a3b-4c5d6e7f8a9b.png',
-                    image2: 'https://images.ufc.com/v1/images/fighters/Joselyne-Edwards-9b0c1d2e-3f4a-5b6c-7d8e-9f0a1b2c3d4e.png'
+                    image1: 'https://ui-avatars.com/api/?name=Norma+Dumont&background=1e3a8a&color=fff&size=200&bold=true',
+                    image2: 'https://ui-avatars.com/api/?name=Joselyne+Edwards&background=7c2d12&color=fff&size=200&bold=true'
                 },
                 {
                     id: 6,
@@ -231,8 +231,8 @@
                     weight: 'Peso Pluma',
                     round: 5,
                     featured: true,
-                    image1: 'https://images.ufc.com/v1/images/fighters/Aljamain-Sterling-5f6a7b8c-9d0e-1f2a-3b4c-5d6e7f8a9b0c.png',
-                    image2: 'https://images.ufc.com/v1/images/fighters/Youssef-Zalal-0c1d2e3f-4a5b-6c7d-8e9f-0a1b2c3d4e5f.png'
+                    image1: 'https://ui-avatars.com/api/?name=Aljamain+Sterling&background=1e3a8a&color=fff&size=200&bold=true',
+                    image2: 'https://ui-avatars.com/api/?name=Youssef+Zalal&background=7c2d12&color=fff&size=200&bold=true'
                 },
             ];
 
@@ -402,12 +402,17 @@
                                         <div className="grid grid-cols-3 gap-4 mb-4">
                                             {/* FIGHTER 1 */}
                                             <div className="text-center">
-                                                <img
-                                                    src={fight.image1}
-                                                    alt={fight.fighter1}
-                                                    className="w-full h-40 object-cover rounded-lg mb-2 border-2 border-blue-500"
-                                                    onError={(e) => {e.target.style.display = 'none'}}
-                                                />
+                                                <div className="relative mb-2">
+                                                    <img
+                                                        src={fight.image1}
+                                                        alt={fight.fighter1}
+                                                        className="w-full h-40 object-cover rounded-lg border-2 border-blue-500"
+                                                        onError={(e) => {e.target.style.display = 'none'}}
+                                                    />
+                                                    <div className="hidden bg-gradient-to-br from-blue-600 to-blue-800 w-full h-40 rounded-lg border-2 border-blue-500 flex items-center justify-center text-5xl font-bold text-white" style={{display: 'flex', position: 'absolute', top: 0, left: 0}}>
+                                                        {fight.fighter1.split(' ').map(n => n[0]).join('')}
+                                                    </div>
+                                                </div>
                                                 <p className="text-lg font-bold">{fight.fighter1}</p>
                                                 <p className="text-xs text-gray-400">{fight.weight}</p>
                                             </div>
@@ -420,12 +425,17 @@
 
                                             {/* FIGHTER 2 */}
                                             <div className="text-center">
-                                                <img
-                                                    src={fight.image2}
-                                                    alt={fight.fighter2}
-                                                    className="w-full h-40 object-cover rounded-lg mb-2 border-2 border-red-500"
-                                                    onError={(e) => {e.target.style.display = 'none'}}
-                                                />
+                                                <div className="relative mb-2">
+                                                    <img
+                                                        src={fight.image2}
+                                                        alt={fight.fighter2}
+                                                        className="w-full h-40 object-cover rounded-lg border-2 border-red-500"
+                                                        onError={(e) => {e.target.style.display = 'none'}}
+                                                    />
+                                                    <div className="hidden bg-gradient-to-br from-red-600 to-red-800 w-full h-40 rounded-lg border-2 border-red-500 flex items-center justify-center text-5xl font-bold text-white" style={{display: 'flex', position: 'absolute', top: 0, left: 0}}>
+                                                        {fight.fighter2.split(' ').map(n => n[0]).join('')}
+                                                    </div>
+                                                </div>
                                                 <p className="text-lg font-bold">{fight.fighter2}</p>
                                                 <p className="text-xs text-gray-400">&nbsp;</p>
                                             </div>
