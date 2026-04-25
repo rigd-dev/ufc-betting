@@ -8,6 +8,7 @@
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * { box-sizing: border-box; }
         body {
@@ -72,6 +73,23 @@
             0%, 100% { opacity: 1; }
             50% { opacity: 0.5; }
         }
+        .result-section {
+            background: rgba(34, 197, 94, 0.1);
+            border-left: 4px solid #22c55e;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 8px;
+        }
+        .result-badge {
+            display: inline-block;
+            background: #22c55e;
+            color: #000;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.85rem;
+            margin-top: 4px;
+        }
     </style>
 </head>
 <body>
@@ -80,49 +98,145 @@
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
 
+        // Supabase Config
+        const SUPABASE_URL = 'https://gxgjlxgmqgcqlesdebzw.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_zslUYT9DWZTJuhvQ_Uc3ZQ_MszDy0ar';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
         const UFCApp = () => {
             const [player1Name, setPlayer1Name] = useState('Papá');
             const [player2Name, setPlayer2Name] = useState('Raúl');
             const [predictions, setPredictions] = useState({});
+            const [results, setResults] = useState({});
+            const [connected, setConnected] = useState(false);
             const mountedRef = useRef(true);
 
             const fights = [
-                { id: 1, fighter1: 'Marcus Almeida', fighter2: 'Ryan Spann', weight: 'Peso Semipesado', round: '3', featured: false },
-                { id: 2, fighter1: 'Montel Jackson', fighter2: 'Raoni Barcelos', weight: 'Peso Gallo', round: '3', featured: false },
-                { id: 3, fighter1: 'Adrian Luna Martinetti', fighter2: 'Davey Grant', weight: 'Peso Gallo', round: '3', featured: false },
-                { id: 4, fighter1: 'Rafa Garcia', fighter2: 'Alexander Hernandez', weight: 'Peso Ligero', round: '3', featured: false },
-                { id: 5, fighter1: 'Norma Dumont', fighter2: 'Joselyne Edwards', weight: 'Peso Pluma Femenil', round: '3', featured: false },
-                { id: 6, fighter1: 'Aljamain Sterling', fighter2: 'Youssef Zalal', weight: 'Peso Pluma', round: '5', featured: true },
+                { id: 1, fighter1: 'Marcus Almeida', fighter2: 'Ryan Spann', weight: 'Peso Semipesado', round: 3, featured: false },
+                { id: 2, fighter1: 'Montel Jackson', fighter2: 'Raoni Barcelos', weight: 'Peso Gallo', round: 3, featured: false },
+                { id: 3, fighter1: 'Adrian Luna Martinetti', fighter2: 'Davey Grant', weight: 'Peso Gallo', round: 3, featured: false },
+                { id: 4, fighter1: 'Rafa Garcia', fighter2: 'Alexander Hernandez', weight: 'Peso Ligero', round: 3, featured: false },
+                { id: 5, fighter1: 'Norma Dumont', fighter2: 'Joselyne Edwards', weight: 'Peso Pluma Femenil', round: 3, featured: false },
+                { id: 6, fighter1: 'Aljamain Sterling', fighter2: 'Youssef Zalal', weight: 'Peso Pluma', round: 5, featured: true },
+                { id: 7, fighter1: 'Talita Alencar', fighter2: 'Julia Polastri', weight: 'Strawweight', round: 3, featured: false },
+                { id: 8, fighter1: 'Max Griffin', fighter2: 'Victor Valenzuela', weight: 'Welterweight', round: 3, featured: false },
+                { id: 9, fighter1: 'Mayra Bueno Silva', fighter2: 'Michelle Montague', weight: "Women's Bantamweight", round: 3, featured: false },
             ];
 
-            // Cargar datos de localStorage
+            // Cargar datos de Supabase
             useEffect(() => {
-                const saved = localStorage.getItem('ufc-predictions');
-                if (saved) {
+                const loadData = async () => {
                     try {
-                        setPredictions(JSON.parse(saved));
-                    } catch (e) {
-                        console.error('Error loading predictions:', e);
+                        // Subscribe a predicciones
+                        const predSub = supabase
+                            .from('predictions')
+                            .on('*', payload => {
+                                if (mountedRef.current) {
+                                    loadPredictions();
+                                }
+                            })
+                            .subscribe();
+
+                        // Subscribe a resultados
+                        const resSub = supabase
+                            .from('results')
+                            .on('*', payload => {
+                                if (mountedRef.current) {
+                                    loadResults();
+                                }
+                            })
+                            .subscribe();
+
+                        await loadPredictions();
+                        await loadResults();
+                        setConnected(true);
+
+                        return () => {
+                            predSub.unsubscribe();
+                            resSub.unsubscribe();
+                        };
+                    } catch (err) {
+                        console.error('Error:', err);
                     }
-                }
+                };
+
+                loadData();
             }, []);
 
-            const updatePrediction = (fightId, player, field, value) => {
-                const newPredictions = { ...predictions };
-                if (!newPredictions[fightId]) newPredictions[fightId] = {};
-                if (!newPredictions[fightId][player]) newPredictions[fightId][player] = {};
-                newPredictions[fightId][player][field] = value;
-                setPredictions(newPredictions);
-                localStorage.setItem('ufc-predictions', JSON.stringify(newPredictions));
+            const loadPredictions = async () => {
+                try {
+                    const { data } = await supabase.from('predictions').select('*');
+                    if (data && mountedRef.current) {
+                        const grouped = {};
+                        data.forEach(pred => {
+                            if (!grouped[pred.fight_id]) grouped[pred.fight_id] = {};
+                            if (!grouped[pred.fight_id][pred.player]) grouped[pred.fight_id][pred.player] = {};
+                            grouped[pred.fight_id][pred.player][pred.field] = pred.value;
+                        });
+                        setPredictions(grouped);
+                    }
+                } catch (err) {
+                    console.error('Error loading predictions:', err);
+                }
+            };
+
+            const loadResults = async () => {
+                try {
+                    const { data } = await supabase.from('results').select('*');
+                    if (data && mountedRef.current) {
+                        const grouped = {};
+                        data.forEach(res => {
+                            if (!grouped[res.fight_id]) grouped[res.fight_id] = {};
+                            grouped[res.fight_id][res.field] = res.value;
+                        });
+                        setResults(grouped);
+                    }
+                } catch (err) {
+                    console.error('Error loading results:', err);
+                }
+            };
+
+            const updatePrediction = async (fightId, player, field, value) => {
+                try {
+                    await supabase.from('predictions').upsert({
+                        fight_id: fightId,
+                        player: player,
+                        field: field,
+                        value: value
+                    });
+                } catch (err) {
+                    console.error('Error updating prediction:', err);
+                }
+            };
+
+            const updateResult = async (fightId, field, value) => {
+                try {
+                    await supabase.from('results').upsert({
+                        fight_id: fightId,
+                        field: field,
+                        value: value
+                    });
+                } catch (err) {
+                    console.error('Error updating result:', err);
+                }
             };
 
             const calculatePoints = (fightId, player) => {
                 const pred = predictions[fightId]?.[player];
-                if (!pred || !pred.winner) return 0;
+                const result = results[fightId];
+
+                if (!pred || !pred.winner || !result || !result.winner) return 0;
 
                 let points = 0;
-                if (pred.method) points += 2;
-                if (pred.round) points += 1;
+
+                // Punto por ganador
+                if (pred.winner === result.winner) points += 1;
+
+                // Punto por método
+                if (pred.method === result.method) points += 2;
+
+                // Punto por round
+                if (pred.round === result.round) points += 1;
 
                 const fight = fights.find(f => f.id === fightId);
                 if (fight?.featured) {
@@ -139,6 +253,12 @@
                 return total;
             };
 
+            const getResultText = (fightId) => {
+                const result = results[fightId];
+                if (!result?.winner) return null;
+                return `${result.winner} por ${result.method} - Round ${result.round}`;
+            };
+
             return (
                 <div className="min-h-screen text-white pb-20">
                     <div className="max-w-6xl mx-auto px-4 py-8">
@@ -146,7 +266,9 @@
                         <div className="header mb-12">
                             <div className="flex items-center justify-center mb-4">
                                 <span className="sync-indicator"></span>
-                                <span className="text-sm text-green-300">Datos guardados localmente ✓</span>
+                                <span className="text-sm text-green-300">
+                                    {connected ? 'Sincronizado en vivo ✓' : 'Conectando...'}
+                                </span>
                             </div>
                             <h1 className="text-5xl font-black mb-2">🥊 UFC VEGAS 116</h1>
                             <p className="text-2xl text-yellow-300 mb-4">Sterling vs Zalal</p>
@@ -193,6 +315,61 @@
                                         </div>
                                     </div>
 
+                                    {/* Result Section */}
+                                    {getResultText(fight.id) && (
+                                        <div className="result-section mb-6">
+                                            <p className="font-bold text-green-300">✓ Resultado Ingresado:</p>
+                                            <p className="mt-2">{getResultText(fight.id)}</p>
+                                        </div>
+                                    )}
+
+                                    {/* Result Input */}
+                                    {!getResultText(fight.id) && (
+                                        <div className="bg-orange-500/10 border-l-4 border-orange-500 p-4 rounded mb-6">
+                                            <h4 className="font-bold text-orange-300 mb-3">Ingresar Resultado</h4>
+                                            <div className="grid grid-cols-3 gap-3">
+                                                <div>
+                                                    <label className="block text-xs text-gray-400 mb-2">GANADOR</label>
+                                                    <select
+                                                        value={results[fight.id]?.winner || ''}
+                                                        onChange={(e) => updateResult(fight.id, 'winner', e.target.value)}
+                                                        className="w-full"
+                                                    >
+                                                        <option value="">Selecciona...</option>
+                                                        <option value={fight.fighter1}>{fight.fighter1}</option>
+                                                        <option value={fight.fighter2}>{fight.fighter2}</option>
+                                                    </select>
+                                                </div>
+                                                <div>
+                                                    <label className="block text-xs text-gray-400 mb-2">MÉTODO</label>
+                                                    <select
+                                                        value={results[fight.id]?.method || ''}
+                                                        onChange={(e) => updateResult(fight.id, 'method', e.target.value)}
+                                                        className="w-full"
+                                                    >
+                                                        <option value="">Selecciona...</option>
+                                                        <option value="Decisión">Decisión</option>
+                                                        <option value="Sumisión">Sumisión</option>
+                                                        <option value="KO/TKO">KO/TKO</option>
+                                                    </select>
+                                                </div>
+                                                <div>
+                                                    <label className="block text-xs text-gray-400 mb-2">ROUND</label>
+                                                    <select
+                                                        value={results[fight.id]?.round || ''}
+                                                        onChange={(e) => updateResult(fight.id, 'round', e.target.value)}
+                                                        className="w-full"
+                                                    >
+                                                        <option value="">Selecciona...</option>
+                                                        {Array.from({length: fight.round}, (_, i) => (
+                                                            <option key={i+1} value={i+1}>Round {i+1}</option>
+                                                        ))}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+
                                     {/* Predictions Grid */}
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                         {/* Player 1 */}
@@ -220,9 +397,9 @@
                                                             className="w-full"
                                                         >
                                                             <option value="">Selecciona...</option>
-                                                            <option value="decision">Decisión</option>
-                                                            <option value="submission">Sumisión</option>
-                                                            <option value="ko">KO/TKO</option>
+                                                            <option value="Decisión">Decisión</option>
+                                                            <option value="Sumisión">Sumisión</option>
+                                                            <option value="KO/TKO">KO/TKO</option>
                                                         </select>
                                                     </div>
                                                     <div>
@@ -233,16 +410,9 @@
                                                             className="w-full"
                                                         >
                                                             <option value="">Selecciona...</option>
-                                                            <option value="1">Round 1</option>
-                                                            <option value="2">Round 2</option>
-                                                            <option value="3">Round 3</option>
-                                                            {fight.round === '5' && (
-                                                                <>
-                                                                    <option value="4">Round 4</option>
-                                                                    <option value="5">Round 5</option>
-                                                                </>
-                                                            )}
-                                                            <option value="final">Decisión Final</option>
+                                                            {Array.from({length: fight.round}, (_, i) => (
+                                                                <option key={i+1} value={i+1}>Round {i+1}</option>
+                                                            ))}
                                                         </select>
                                                     </div>
                                                 </div>
@@ -277,9 +447,9 @@
                                                             className="w-full"
                                                         >
                                                             <option value="">Selecciona...</option>
-                                                            <option value="decision">Decisión</option>
-                                                            <option value="submission">Sumisión</option>
-                                                            <option value="ko">KO/TKO</option>
+                                                            <option value="Decisión">Decisión</option>
+                                                            <option value="Sumisión">Sumisión</option>
+                                                            <option value="KO/TKO">KO/TKO</option>
                                                         </select>
                                                     </div>
                                                     <div>
@@ -290,16 +460,9 @@
                                                             className="w-full"
                                                         >
                                                             <option value="">Selecciona...</option>
-                                                            <option value="1">Round 1</option>
-                                                            <option value="2">Round 2</option>
-                                                            <option value="3">Round 3</option>
-                                                            {fight.round === '5' && (
-                                                                <>
-                                                                    <option value="4">Round 4</option>
-                                                                    <option value="5">Round 5</option>
-                                                                </>
-                                                            )}
-                                                            <option value="final">Decisión Final</option>
+                                                            {Array.from({length: fight.round}, (_, i) => (
+                                                                <option key={i+1} value={i+1}>Round {i+1}</option>
+                                                            ))}
                                                         </select>
                                                     </div>
                                                 </div>
@@ -315,7 +478,7 @@
 
                         {/* Footer */}
                         <div className="mt-12 text-center text-gray-500 text-sm">
-                            <p>✨ Los datos se guardan automáticamente en tu navegador ✨</p>
+                            <p>✨ Sincronización en vivo con Supabase ✨</p>
                         </div>
                     </div>
                 </div>
