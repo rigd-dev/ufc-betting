@@ -172,68 +172,18 @@
             const lastUpdateRef = useRef(0);
             const scrollRef = useRef(0);
 
+            const getInitials = (name) => {
+                return name.split(' ').map(n => n[0]).join('').toUpperCase();
+            };
+
             const allFights = [
                 // MAIN CARD ONLY
-                {
-                    id: 1,
-                    fighter1: 'Marcus Almeida',
-                    fighter2: 'Ryan Spann',
-                    weight: 'Peso Semipesado',
-                    round: 3,
-                    featured: false,
-                    image1: 'https://ui-avatars.com/api/?name=Marcus+Almeida&background=1e3a8a&color=fff&size=200&bold=true',
-                    image2: 'https://ui-avatars.com/api/?name=Ryan+Spann&background=7c2d12&color=fff&size=200&bold=true'
-                },
-                {
-                    id: 2,
-                    fighter1: 'Montel Jackson',
-                    fighter2: 'Raoni Barcelos',
-                    weight: 'Peso Gallo',
-                    round: 3,
-                    featured: false,
-                    image1: 'https://ui-avatars.com/api/?name=Montel+Jackson&background=1e3a8a&color=fff&size=200&bold=true',
-                    image2: 'https://ui-avatars.com/api/?name=Raoni+Barcelos&background=7c2d12&color=fff&size=200&bold=true'
-                },
-                {
-                    id: 3,
-                    fighter1: 'Adrian Luna Martinetti',
-                    fighter2: 'Davey Grant',
-                    weight: 'Peso Gallo',
-                    round: 3,
-                    featured: false,
-                    image1: 'https://ui-avatars.com/api/?name=Adrian+Luna&background=1e3a8a&color=fff&size=200&bold=true',
-                    image2: 'https://ui-avatars.com/api/?name=Davey+Grant&background=7c2d12&color=fff&size=200&bold=true'
-                },
-                {
-                    id: 4,
-                    fighter1: 'Rafa Garcia',
-                    fighter2: 'Alexander Hernandez',
-                    weight: 'Peso Ligero',
-                    round: 3,
-                    featured: false,
-                    image1: 'https://ui-avatars.com/api/?name=Rafa+Garcia&background=1e3a8a&color=fff&size=200&bold=true',
-                    image2: 'https://ui-avatars.com/api/?name=Alexander+Hernandez&background=7c2d12&color=fff&size=200&bold=true'
-                },
-                {
-                    id: 5,
-                    fighter1: 'Norma Dumont',
-                    fighter2: 'Joselyne Edwards',
-                    weight: 'Peso Pluma Femenil',
-                    round: 3,
-                    featured: false,
-                    image1: 'https://ui-avatars.com/api/?name=Norma+Dumont&background=1e3a8a&color=fff&size=200&bold=true',
-                    image2: 'https://ui-avatars.com/api/?name=Joselyne+Edwards&background=7c2d12&color=fff&size=200&bold=true'
-                },
-                {
-                    id: 6,
-                    fighter1: 'Aljamain Sterling',
-                    fighter2: 'Youssef Zalal',
-                    weight: 'Peso Pluma',
-                    round: 5,
-                    featured: true,
-                    image1: 'https://ui-avatars.com/api/?name=Aljamain+Sterling&background=1e3a8a&color=fff&size=200&bold=true',
-                    image2: 'https://ui-avatars.com/api/?name=Youssef+Zalal&background=7c2d12&color=fff&size=200&bold=true'
-                },
+                { id: 1, fighter1: 'Marcus Almeida', fighter2: 'Ryan Spann', weight: 'Peso Semipesado', round: 3, featured: false },
+                { id: 2, fighter1: 'Montel Jackson', fighter2: 'Raoni Barcelos', weight: 'Peso Gallo', round: 3, featured: false },
+                { id: 3, fighter1: 'Adrian Luna Martinetti', fighter2: 'Davey Grant', weight: 'Peso Gallo', round: 3, featured: false },
+                { id: 4, fighter1: 'Rafa Garcia', fighter2: 'Alexander Hernandez', weight: 'Peso Ligero', round: 3, featured: false },
+                { id: 5, fighter1: 'Norma Dumont', fighter2: 'Joselyne Edwards', weight: 'Peso Pluma Femenil', round: 3, featured: false },
+                { id: 6, fighter1: 'Aljamain Sterling', fighter2: 'Youssef Zalal', weight: 'Peso Pluma', round: 5, featured: true },
             ];
 
             // Cargar datos
@@ -397,46 +347,31 @@
                                         </div>
                                     )}
 
-                                    {/* HEADER CON FOTOS Y NOMBRES */}
+                                    {/* HEADER CON AVATARES Y NOMBRES */}
                                     <div className="mb-6">
                                         <div className="grid grid-cols-3 gap-4 mb-4">
                                             {/* FIGHTER 1 */}
                                             <div className="text-center">
-                                                <div className="relative mb-2">
-                                                    <img
-                                                        src={fight.image1}
-                                                        alt={fight.fighter1}
-                                                        className="w-full h-40 object-cover rounded-lg border-2 border-blue-500"
-                                                        onError={(e) => {e.target.style.display = 'none'}}
-                                                    />
-                                                    <div className="hidden bg-gradient-to-br from-blue-600 to-blue-800 w-full h-40 rounded-lg border-2 border-blue-500 flex items-center justify-center text-5xl font-bold text-white" style={{display: 'flex', position: 'absolute', top: 0, left: 0}}>
-                                                        {fight.fighter1.split(' ').map(n => n[0]).join('')}
-                                                    </div>
+                                                <div className="w-full h-40 rounded-lg border-2 border-blue-500 bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center mb-3 shadow-lg">
+                                                    <span className="text-6xl font-black text-blue-100 drop-shadow-lg">{getInitials(fight.fighter1)}</span>
                                                 </div>
-                                                <p className="text-lg font-bold">{fight.fighter1}</p>
+                                                <p className="text-lg font-bold text-white">{fight.fighter1}</p>
                                                 <p className="text-xs text-gray-400">{fight.weight}</p>
                                             </div>
 
                                             {/* VS */}
                                             <div className="flex flex-col items-center justify-center">
-                                                <p className="text-2xl text-gray-500 font-bold mb-2">vs</p>
-                                                <p className="text-xs text-gray-500 text-center">{fight.round} Rounds</p>
+                                                <p className="text-3xl text-yellow-400 font-black mb-3">⚡</p>
+                                                <p className="text-gray-500 font-bold mb-2">vs</p>
+                                                <p className="text-xs text-gray-500 text-center font-semibold">{fight.round} Rounds</p>
                                             </div>
 
                                             {/* FIGHTER 2 */}
                                             <div className="text-center">
-                                                <div className="relative mb-2">
-                                                    <img
-                                                        src={fight.image2}
-                                                        alt={fight.fighter2}
-                                                        className="w-full h-40 object-cover rounded-lg border-2 border-red-500"
-                                                        onError={(e) => {e.target.style.display = 'none'}}
-                                                    />
-                                                    <div className="hidden bg-gradient-to-br from-red-600 to-red-800 w-full h-40 rounded-lg border-2 border-red-500 flex items-center justify-center text-5xl font-bold text-white" style={{display: 'flex', position: 'absolute', top: 0, left: 0}}>
-                                                        {fight.fighter2.split(' ').map(n => n[0]).join('')}
-                                                    </div>
+                                                <div className="w-full h-40 rounded-lg border-2 border-red-500 bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center mb-3 shadow-lg">
+                                                    <span className="text-6xl font-black text-red-100 drop-shadow-lg">{getInitials(fight.fighter2)}</span>
                                                 </div>
-                                                <p className="text-lg font-bold">{fight.fighter2}</p>
+                                                <p className="text-lg font-bold text-white">{fight.fighter2}</p>
                                                 <p className="text-xs text-gray-400">&nbsp;</p>
                                             </div>
                                         </div>
