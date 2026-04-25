@@ -98,10 +98,16 @@
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
 
-        // Supabase Config
-        const SUPABASE_URL = 'https://gxgjlxgmqgcqlesdebzw.supabase.co';
-        const SUPABASE_KEY = 'sb_publishable_zslUYT9DWZTJuhvQ_Uc3ZQ_MszDy0ar';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        // Supabase Config - wait for library to load
+        let supabase = null;
+        const initSupabase = () => {
+            if (!supabase && window.supabase) {
+                const SUPABASE_URL = 'https://gxgjlxgmqgcqlesdebzw.supabase.co';
+                const SUPABASE_KEY = 'sb_publishable_zslUYT9DWZTJuhvQ_Uc3ZQ_MszDy0ar';
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            }
+            return supabase;
+        };
 
         const UFCApp = () => {
             const [player1Name, setPlayer1Name] = useState('Papá');
@@ -127,36 +133,39 @@
             useEffect(() => {
                 const loadData = async () => {
                     try {
-                        // Subscribe a predicciones
-                        const predSub = supabase
-                            .from('predictions')
-                            .on('*', payload => {
-                                if (mountedRef.current) {
-                                    loadPredictions();
-                                }
-                            })
-                            .subscribe();
+                        const sb = initSupabase();
+                        if (!sb) {
+                            console.error('Supabase not loaded yet');
+                            return;
+                        }
 
-                        // Subscribe a resultados
-                        const resSub = supabase
-                            .from('results')
-                            .on('*', payload => {
-                                if (mountedRef.current) {
-                                    loadResults();
-                                }
-                            })
-                            .subscribe();
-
+                        // Load initial data
                         await loadPredictions();
                         await loadResults();
                         setConnected(true);
 
+                        // Subscribe to changes
+                        const channel = sb.channel('changes');
+
+                        channel.on(
+                            'postgres_changes',
+                            { event: '*', schema: 'public', table: 'predictions' },
+                            () => loadPredictions()
+                        );
+
+                        channel.on(
+                            'postgres_changes',
+                            { event: '*', schema: 'public', table: 'results' },
+                            () => loadResults()
+                        );
+
+                        channel.subscribe();
+
                         return () => {
-                            predSub.unsubscribe();
-                            resSub.unsubscribe();
+                            channel.unsubscribe();
                         };
                     } catch (err) {
-                        console.error('Error:', err);
+                        console.error('Error in loadData:', err);
                     }
                 };
 
@@ -165,7 +174,9 @@
 
             const loadPredictions = async () => {
                 try {
-                    const { data } = await supabase.from('predictions').select('*');
+                    const sb = initSupabase();
+                    const { data, error } = await sb.from('predictions').select('*');
+                    if (error) throw error;
                     if (data && mountedRef.current) {
                         const grouped = {};
                         data.forEach(pred => {
@@ -182,7 +193,9 @@
 
             const loadResults = async () => {
                 try {
-                    const { data } = await supabase.from('results').select('*');
+                    const sb = initSupabase();
+                    const { data, error } = await sb.from('results').select('*');
+                    if (error) throw error;
                     if (data && mountedRef.current) {
                         const grouped = {};
                         data.forEach(res => {
@@ -198,12 +211,14 @@
 
             const updatePrediction = async (fightId, player, field, value) => {
                 try {
-                    await supabase.from('predictions').upsert({
+                    const sb = initSupabase();
+                    const { error } = await sb.from('predictions').upsert({
                         fight_id: fightId,
                         player: player,
                         field: field,
                         value: value
                     });
+                    if (error) throw error;
                 } catch (err) {
                     console.error('Error updating prediction:', err);
                 }
@@ -211,11 +226,13 @@
 
             const updateResult = async (fightId, field, value) => {
                 try {
-                    await supabase.from('results').upsert({
+                    const sb = initSupabase();
+                    const { error } = await sb.from('results').upsert({
                         fight_id: fightId,
                         field: field,
                         value: value
                     });
+                    if (error) throw error;
                 } catch (err) {
                     console.error('Error updating result:', err);
                 }
