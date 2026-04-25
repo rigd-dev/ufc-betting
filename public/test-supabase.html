@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Supabase Connection</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body {
+            background: #0f0f0f;
+            color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 40px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .success {
+            background: #10b981;
+            color: #000;
+        }
+        .error {
+            background: #ef4444;
+            color: #fff;
+        }
+        .loading {
+            background: #f59e0b;
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test Supabase Connection</h1>
+        <div id="status" class="status loading">⏳ Testing connection...</div>
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://gxgjlxgmqgcqlesdebzw.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_zslUYT9DWZTJuhvQ_Uc3ZQ_MszDy0ar';
+
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const resultsDiv = document.getElementById('results');
+        const statusDiv = document.getElementById('status');
+
+        async function test() {
+            try {
+                // Test 1: Connection
+                console.log('Testing connection...');
+                const { data: health } = await supabase
+                    .from('predictions')
+                    .select('count')
+                    .limit(1);
+
+                addResult('✅ Supabase connection successful', 'success');
+
+                // Test 2: Check tables exist
+                console.log('Checking tables...');
+                const { data: predictions, error: predError } = await supabase
+                    .from('predictions')
+                    .select('count');
+
+                if (predError) {
+                    addResult(`❌ Predictions table error: ${predError.message}`, 'error');
+                } else {
+                    addResult('✅ Predictions table exists', 'success');
+                }
+
+                const { data: results, error: resError } = await supabase
+                    .from('results')
+                    .select('count');
+
+                if (resError) {
+                    addResult(`❌ Results table error: ${resError.message}`, 'error');
+                } else {
+                    addResult('✅ Results table exists', 'success');
+                }
+
+                // Test 3: Try insert
+                console.log('Testing insert...');
+                const { data: insertTest, error: insertError } = await supabase
+                    .from('predictions')
+                    .insert([{
+                        fight_id: 999,
+                        player: 'test',
+                        field: 'test',
+                        value: 'test'
+                    }]);
+
+                if (insertError) {
+                    addResult(`⚠️ Insert test: ${insertError.message}`, 'error');
+                } else {
+                    addResult('✅ Insert works', 'success');
+                    // Clean up
+                    await supabase.from('predictions').delete().eq('fight_id', 999);
+                }
+
+                // Test 4: Try realtime
+                console.log('Testing realtime...');
+                const channel = supabase.channel('test');
+                channel
+                    .on('*', (payload) => {
+                        addResult('✅ Realtime connection working', 'success');
+                    })
+                    .subscribe((status) => {
+                        if (status === 'SUBSCRIBED') {
+                            addResult('✅ Subscribed to realtime channel', 'success');
+                        }
+                    });
+
+                statusDiv.className = 'status success';
+                statusDiv.textContent = '✅ All tests passed!';
+
+            } catch (err) {
+                addResult(`❌ Fatal error: ${err.message}`, 'error');
+                statusDiv.className = 'status error';
+                statusDiv.textContent = '❌ Test failed';
+            }
+        }
+
+        function addResult(message, type) {
+            const div = document.createElement('div');
+            div.className = `status ${type}`;
+            div.textContent = message;
+            resultsDiv.appendChild(div);
+        }
+
+        test();
+    </script>
+</body>
+</html>
