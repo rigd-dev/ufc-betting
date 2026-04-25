@@ -506,9 +506,7 @@
                                                     {Array.from({length: fight.round}, (_, i) => (
                                                         <option key={i+1} value={i+1}>Round {i+1}</option>
                                                     ))}
-                                                    {results[fight.id]?.method === 'Decisión' && (
-                                                        <option value="final">Decisión Final</option>
-                                                    )}
+                                                    <option value="final">Decisión Final</option>
                                                 </select>
                                             </div>
                                         </div>
@@ -554,9 +552,7 @@
                                                         {Array.from({length: fight.round}, (_, i) => (
                                                             <option key={i+1} value={i+1}>Round {i+1}</option>
                                                         ))}
-                                                        {predictions[fight.id]?.player1?.method === 'Decisión' && (
-                                                            <option value="final">Decisión Final</option>
-                                                        )}
+                                                        <option value="final">Decisión Final</option>
                                                     </select>
                                                 </div>
                                             </div>
@@ -603,9 +599,7 @@
                                                         {Array.from({length: fight.round}, (_, i) => (
                                                             <option key={i+1} value={i+1}>Round {i+1}</option>
                                                         ))}
-                                                        {predictions[fight.id]?.player2?.method === 'Decisión' && (
-                                                            <option value="final">Decisión Final</option>
-                                                        )}
+                                                        <option value="final">Decisión Final</option>
                                                     </select>
                                                 </div>
                                             </div>
