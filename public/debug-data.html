@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug - Ver y Limpiar Datos</title>
+    <style>
+        body {
+            background: #0f0f0f;
+            color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 { color: #fbbf24; }
+        .section {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid rgba(255,255,255,0.1);
+            text-align: left;
+        }
+        th {
+            background: rgba(251, 191, 36, 0.1);
+            color: #fbbf24;
+        }
+        button {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 10px 5px 10px 0;
+            font-weight: bold;
+        }
+        button:hover {
+            background: #dc2626;
+        }
+        .success {
+            background: #10b981;
+            color: black;
+        }
+        .success:hover {
+            background: #059669;
+        }
+        .loading {
+            color: #fbbf24;
+            font-weight: bold;
+        }
+        pre {
+            background: rgba(0,0,0,0.3);
+            padding: 10px;
+            border-radius: 6px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Debug - Ver y Limpiar Datos de Supabase</h1>
+
+        <div class="section">
+            <h2>Predicciones</h2>
+            <button class="success" onclick="loadPredictions()">📊 Cargar Predicciones</button>
+            <button onclick="clearAllPredictions()">🗑️ LIMPIAR TODAS</button>
+            <div id="predictions-container"></div>
+        </div>
+
+        <div class="section">
+            <h2>Resultados</h2>
+            <button class="success" onclick="loadResults()">📊 Cargar Resultados</button>
+            <button onclick="clearAllResults()">🗑️ LIMPIAR TODOS</button>
+            <div id="results-container"></div>
+        </div>
+
+        <div class="section">
+            <h2>Acciones</h2>
+            <button onclick="clearEverything()" style="background: #8b5cf6;">💥 LIMPIAR TODO (Predicciones + Resultados)</button>
+            <button class="success" onclick="window.location.href='/index.html'">← Volver a la App</button>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://gxgjlxgmqgcqlesdebzw.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_zslUYT9DWZTJuhvQ_Uc3ZQ_MszDy0ar';
+
+        async function loadPredictions() {
+            const container = document.getElementById('predictions-container');
+            container.innerHTML = '<p class="loading">Cargando...</p>';
+
+            try {
+                const res = await fetch(`${SUPABASE_URL}/rest/v1/predictions`, {
+                    headers: {
+                        'apikey': SUPABASE_KEY,
+                        'Authorization': `Bearer ${SUPABASE_KEY}`
+                    }
+                });
+                const data = await res.json();
+
+                if (data.length === 0) {
+                    container.innerHTML = '<p>✅ No hay predicciones (base limpia)</p>';
+                    return;
+                }
+
+                let html = `<p>${data.length} predicciones encontradas</p>`;
+                html += '<table><thead><tr><th>Fight ID</th><th>Player</th><th>Field</th><th>Value</th><th>Acción</th></tr></thead><tbody>';
+                data.forEach(pred => {
+                    html += `<tr>
+                        <td>${pred.fight_id}</td>
+                        <td>${pred.player}</td>
+                        <td>${pred.field}</td>
+                        <td>${pred.value}</td>
+                        <td><button onclick="deletePrediction(${pred.id})" style="background:#ef4444; padding: 5px 10px; font-size: 0.9rem;">Borrar</button></td>
+                    </tr>`;
+                });
+                html += '</tbody></table>';
+                container.innerHTML = html;
+            } catch (err) {
+                container.innerHTML = `<p style="color: #ef4444;">Error: ${err.message}</p>`;
+            }
+        }
+
+        async function loadResults() {
+            const container = document.getElementById('results-container');
+            container.innerHTML = '<p class="loading">Cargando...</p>';
+
+            try {
+                const res = await fetch(`${SUPABASE_URL}/rest/v1/results`, {
+                    headers: {
+                        'apikey': SUPABASE_KEY,
+                        'Authorization': `Bearer ${SUPABASE_KEY}`
+                    }
+                });
+                const data = await res.json();
+
+                if (data.length === 0) {
+                    container.innerHTML = '<p>✅ No hay resultados (base limpia)</p>';
+                    return;
+                }
+
+                let html = `<p>${data.length} resultados encontrados</p>`;
+                html += '<table><thead><tr><th>Fight ID</th><th>Field</th><th>Value</th><th>Acción</th></tr></thead><tbody>';
+                data.forEach(res => {
+                    html += `<tr>
+                        <td>${res.fight_id}</td>
+                        <td>${res.field}</td>
+                        <td>${res.value}</td>
+                        <td><button onclick="deleteResult(${res.id})" style="background:#ef4444; padding: 5px 10px; font-size: 0.9rem;">Borrar</button></td>
+                    </tr>`;
+                });
+                html += '</tbody></table>';
+                container.innerHTML = html;
+            } catch (err) {
+                container.innerHTML = `<p style="color: #ef4444;">Error: ${err.message}</p>`;
+            }
+        }
+
+        async function deletePrediction(id) {
+            if (!confirm('¿Borrar esta predicción?')) return;
+            try {
+                await fetch(`${SUPABASE_URL}/rest/v1/predictions?id=eq.${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'apikey': SUPABASE_KEY,
+                        'Authorization': `Bearer ${SUPABASE_KEY}`
+                    }
+                });
+                loadPredictions();
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        }
+
+        async function deleteResult(id) {
+            if (!confirm('¿Borrar este resultado?')) return;
+            try {
+                await fetch(`${SUPABASE_URL}/rest/v1/results?id=eq.${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'apikey': SUPABASE_KEY,
+                        'Authorization': `Bearer ${SUPABASE_KEY}`
+                    }
+                });
+                loadResults();
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        }
+
+        async function clearAllPredictions() {
+            if (!confirm('⚠️ ¿SEGURO? Esto borrará TODAS las predicciones.')) return;
+            try {
+                await fetch(`${SUPABASE_URL}/rest/v1/predictions`, {
+                    method: 'DELETE',
+                    headers: {
+                        'apikey': SUPABASE_KEY,
+                        'Authorization': `Bearer ${SUPABASE_KEY}`
+                    }
+                });
+                alert('✅ Todas las predicciones fueron borradas');
+                loadPredictions();
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        }
+
+        async function clearAllResults() {
+            if (!confirm('⚠️ ¿SEGURO? Esto borrará TODOS los resultados.')) return;
+            try {
+                await fetch(`${SUPABASE_URL}/rest/v1/results`, {
+                    method: 'DELETE',
+                    headers: {
+                        'apikey': SUPABASE_KEY,
+                        'Authorization': `Bearer ${SUPABASE_KEY}`
+                    }
+                });
+                alert('✅ Todos los resultados fueron borrados');
+                loadResults();
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        }
+
+        async function clearEverything() {
+            if (!confirm('🚨 ¿REALMENTE? Esto borrará TODA la información. No hay vuelta atrás.')) return;
+            if (!confirm('Segunda confirmación: ¿Está SEGURO?')) return;
+
+            try {
+                await Promise.all([
+                    fetch(`${SUPABASE_URL}/rest/v1/predictions`, {
+                        method: 'DELETE',
+                        headers: {
+                            'apikey': SUPABASE_KEY,
+                            'Authorization': `Bearer ${SUPABASE_KEY}`
+                        }
+                    }),
+                    fetch(`${SUPABASE_URL}/rest/v1/results`, {
+                        method: 'DELETE',
+                        headers: {
+                            'apikey': SUPABASE_KEY,
+                            'Authorization': `Bearer ${SUPABASE_KEY}`
+                        }
+                    })
+                ]);
+                alert('✅ Base de datos completamente limpiada');
+                loadPredictions();
+                loadResults();
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        }
+
+        // Cargar al abrir
+        loadPredictions();
+        loadResults();
+    </script>
+</body>
+</html>
