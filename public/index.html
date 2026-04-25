@@ -15,19 +15,26 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             color: #fff;
         }
-        .fight-card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(20px);
-            border-radius: 16px;
+        .sticky-header {
+            position: sticky;
+            top: 0;
+            background: linear-gradient(135deg, #0f0f0f 0%, #1a1a2e 100%);
+            z-index: 50;
+            padding: 20px 0;
         }
-        .featured-fight {
-            border: 2px solid #fbbf24;
-            background: rgba(251, 191, 36, 0.08);
-            box-shadow: 0 0 30px rgba(251, 191, 36, 0.1);
+        .fight-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 2px solid rgba(100, 150, 255, 0.3);
+            border-radius: 12px;
+            margin: 20px 0;
+            padding: 20px;
+        }
+        .fight-card.with-result {
+            border-color: rgba(34, 197, 94, 0.5);
+            background: rgba(34, 197, 94, 0.05);
         }
         .score-display {
-            font-size: 3rem;
+            font-size: 2.5rem;
             font-weight: 900;
             background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
             -webkit-background-clip: text;
@@ -37,47 +44,47 @@
             background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
             color: #000;
             font-weight: bold;
-            padding: 8px 16px;
-            border-radius: 8px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.9rem;
         }
         input, select {
             background: rgba(255, 255, 255, 0.08);
             border: 1px solid rgba(255, 255, 255, 0.15);
             color: white;
             padding: 8px 12px;
-            border-radius: 8px;
+            border-radius: 6px;
+            font-size: 0.9rem;
         }
         input:focus, select:focus {
             outline: none;
             border-color: #fbbf24;
             background: rgba(255, 255, 255, 0.12);
         }
-        .header {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            padding: 40px;
-            border-radius: 16px;
-            text-align: center;
-            margin-bottom: 40px;
-        }
-        .sync-indicator {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            background: #10b981;
-            border-radius: 50%;
-            animation: pulse 2s infinite;
-            margin-right: 8px;
-        }
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-        .result-section {
-            background: rgba(34, 197, 94, 0.1);
-            border-left: 4px solid #22c55e;
-            padding: 12px;
+        .fighter-image {
+            width: 100%;
+            height: 150px;
+            background: rgba(100, 100, 255, 0.1);
             border-radius: 8px;
-            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            border: 2px solid rgba(100, 150, 255, 0.3);
+        }
+        .result-badge {
+            background: rgba(34, 197, 94, 0.2);
+            border: 2px solid #22c55e;
+            color: #86efac;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        .divider {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(100, 150, 255, 0.3), transparent);
+            margin: 30px 0;
         }
     </style>
 </head>
@@ -87,7 +94,6 @@
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
 
-        // Supabase REST API config
         const SUPABASE_URL = 'https://gxgjlxgmqgcqlesdebzw.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_zslUYT9DWZTJuhvQ_Uc3ZQ_MszDy0ar';
 
@@ -146,26 +152,25 @@
         };
 
         const UFCApp = () => {
-            const [player1Name, setPlayer1Name] = useState('Papá');
-            const [player2Name, setPlayer2Name] = useState('Raúl');
             const [predictions, setPredictions] = useState({});
             const [results, setResults] = useState({});
             const [connected, setConnected] = useState(false);
-            const pollIntervalRef = useRef(null);
 
-            const fights = [
-                { id: 1, fighter1: 'Marcus Almeida', fighter2: 'Ryan Spann', weight: 'Peso Semipesado', round: 3, featured: false },
-                { id: 2, fighter1: 'Montel Jackson', fighter2: 'Raoni Barcelos', weight: 'Peso Gallo', round: 3, featured: false },
-                { id: 3, fighter1: 'Adrian Luna Martinetti', fighter2: 'Davey Grant', weight: 'Peso Gallo', round: 3, featured: false },
-                { id: 4, fighter1: 'Rafa Garcia', fighter2: 'Alexander Hernandez', weight: 'Peso Ligero', round: 3, featured: false },
-                { id: 5, fighter1: 'Norma Dumont', fighter2: 'Joselyne Edwards', weight: 'Peso Pluma Femenil', round: 3, featured: false },
-                { id: 6, fighter1: 'Aljamain Sterling', fighter2: 'Youssef Zalal', weight: 'Peso Pluma', round: 5, featured: true },
-                { id: 7, fighter1: 'Talita Alencar', fighter2: 'Julia Polastri', weight: 'Strawweight', round: 3, featured: false },
-                { id: 8, fighter1: 'Max Griffin', fighter2: 'Victor Valenzuela', weight: 'Welterweight', round: 3, featured: false },
-                { id: 9, fighter1: 'Mayra Bueno Silva', fighter2: 'Michelle Montague', weight: "Women's Bantamweight", round: 3, featured: false },
+            const allFights = [
+                // PRELIMINARES
+                { id: 7, fighter1: 'Talita Alencar', fighter2: 'Julia Polastri', weight: 'Strawweight', round: 3, featured: false, emoji1: '🥊', emoji2: '🥊' },
+                { id: 8, fighter1: 'Max Griffin', fighter2: 'Victor Valenzuela', weight: 'Welterweight', round: 3, featured: false, emoji1: '🥊', emoji2: '🥊' },
+                { id: 9, fighter1: 'Mayra Bueno Silva', fighter2: 'Michelle Montague', weight: "Women's Bantamweight", round: 3, featured: false, emoji1: '👩‍🦰', emoji2: '👩‍🦰' },
+                // MAIN CARD
+                { id: 1, fighter1: 'Marcus Almeida', fighter2: 'Ryan Spann', weight: 'Peso Semipesado', round: 3, featured: false, emoji1: '🇧🇷', emoji2: '🇺🇸' },
+                { id: 2, fighter1: 'Montel Jackson', fighter2: 'Raoni Barcelos', weight: 'Peso Gallo', round: 3, featured: false, emoji1: '🇺🇸', emoji2: '🇧🇷' },
+                { id: 3, fighter1: 'Adrian Luna Martinetti', fighter2: 'Davey Grant', weight: 'Peso Gallo', round: 3, featured: false, emoji1: '🇪🇸', emoji2: '🇬🇧' },
+                { id: 4, fighter1: 'Rafa Garcia', fighter2: 'Alexander Hernandez', weight: 'Peso Ligero', round: 3, featured: false, emoji1: '🇪🇸', emoji2: '🇺🇸' },
+                { id: 5, fighter1: 'Norma Dumont', fighter2: 'Joselyne Edwards', weight: 'Peso Pluma Femenil', round: 3, featured: false, emoji1: '🇧🇷', emoji2: '🇮🇱' },
+                { id: 6, fighter1: 'Aljamain Sterling', fighter2: 'Youssef Zalal', weight: 'Peso Pluma', round: 5, featured: true, emoji1: '🇺🇸', emoji2: '🇨🇦' },
             ];
 
-            // Load data and poll for updates
+            // Cargar datos
             useEffect(() => {
                 const loadData = async () => {
                     try {
@@ -174,7 +179,6 @@
                             api.getResults()
                         ]);
 
-                        // Process predictions
                         const groupedPreds = {};
                         preds.forEach(pred => {
                             if (!groupedPreds[pred.fight_id]) groupedPreds[pred.fight_id] = {};
@@ -183,7 +187,6 @@
                         });
                         setPredictions(groupedPreds);
 
-                        // Process results
                         const groupedRes = {};
                         ress.forEach(res => {
                             if (!groupedRes[res.fight_id]) groupedRes[res.fight_id] = {};
@@ -194,46 +197,36 @@
                         setConnected(true);
                     } catch (err) {
                         console.error('Error loading data:', err);
-                        setConnected(false);
                     }
                 };
 
                 loadData();
-
-                // Poll every 2 seconds for real-time feel
-                pollIntervalRef.current = setInterval(loadData, 2000);
-
-                return () => {
-                    if (pollIntervalRef.current) {
-                        clearInterval(pollIntervalRef.current);
-                    }
-                };
+                const interval = setInterval(loadData, 2000);
+                return () => clearInterval(interval);
             }, []);
 
             const updatePrediction = async (fightId, player, field, value) => {
                 try {
                     await api.savePrediction(fightId, player, field, value);
-                    // Update local state
                     const newPreds = { ...predictions };
                     if (!newPreds[fightId]) newPreds[fightId] = {};
                     if (!newPreds[fightId][player]) newPreds[fightId][player] = {};
                     newPreds[fightId][player][field] = value;
                     setPredictions(newPreds);
                 } catch (err) {
-                    console.error('Error saving prediction:', err);
+                    console.error('Error:', err);
                 }
             };
 
             const updateResult = async (fightId, field, value) => {
                 try {
                     await api.saveResult(fightId, field, value);
-                    // Update local state
                     const newRes = { ...results };
                     if (!newRes[fightId]) newRes[fightId] = {};
                     newRes[fightId][field] = value;
                     setResults(newRes);
                 } catch (err) {
-                    console.error('Error saving result:', err);
+                    console.error('Error:', err);
                 }
             };
 
@@ -248,14 +241,14 @@
                 if (pred.method === result.method) points += 2;
                 if (parseInt(pred.round) === parseInt(result.round)) points += 1;
 
-                const fight = fights.find(f => f.id === fightId);
+                const fight = allFights.find(f => f.id === fightId);
                 if (fight?.featured) return points * 2;
                 return points;
             };
 
             const getTotalScore = (player) => {
                 let total = 0;
-                fights.forEach(fight => {
+                allFights.forEach(fight => {
                     total += calculatePoints(fight.id, player);
                 });
                 return total;
@@ -264,183 +257,237 @@
             const getResultText = (fightId) => {
                 const result = results[fightId];
                 if (!result?.winner) return null;
-                return `${result.winner} por ${result.method} - Round ${result.round}`;
+                return `${result.winner} - ${result.method}${result.round && result.round !== 'final' ? ` (R${result.round})` : ' (Final)'}`;
             };
+
+            // Ordenar peleas: sin resultado primero, con resultado al final
+            const sortedFights = [...allFights].sort((a, b) => {
+                const aHasResult = !!getResultText(a.id);
+                const bHasResult = !!getResultText(b.id);
+                return aHasResult - bHasResult;
+            });
 
             return (
                 <div className="min-h-screen text-white pb-20">
-                    <div className="max-w-6xl mx-auto px-4 py-8">
-                        <div className="header mb-12">
-                            <div className="flex items-center justify-center mb-4">
-                                <span className="sync-indicator"></span>
-                                <span className="text-sm text-green-300">
-                                    {connected ? 'Sincronizado en vivo ✓' : 'Conectando...'}
-                                </span>
+                    {/* STICKY HEADER CON MARCADOR */}
+                    <div className="sticky-header">
+                        <div className="max-w-7xl mx-auto px-4">
+                            <div className="text-center mb-6">
+                                <h1 className="text-4xl font-black mb-1">🥊 UFC VEGAS 116</h1>
+                                <p className="text-lg text-yellow-300">Sterling vs Zalal</p>
                             </div>
-                            <h1 className="text-5xl font-black mb-2">🥊 UFC VEGAS 116</h1>
-                            <p className="text-2xl text-yellow-300 mb-4">Sterling vs Zalal</p>
-                            <p className="text-gray-300">El que gana más puntos... ¡paga las hamburguesas! 🍔</p>
-                        </div>
 
-                        <div className="grid grid-cols-2 gap-6 mb-12">
-                            <div className="fight-card p-8 text-center border-l-4 border-blue-500">
-                                <h2 className="text-3xl font-bold mb-4">{player1Name}</h2>
-                                <div className="score-display">{getTotalScore('player1')}</div>
-                                <p className="text-gray-400 mt-2">puntos</p>
-                            </div>
-                            <div className="fight-card p-8 text-center border-l-4 border-red-500">
-                                <h2 className="text-3xl font-bold mb-4">{player2Name}</h2>
-                                <div className="score-display">{getTotalScore('player2')}</div>
-                                <p className="text-gray-400 mt-2">puntos</p>
+                            {/* RESULTADO OFICIAL */}
+                            <div className="bg-gradient-to-r from-purple-900 to-blue-900 p-4 rounded-lg mb-6 text-center">
+                                <p className="text-sm text-gray-300 mb-2">RESULTADO OFICIAL</p>
+                                <div className="flex justify-around items-center">
+                                    <div>
+                                        <p className="text-2xl font-bold">Papá</p>
+                                        <div className="score-display text-4xl">{getTotalScore('player1')}</div>
+                                        <div className="text-sm text-gray-400 mt-1">puntos</div>
+                                    </div>
+                                    <div className="text-3xl text-gray-400">vs</div>
+                                    <div>
+                                        <p className="text-2xl font-bold">Hijo</p>
+                                        <div className="score-display text-4xl">{getTotalScore('player2')}</div>
+                                        <div className="text-sm text-gray-400 mt-1">puntos</div>
+                                    </div>
+                                </div>
+                                <p className="text-xs text-gray-400 mt-4">🟢 {connected ? 'Sincronizado en vivo' : 'Conectando...'}</p>
                             </div>
                         </div>
+                    </div>
 
-                        <div className="space-y-6">
-                            {fights.map((fight) => (
-                                <div key={fight.id} className={`fight-card p-8 ${fight.featured ? 'featured-fight' : ''}`}>
+                    {/* PELEAS */}
+                    <div className="max-w-7xl mx-auto px-4">
+                        {sortedFights.map((fight, idx) => (
+                            <div key={fight.id}>
+                                <div className={`fight-card ${getResultText(fight.id) ? 'with-result' : ''}`}>
                                     {fight.featured && (
-                                        <div className="bg-gradient-to-r from-yellow-500 to-orange-500 text-black px-4 py-2 rounded-full text-sm font-bold mb-6 inline-block">
+                                        <div className="bg-gradient-to-r from-yellow-500 to-orange-500 text-black px-4 py-2 rounded-full text-sm font-bold mb-4 inline-block">
                                             ⭐ PELEA ESTELAR (2x PUNTOS)
                                         </div>
                                     )}
 
-                                    <div className="mb-8">
-                                        <div className="flex items-center justify-between">
-                                            <div>
-                                                <h3 className="text-xl font-bold mb-2">{fight.fighter1}</h3>
-                                                <p className="text-sm text-gray-400">{fight.weight}</p>
-                                            </div>
-                                            <div className="text-center">
-                                                <p className="text-gray-500 text-sm">vs</p>
-                                            </div>
-                                            <div className="text-right">
-                                                <h3 className="text-xl font-bold mb-2">{fight.fighter2}</h3>
-                                                <p className="text-sm text-gray-400">{fight.round} Rounds</p>
-                                            </div>
+                                    {/* HEADER CON NOMBRES */}
+                                    <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-700">
+                                        <div className="text-center flex-1">
+                                            <p className="text-xl font-bold">{fight.fighter1}</p>
+                                            <p className="text-sm text-gray-400">{fight.weight}</p>
+                                        </div>
+                                        <div className="px-6 text-center">
+                                            <p className="text-gray-500">vs</p>
+                                            <p className="text-sm text-gray-500">{fight.round} Rounds</p>
+                                        </div>
+                                        <div className="text-center flex-1">
+                                            <p className="text-xl font-bold">{fight.fighter2}</p>
                                         </div>
                                     </div>
 
-                                    <div className={`${getResultText(fight.id) ? 'bg-green-500/10 border-green-500' : 'bg-orange-500/10 border-orange-500'} border-l-4 p-4 rounded mb-6`}>
+                                    {/* RESULTADO INGRESADO */}
+                                    {getResultText(fight.id) && (
+                                        <div className="mb-6 p-4 bg-green-900/20 border-l-4 border-green-500 rounded">
+                                            <p className="text-green-300 font-bold">✓ {getResultText(fight.id)}</p>
+                                        </div>
+                                    )}
+
+                                    {/* SECCIÓN PARA INGRESAR RESULTADO */}
+                                    <div className={`p-4 rounded mb-6 border-l-4 ${getResultText(fight.id) ? 'bg-green-900/10 border-green-500' : 'bg-orange-900/10 border-orange-500'}`}>
                                         <h4 className={`font-bold mb-3 ${getResultText(fight.id) ? 'text-green-300' : 'text-orange-300'}`}>
-                                            {getResultText(fight.id) ? '✓ Resultado (puedes cambiar)' : 'Ingresar Resultado'}
+                                            {getResultText(fight.id) ? 'Puedes cambiar el resultado' : 'Ingresar Resultado'}
                                         </h4>
                                         <div className="grid grid-cols-3 gap-3">
-                                            <select
-                                                value={results[fight.id]?.winner || ''}
-                                                onChange={(e) => updateResult(fight.id, 'winner', e.target.value)}
-                                                className="w-full"
-                                            >
-                                                <option value="">Ganador</option>
-                                                <option value={fight.fighter1}>{fight.fighter1}</option>
-                                                <option value={fight.fighter2}>{fight.fighter2}</option>
-                                            </select>
-                                            <select
-                                                value={results[fight.id]?.method || ''}
-                                                onChange={(e) => updateResult(fight.id, 'method', e.target.value)}
-                                                className="w-full"
-                                            >
-                                                <option value="">Método</option>
-                                                <option value="Decisión">Decisión</option>
-                                                <option value="Sumisión">Sumisión</option>
-                                                <option value="KO/TKO">KO/TKO</option>
-                                            </select>
-                                            <select
-                                                value={results[fight.id]?.round || ''}
-                                                onChange={(e) => updateResult(fight.id, 'round', e.target.value)}
-                                                className="w-full"
-                                            >
-                                                <option value="">Round</option>
-                                                {Array.from({length: fight.round}, (_, i) => (
-                                                    <option key={i+1} value={i+1}>Round {i+1}</option>
-                                                ))}
-                                            </select>
-                                        </div>
-                                    </div>
-
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                        <div className="bg-blue-500/10 border-l-4 border-blue-500 p-4 rounded">
-                                            <h4 className="font-bold text-blue-300 mb-4">{player1Name}</h4>
-                                            <div className="space-y-3">
+                                            <div>
+                                                <label className="text-xs text-gray-400 block mb-2">GANADOR</label>
                                                 <select
-                                                    value={predictions[fight.id]?.player1?.winner || ''}
-                                                    onChange={(e) => updatePrediction(fight.id, 'player1', 'winner', e.target.value)}
-                                                    className="w-full"
+                                                    value={results[fight.id]?.winner || ''}
+                                                    onChange={(e) => updateResult(fight.id, 'winner', e.target.value)}
                                                 >
-                                                    <option value="">Ganador</option>
+                                                    <option value="">Selecciona...</option>
                                                     <option value={fight.fighter1}>{fight.fighter1}</option>
                                                     <option value={fight.fighter2}>{fight.fighter2}</option>
+                                                    <option value="Empate">Empate</option>
                                                 </select>
+                                            </div>
+                                            <div>
+                                                <label className="text-xs text-gray-400 block mb-2">MÉTODO</label>
                                                 <select
-                                                    value={predictions[fight.id]?.player1?.method || ''}
-                                                    onChange={(e) => updatePrediction(fight.id, 'player1', 'method', e.target.value)}
-                                                    className="w-full"
+                                                    value={results[fight.id]?.method || ''}
+                                                    onChange={(e) => updateResult(fight.id, 'method', e.target.value)}
                                                 >
-                                                    <option value="">Método</option>
+                                                    <option value="">Selecciona...</option>
                                                     <option value="Decisión">Decisión</option>
-                                                    <option value="Sumisión">Sumisión</option>
                                                     <option value="KO/TKO">KO/TKO</option>
+                                                    <option value="Sumisión">Sumisión</option>
                                                 </select>
+                                            </div>
+                                            <div>
+                                                <label className="text-xs text-gray-400 block mb-2">ROUND</label>
                                                 <select
-                                                    value={predictions[fight.id]?.player1?.round || ''}
-                                                    onChange={(e) => updatePrediction(fight.id, 'player1', 'round', e.target.value)}
-                                                    className="w-full"
+                                                    value={results[fight.id]?.round || ''}
+                                                    onChange={(e) => updateResult(fight.id, 'round', e.target.value)}
                                                 >
-                                                    <option value="">Round</option>
+                                                    <option value="">Selecciona...</option>
                                                     {Array.from({length: fight.round}, (_, i) => (
                                                         <option key={i+1} value={i+1}>Round {i+1}</option>
                                                     ))}
+                                                    {results[fight.id]?.method === 'Decisión' && (
+                                                        <option value="final">Decisión Final</option>
+                                                    )}
                                                 </select>
                                             </div>
-                                            <div className="points-badge mt-4 text-center">
+                                        </div>
+                                    </div>
+
+                                    {/* PREDICCIONES */}
+                                    <div className="grid grid-cols-2 gap-6">
+                                        {/* PAPÁ */}
+                                        <div className="bg-blue-900/10 border-l-4 border-blue-500 p-4 rounded">
+                                            <h4 className="font-bold text-blue-300 mb-4">PAPÁ</h4>
+                                            <div className="space-y-3">
+                                                <div>
+                                                    <label className="text-xs text-gray-400 block mb-1">Ganador</label>
+                                                    <select
+                                                        value={predictions[fight.id]?.player1?.winner || ''}
+                                                        onChange={(e) => updatePrediction(fight.id, 'player1', 'winner', e.target.value)}
+                                                    >
+                                                        <option value="">Selecciona...</option>
+                                                        <option value={fight.fighter1}>{fight.fighter1}</option>
+                                                        <option value={fight.fighter2}>{fight.fighter2}</option>
+                                                        <option value="Empate">Empate</option>
+                                                    </select>
+                                                </div>
+                                                <div>
+                                                    <label className="text-xs text-gray-400 block mb-1">Método</label>
+                                                    <select
+                                                        value={predictions[fight.id]?.player1?.method || ''}
+                                                        onChange={(e) => updatePrediction(fight.id, 'player1', 'method', e.target.value)}
+                                                    >
+                                                        <option value="">Selecciona...</option>
+                                                        <option value="Decisión">Decisión</option>
+                                                        <option value="KO/TKO">KO/TKO</option>
+                                                        <option value="Sumisión">Sumisión</option>
+                                                    </select>
+                                                </div>
+                                                <div>
+                                                    <label className="text-xs text-gray-400 block mb-1">Round</label>
+                                                    <select
+                                                        value={predictions[fight.id]?.player1?.round || ''}
+                                                        onChange={(e) => updatePrediction(fight.id, 'player1', 'round', e.target.value)}
+                                                    >
+                                                        <option value="">Selecciona...</option>
+                                                        {Array.from({length: fight.round}, (_, i) => (
+                                                            <option key={i+1} value={i+1}>Round {i+1}</option>
+                                                        ))}
+                                                        {predictions[fight.id]?.player1?.method === 'Decisión' && (
+                                                            <option value="final">Decisión Final</option>
+                                                        )}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div className="points-badge mt-4 w-full text-center">
                                                 {calculatePoints(fight.id, 'player1')} {fight.featured ? '(×2)' : ''} pts
                                             </div>
                                         </div>
 
-                                        <div className="bg-red-500/10 border-l-4 border-red-500 p-4 rounded">
-                                            <h4 className="font-bold text-red-300 mb-4">{player2Name}</h4>
+                                        {/* HIJO */}
+                                        <div className="bg-red-900/10 border-l-4 border-red-500 p-4 rounded">
+                                            <h4 className="font-bold text-red-300 mb-4">HIJO</h4>
                                             <div className="space-y-3">
-                                                <select
-                                                    value={predictions[fight.id]?.player2?.winner || ''}
-                                                    onChange={(e) => updatePrediction(fight.id, 'player2', 'winner', e.target.value)}
-                                                    className="w-full"
-                                                >
-                                                    <option value="">Ganador</option>
-                                                    <option value={fight.fighter1}>{fight.fighter1}</option>
-                                                    <option value={fight.fighter2}>{fight.fighter2}</option>
-                                                </select>
-                                                <select
-                                                    value={predictions[fight.id]?.player2?.method || ''}
-                                                    onChange={(e) => updatePrediction(fight.id, 'player2', 'method', e.target.value)}
-                                                    className="w-full"
-                                                >
-                                                    <option value="">Método</option>
-                                                    <option value="Decisión">Decisión</option>
-                                                    <option value="Sumisión">Sumisión</option>
-                                                    <option value="KO/TKO">KO/TKO</option>
-                                                </select>
-                                                <select
-                                                    value={predictions[fight.id]?.player2?.round || ''}
-                                                    onChange={(e) => updatePrediction(fight.id, 'player2', 'round', e.target.value)}
-                                                    className="w-full"
-                                                >
-                                                    <option value="">Round</option>
-                                                    {Array.from({length: fight.round}, (_, i) => (
-                                                        <option key={i+1} value={i+1}>Round {i+1}</option>
-                                                    ))}
-                                                </select>
+                                                <div>
+                                                    <label className="text-xs text-gray-400 block mb-1">Ganador</label>
+                                                    <select
+                                                        value={predictions[fight.id]?.player2?.winner || ''}
+                                                        onChange={(e) => updatePrediction(fight.id, 'player2', 'winner', e.target.value)}
+                                                    >
+                                                        <option value="">Selecciona...</option>
+                                                        <option value={fight.fighter1}>{fight.fighter1}</option>
+                                                        <option value={fight.fighter2}>{fight.fighter2}</option>
+                                                        <option value="Empate">Empate</option>
+                                                    </select>
+                                                </div>
+                                                <div>
+                                                    <label className="text-xs text-gray-400 block mb-1">Método</label>
+                                                    <select
+                                                        value={predictions[fight.id]?.player2?.method || ''}
+                                                        onChange={(e) => updatePrediction(fight.id, 'player2', 'method', e.target.value)}
+                                                    >
+                                                        <option value="">Selecciona...</option>
+                                                        <option value="Decisión">Decisión</option>
+                                                        <option value="KO/TKO">KO/TKO</option>
+                                                        <option value="Sumisión">Sumisión</option>
+                                                    </select>
+                                                </div>
+                                                <div>
+                                                    <label className="text-xs text-gray-400 block mb-1">Round</label>
+                                                    <select
+                                                        value={predictions[fight.id]?.player2?.round || ''}
+                                                        onChange={(e) => updatePrediction(fight.id, 'player2', 'round', e.target.value)}
+                                                    >
+                                                        <option value="">Selecciona...</option>
+                                                        {Array.from({length: fight.round}, (_, i) => (
+                                                            <option key={i+1} value={i+1}>Round {i+1}</option>
+                                                        ))}
+                                                        {predictions[fight.id]?.player2?.method === 'Decisión' && (
+                                                            <option value="final">Decisión Final</option>
+                                                        )}
+                                                    </select>
+                                                </div>
                                             </div>
-                                            <div className="points-badge mt-4 text-center">
+                                            <div className="points-badge mt-4 w-full text-center">
                                                 {calculatePoints(fight.id, 'player2')} {fight.featured ? '(×2)' : ''} pts
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            ))}
-                        </div>
 
-                        <div className="mt-12 text-center text-gray-500 text-sm">
-                            <p>✨ Datos en tiempo real con Supabase ✨</p>
-                        </div>
+                                {idx < sortedFights.length - 1 && <div className="divider"></div>}
+                            </div>
+                        ))}
+                    </div>
+
+                    <div className="text-center text-gray-600 text-sm py-10">
+                        <p>✨ Apuestas de UFC con Supabase en tiempo real ✨</p>
                     </div>
                 </div>
             );
