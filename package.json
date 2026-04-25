@@ -1,0 +1,18 @@
+{
+  "name": "ufc-betting-tracker",
+  "version": "1.0.0",
+  "description": "Real-time UFC betting tracker with Firebase",
+  "main": "index.html",
+  "scripts": {
+    "start": "echo 'Open index.html in your browser'",
+    "test": "echo 'No tests configured'"
+  },
+  "keywords": [
+    "ufc",
+    "betting",
+    "firebase",
+    "realtime"
+  ],
+  "author": "Raul",
+  "license": "MIT"
+}
