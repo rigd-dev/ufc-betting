@@ -8,8 +8,6 @@
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/12.12.1/firebase-database.js"></script>
     <style>
         * { box-sizing: border-box; }
         body {
@@ -82,25 +80,9 @@
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
 
-        // CONFIGURAR FIREBASE
-        const firebaseConfig = {
-            apiKey: "AIzaSyCO_bzSR3Ux90W7zF0mK4LnFMBnGnrY-5c",
-            authDomain: "ufc-betting-b14a7.firebaseapp.com",
-            databaseURL: "https://ufc-betting-b14a7-default-rtdb.firebaseio.com",
-            projectId: "ufc-betting-b14a7",
-            storageBucket: "ufc-betting-b14a7.firebasestorage.app",
-            messagingSenderId: "896966195095",
-            appId: "1:896966195095:web:90be44bdef6cad43e7f6d2",
-            measurementId: "G-44VDXKQB3M"
-        };
-
-        const app = firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
-
         const UFCApp = () => {
             const [player1Name, setPlayer1Name] = useState('Papá');
             const [player2Name, setPlayer2Name] = useState('Raúl');
-            const [connected, setConnected] = useState(false);
             const [predictions, setPredictions] = useState({});
             const mountedRef = useRef(true);
 
@@ -113,25 +95,25 @@
                 { id: 6, fighter1: 'Aljamain Sterling', fighter2: 'Youssef Zalal', weight: 'Peso Pluma', round: '5', featured: true },
             ];
 
-            // Cargar datos de Firebase
+            // Cargar datos de localStorage
             useEffect(() => {
-                const reference = database.ref('predictions');
-                reference.on('value', (snapshot) => {
-                    if (mountedRef.current) {
-                        const data = snapshot.val() || {};
-                        setPredictions(data);
-                        setConnected(true);
+                const saved = localStorage.getItem('ufc-predictions');
+                if (saved) {
+                    try {
+                        setPredictions(JSON.parse(saved));
+                    } catch (e) {
+                        console.error('Error loading predictions:', e);
                     }
-                });
-
-                return () => {
-                    reference.off();
-                };
+                }
             }, []);
 
             const updatePrediction = (fightId, player, field, value) => {
-                const path = `predictions/${fightId}/${player}/${field}`;
-                database.ref(path).set(value);
+                const newPredictions = { ...predictions };
+                if (!newPredictions[fightId]) newPredictions[fightId] = {};
+                if (!newPredictions[fightId][player]) newPredictions[fightId][player] = {};
+                newPredictions[fightId][player][field] = value;
+                setPredictions(newPredictions);
+                localStorage.setItem('ufc-predictions', JSON.stringify(newPredictions));
             };
 
             const calculatePoints = (fightId, player) => {
@@ -139,6 +121,9 @@
                 if (!pred || !pred.winner) return 0;
 
                 let points = 0;
+                if (pred.method) points += 2;
+                if (pred.round) points += 1;
+
                 const fight = fights.find(f => f.id === fightId);
                 if (fight?.featured) {
                     return points * 2;
@@ -161,7 +146,7 @@
                         <div className="header mb-12">
                             <div className="flex items-center justify-center mb-4">
                                 <span className="sync-indicator"></span>
-                                <span className="text-sm text-green-300">Sincronizado en vivo {connected ? '✓' : '...'}</span>
+                                <span className="text-sm text-green-300">Datos guardados localmente ✓</span>
                             </div>
                             <h1 className="text-5xl font-black mb-2">🥊 UFC VEGAS 116</h1>
                             <p className="text-2xl text-yellow-300 mb-4">Sterling vs Zalal</p>
@@ -330,7 +315,7 @@
 
                         {/* Footer */}
                         <div className="mt-12 text-center text-gray-500 text-sm">
-                            <p>✨ Sincronización en vivo con Firebase - Los cambios se ven al instante ✨</p>
+                            <p>✨ Los datos se guardan automáticamente en tu navegador ✨</p>
                         </div>
                     </div>
                 </div>
