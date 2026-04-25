@@ -324,37 +324,36 @@
                                         <h4 className={`font-bold mb-3 ${getResultText(fight.id) ? 'text-green-300' : 'text-orange-300'}`}>
                                             {getResultText(fight.id) ? '✓ Resultado (puedes cambiar)' : 'Ingresar Resultado'}
                                         </h4>
-                                            <div className="grid grid-cols-3 gap-3">
-                                                <select
-                                                    value={results[fight.id]?.winner || ''}
-                                                    onChange={(e) => updateResult(fight.id, 'winner', e.target.value)}
-                                                    className="w-full"
-                                                >
-                                                    <option value="">Ganador</option>
-                                                    <option value={fight.fighter1}>{fight.fighter1}</option>
-                                                    <option value={fight.fighter2}>{fight.fighter2}</option>
-                                                </select>
-                                                <select
-                                                    value={results[fight.id]?.method || ''}
-                                                    onChange={(e) => updateResult(fight.id, 'method', e.target.value)}
-                                                    className="w-full"
-                                                >
-                                                    <option value="">Método</option>
-                                                    <option value="Decisión">Decisión</option>
-                                                    <option value="Sumisión">Sumisión</option>
-                                                    <option value="KO/TKO">KO/TKO</option>
-                                                </select>
-                                                <select
-                                                    value={results[fight.id]?.round || ''}
-                                                    onChange={(e) => updateResult(fight.id, 'round', e.target.value)}
-                                                    className="w-full"
-                                                >
-                                                    <option value="">Round</option>
-                                                    {Array.from({length: fight.round}, (_, i) => (
-                                                        <option key={i+1} value={i+1}>Round {i+1}</option>
-                                                    ))}
-                                                </select>
-                                            </div>
+                                        <div className="grid grid-cols-3 gap-3">
+                                            <select
+                                                value={results[fight.id]?.winner || ''}
+                                                onChange={(e) => updateResult(fight.id, 'winner', e.target.value)}
+                                                className="w-full"
+                                            >
+                                                <option value="">Ganador</option>
+                                                <option value={fight.fighter1}>{fight.fighter1}</option>
+                                                <option value={fight.fighter2}>{fight.fighter2}</option>
+                                            </select>
+                                            <select
+                                                value={results[fight.id]?.method || ''}
+                                                onChange={(e) => updateResult(fight.id, 'method', e.target.value)}
+                                                className="w-full"
+                                            >
+                                                <option value="">Método</option>
+                                                <option value="Decisión">Decisión</option>
+                                                <option value="Sumisión">Sumisión</option>
+                                                <option value="KO/TKO">KO/TKO</option>
+                                            </select>
+                                            <select
+                                                value={results[fight.id]?.round || ''}
+                                                onChange={(e) => updateResult(fight.id, 'round', e.target.value)}
+                                                className="w-full"
+                                            >
+                                                <option value="">Round</option>
+                                                {Array.from({length: fight.round}, (_, i) => (
+                                                    <option key={i+1} value={i+1}>Round {i+1}</option>
+                                                ))}
+                                            </select>
                                         </div>
                                     </div>
 
