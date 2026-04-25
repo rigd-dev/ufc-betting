@@ -20,7 +20,21 @@
             top: 0;
             background: linear-gradient(135deg, #0f0f0f 0%, #1a1a2e 100%);
             z-index: 50;
-            padding: 20px 0;
+            padding: 8px 0;
+        }
+        .refresh-btn {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            color: #000;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .refresh-btn:hover {
+            transform: scale(1.05);
         }
         .fight-card {
             background: rgba(255, 255, 255, 0.02);
@@ -155,6 +169,8 @@
             const [predictions, setPredictions] = useState({});
             const [results, setResults] = useState({});
             const [connected, setConnected] = useState(false);
+            const lastUpdateRef = useRef(0);
+            const scrollRef = useRef(0);
 
             const allFights = [
                 // PRELIMINARES
@@ -173,6 +189,10 @@
             // Cargar datos
             useEffect(() => {
                 const loadData = async () => {
+                    const now = Date.now();
+                    if (now - lastUpdateRef.current < 1000) return; // No actualizar más de una vez por segundo
+                    lastUpdateRef.current = now;
+
                     try {
                         const [preds, ress] = await Promise.all([
                             api.getPredictions(),
@@ -185,7 +205,18 @@
                             if (!groupedPreds[pred.fight_id][pred.player]) groupedPreds[pred.fight_id][pred.player] = {};
                             groupedPreds[pred.fight_id][pred.player][pred.field] = pred.value;
                         });
-                        setPredictions(groupedPreds);
+                        setPredictions(prev => {
+                            // Merge new data with existing to prevent losing local changes
+                            const merged = JSON.parse(JSON.stringify(prev));
+                            Object.keys(groupedPreds).forEach(fightId => {
+                                if (!merged[fightId]) merged[fightId] = {};
+                                Object.keys(groupedPreds[fightId]).forEach(player => {
+                                    if (!merged[fightId][player]) merged[fightId][player] = {};
+                                    Object.assign(merged[fightId][player], groupedPreds[fightId][player]);
+                                });
+                            });
+                            return merged;
+                        });
 
                         const groupedRes = {};
                         ress.forEach(res => {
@@ -201,18 +232,20 @@
                 };
 
                 loadData();
-                const interval = setInterval(loadData, 2000);
+                const interval = setInterval(loadData, 3000); // Increased to 3 seconds
                 return () => clearInterval(interval);
             }, []);
 
             const updatePrediction = async (fightId, player, field, value) => {
                 try {
+                    scrollRef.current = window.scrollY;
                     await api.savePrediction(fightId, player, field, value);
                     const newPreds = { ...predictions };
                     if (!newPreds[fightId]) newPreds[fightId] = {};
                     if (!newPreds[fightId][player]) newPreds[fightId][player] = {};
                     newPreds[fightId][player][field] = value;
                     setPredictions(newPreds);
+                    setTimeout(() => window.scrollTo(0, scrollRef.current), 0);
                 } catch (err) {
                     console.error('Error:', err);
                 }
@@ -220,11 +253,13 @@
 
             const updateResult = async (fightId, field, value) => {
                 try {
+                    scrollRef.current = window.scrollY;
                     await api.saveResult(fightId, field, value);
                     const newRes = { ...results };
                     if (!newRes[fightId]) newRes[fightId] = {};
                     newRes[fightId][field] = value;
                     setResults(newRes);
+                    setTimeout(() => window.scrollTo(0, scrollRef.current), 0);
                 } catch (err) {
                     console.error('Error:', err);
                 }
@@ -272,28 +307,31 @@
                     {/* STICKY HEADER CON MARCADOR */}
                     <div className="sticky-header">
                         <div className="max-w-7xl mx-auto px-4">
-                            <div className="text-center mb-6">
-                                <h1 className="text-4xl font-black mb-1">🥊 UFC VEGAS 116</h1>
-                                <p className="text-lg text-yellow-300">Sterling vs Zalal</p>
+                            <div className="text-center mb-2">
+                                <h1 className="text-xl font-black mb-0">🥊 UFC VEGAS 116</h1>
+                                <p className="text-xs text-yellow-300">Sterling vs Zalal</p>
                             </div>
 
                             {/* RESULTADO OFICIAL */}
-                            <div className="bg-gradient-to-r from-purple-900 to-blue-900 p-4 rounded-lg mb-6 text-center">
-                                <p className="text-sm text-gray-300 mb-2">RESULTADO OFICIAL</p>
+                            <div className="bg-gradient-to-r from-purple-900 to-blue-900 p-3 rounded-lg text-center">
+                                <p className="text-xs text-gray-300 mb-1">RESULTADO</p>
                                 <div className="flex justify-around items-center">
                                     <div>
-                                        <p className="text-2xl font-bold">Papá</p>
-                                        <div className="score-display text-4xl">{getTotalScore('player1')}</div>
-                                        <div className="text-sm text-gray-400 mt-1">puntos</div>
+                                        <p className="text-sm font-bold">Papá</p>
+                                        <div className="score-display text-2xl">{getTotalScore('player1')}</div>
+                                        <div className="text-xs text-gray-400">pts</div>
                                     </div>
-                                    <div className="text-3xl text-gray-400">vs</div>
+                                    <div className="text-xl text-gray-400">vs</div>
                                     <div>
-                                        <p className="text-2xl font-bold">Hijo</p>
-                                        <div className="score-display text-4xl">{getTotalScore('player2')}</div>
-                                        <div className="text-sm text-gray-400 mt-1">puntos</div>
+                                        <p className="text-sm font-bold">Hijo</p>
+                                        <div className="score-display text-2xl">{getTotalScore('player2')}</div>
+                                        <div className="text-xs text-gray-400">pts</div>
                                     </div>
                                 </div>
-                                <p className="text-xs text-gray-400 mt-4">🟢 {connected ? 'Sincronizado en vivo' : 'Conectando...'}</p>
+                                <div className="flex justify-center items-center gap-3 mt-2">
+                                    <p className="text-xs text-gray-400">🟢 {connected ? 'Sincronizado' : 'Conectando...'}</p>
+                                    <button className="refresh-btn" onClick={() => window.location.reload()}>🔄 Refresh</button>
+                                </div>
                             </div>
                         </div>
                     </div>
