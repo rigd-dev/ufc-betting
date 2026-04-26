@@ -162,6 +162,30 @@
                 });
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
                 return res.json();
+            },
+
+            async clearAllPredictions() {
+                const res = await fetch(`${SUPABASE_URL}/rest/v1/predictions`, {
+                    method: 'DELETE',
+                    headers: {
+                        'apikey': SUPABASE_KEY,
+                        'Authorization': `Bearer ${SUPABASE_KEY}`
+                    }
+                });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                return res.json();
+            },
+
+            async clearAllResults() {
+                const res = await fetch(`${SUPABASE_URL}/rest/v1/results`, {
+                    method: 'DELETE',
+                    headers: {
+                        'apikey': SUPABASE_KEY,
+                        'Authorization': `Bearer ${SUPABASE_KEY}`
+                    }
+                });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                return res.json();
             }
         };
 
@@ -292,14 +316,21 @@
 
             const updatePrediction = async (fightId, player, field, value) => {
                 try {
+                    // Optimistic update - cambio local primero para que sea instantáneo
                     scrollRef.current = window.scrollY;
-                    await api.savePrediction(fightId, player, field, value);
                     const newPreds = { ...predictions };
                     if (!newPreds[fightId]) newPreds[fightId] = {};
                     if (!newPreds[fightId][player]) newPreds[fightId][player] = {};
                     newPreds[fightId][player][field] = value;
                     setPredictions(newPreds);
                     setTimeout(() => window.scrollTo(0, scrollRef.current), 0);
+
+                    // Guardar en API sin bloquear la UI
+                    api.savePrediction(fightId, player, field, value).catch(err => {
+                        console.error('Error guardando:', err);
+                        // Si falla, revertir el cambio
+                        setPredictions(predictions);
+                    });
                 } catch (err) {
                     console.error('Error:', err);
                 }
@@ -307,15 +338,48 @@
 
             const updateResult = async (fightId, field, value) => {
                 try {
+                    // Optimistic update - cambio local primero para que sea instantáneo
                     scrollRef.current = window.scrollY;
-                    await api.saveResult(fightId, field, value);
                     const newRes = { ...results };
                     if (!newRes[fightId]) newRes[fightId] = {};
                     newRes[fightId][field] = value;
                     setResults(newRes);
                     setTimeout(() => window.scrollTo(0, scrollRef.current), 0);
+
+                    // Guardar en API sin bloquear la UI
+                    api.saveResult(fightId, field, value).catch(err => {
+                        console.error('Error guardando:', err);
+                        // Si falla, revertir el cambio
+                        setResults(results);
+                    });
                 } catch (err) {
                     console.error('Error:', err);
+                }
+            };
+
+            const clearAll = async () => {
+                if (!window.confirm('¿Borrar TODAS las predicciones y resultados? ⚠️')) return;
+
+                try {
+                    // Borrar de Supabase primero
+                    try {
+                        await Promise.all([
+                            api.clearAllPredictions(),
+                            api.clearAllResults()
+                        ]);
+                    } catch (err) {
+                        console.warn('Error borrando de Supabase:', err);
+                    }
+
+                    // Limpiar estado local (esto siempre funciona)
+                    setPredictions({});
+                    setResults({});
+
+                    // Forzar reload para sincronizar
+                    setTimeout(() => window.location.reload(), 500);
+                } catch (err) {
+                    console.error('Error limpiando:', err);
+                    window.location.reload();
                 }
             };
 
@@ -327,7 +391,7 @@
 
                 let points = 0;
                 if (pred.winner === result.winner) points += 1;
-                if (pred.method === result.method) points += 2;
+                if (pred.method === result.method) points += 1;
                 if (parseInt(pred.round) === parseInt(result.round)) points += 1;
 
                 const fight = allFights.find(f => f.id === fightId);
@@ -384,7 +448,7 @@
                                 </div>
                                 <div className="flex justify-center items-center gap-3 mt-2">
                                     <p className="text-xs text-gray-400">🟢 {connected ? 'Sincronizado' : 'Conectando...'}</p>
-                                    <button className="refresh-btn" onClick={() => window.location.reload()}>🔄 Refresh</button>
+                                    <button className="refresh-btn" onClick={clearAll}>🔄 Reset</button>
                                 </div>
                             </div>
                         </div>
