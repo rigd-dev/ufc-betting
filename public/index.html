@@ -455,7 +455,10 @@
                 let points = 0;
                 if (pred.winner === result.winner) points += 1;
                 if (pred.method === result.method) points += 1;
-                if (parseInt(pred.round) === parseInt(result.round)) points += 1;
+                // Handle both numeric rounds and "final" (Decisión Final)
+                if (pred.round === result.round || (pred.round && result.round && parseInt(pred.round) === parseInt(result.round))) {
+                    points += 1;
+                }
 
                 const fight = allFights.find(f => f.id === fightId);
                 if (fight?.featured) return points * 2;
