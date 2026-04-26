@@ -220,6 +220,33 @@
                     });
                 }
                 return res_list;
+            },
+
+            async saveConfirmed(fight_id) {
+                // Delete any existing confirmed record, then save new one
+                try {
+                    await fetch(`${SUPABASE_URL}/rest/v1/results?fight_id=eq.${fight_id}&field=eq.confirmed`, {
+                        method: 'DELETE',
+                        headers: {
+                            'apikey': SUPABASE_KEY,
+                            'Authorization': `Bearer ${SUPABASE_KEY}`
+                        }
+                    });
+                } catch (e) {
+                    console.log('Delete confirmed attempt:', e);
+                }
+
+                const res = await fetch(`${SUPABASE_URL}/rest/v1/results`, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': SUPABASE_KEY,
+                        'Authorization': `Bearer ${SUPABASE_KEY}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ fight_id, field: 'confirmed', value: 'true' })
+                });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                return res.json();
             }
         };
 
@@ -319,12 +346,19 @@
                         console.log('[Initial Load] Predictions loaded:', groupedPreds);
 
                         const groupedRes = {};
+                        const confirmedFights = {};
                         ress.forEach(res => {
                             if (!groupedRes[res.fight_id]) groupedRes[res.fight_id] = {};
-                            groupedRes[res.fight_id][res.field] = res.value;
+                            if (res.field === 'confirmed') {
+                                confirmedFights[res.fight_id] = true;
+                            } else {
+                                groupedRes[res.fight_id][res.field] = res.value;
+                            }
                         });
                         setResults(groupedRes);
+                        setConfirmedResults(confirmedFights);
                         console.log('[Initial Load] Results loaded:', groupedRes);
+                        console.log('[Initial Load] Confirmed fights:', confirmedFights);
 
                         setConnected(true);
                     } catch (err) {
@@ -455,7 +489,12 @@
                     alert('⚠️ Completa Ganador, Método y Round antes de confirmar');
                     return;
                 }
+                // Update local state
                 setConfirmedResults({...confirmedResults, [fightId]: true});
+                // Save to Supabase
+                api.saveConfirmed(fightId).catch(err => {
+                    console.error('Error saving confirmed:', err);
+                });
             };
 
             return (
