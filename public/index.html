@@ -294,7 +294,7 @@
                         setPredictions(prev => {
                             // Si hay cambios recientes, no sobrescribir completamente
                             const timeSinceLastChange = now - lastLocalChangeRef.current;
-                            if (timeSinceLastChange < 5000) {
+                            if (timeSinceLastChange < 10000) {
                                 // Merge conservador: solo agregar lo que no existe
                                 const merged = JSON.parse(JSON.stringify(prev));
                                 Object.keys(groupedPreds).forEach(fightId => {
@@ -332,8 +332,10 @@
 
                         // Merge inteligente: solo actualizar si no hay cambios locales recientes
                         const timeSinceLastChange = now - lastLocalChangeRef.current;
+                        console.log(`[Poll] timeSinceLastChange=${timeSinceLastChange}ms, grace period=5000ms`);
                         setResults(prev => {
                             if (timeSinceLastChange < 5000) {
+                                console.log(`[Poll] Within grace period, conservative merge`);
                                 // Cambios recientes: no sobrescribir, solo mergear lo que no tenemos
                                 const merged = JSON.parse(JSON.stringify(prev));
                                 Object.keys(groupedRes).forEach(fightId => {
@@ -347,6 +349,7 @@
                                 });
                                 return merged;
                             }
+                            console.log(`[Poll] OUTSIDE grace period, doing full update from Supabase`, groupedRes);
                             return groupedRes;
                         });
 
@@ -368,7 +371,7 @@
 
                     // Optimistic update - cambio local primero para que sea instantáneo
                     scrollRef.current = window.scrollY;
-                    const newPreds = { ...predictions };
+                    const newPreds = JSON.parse(JSON.stringify(predictions));
                     if (!newPreds[fightId]) newPreds[fightId] = {};
                     if (!newPreds[fightId][player]) newPreds[fightId][player] = {};
                     newPreds[fightId][player][field] = value;
@@ -376,10 +379,11 @@
                     setTimeout(() => window.scrollTo(0, scrollRef.current), 0);
 
                     // Guardar en API sin bloquear la UI
-                    api.savePrediction(fightId, player, field, value).catch(err => {
-                        console.error('Error guardando:', err);
-                        // Si falla, revertir el cambio
-                        setPredictions(predictions);
+                    api.savePrediction(fightId, player, field, value).then(res => {
+                        console.log(`[API] savePrediction succeeded:`, res);
+                    }).catch(err => {
+                        console.error('[API] Error guardando predicción:', err);
+                        // No revertir - mantener el cambio local, el próximo sync intentará de nuevo
                     });
                 } catch (err) {
                     console.error('Error:', err);
@@ -389,21 +393,25 @@
             const updateResult = async (fightId, field, value) => {
                 try {
                     // Marcar que hubo cambio local
-                    lastLocalChangeRef.current = Date.now();
+                    const changeTime = Date.now();
+                    lastLocalChangeRef.current = changeTime;
+                    console.log(`[updateResult] ${fightId} ${field}=${value} at ${changeTime}`);
 
                     // Optimistic update - cambio local primero para que sea instantáneo
                     scrollRef.current = window.scrollY;
-                    const newRes = { ...results };
+                    const newRes = JSON.parse(JSON.stringify(results));
                     if (!newRes[fightId]) newRes[fightId] = {};
                     newRes[fightId][field] = value;
                     setResults(newRes);
+                    console.log(`[updateResult] Optimistic update done, state is now:`, newRes[fightId]);
                     setTimeout(() => window.scrollTo(0, scrollRef.current), 0);
 
                     // Guardar en API sin bloquear la UI
-                    api.saveResult(fightId, field, value).catch(err => {
-                        console.error('Error guardando:', err);
-                        // Si falla, revertir el cambio
-                        setResults(results);
+                    api.saveResult(fightId, field, value).then(res => {
+                        console.log(`[API] saveResult succeeded:`, res);
+                    }).catch(err => {
+                        console.error('[API] Error guardando resultado:', err);
+                        // No revertir - mantener el cambio local, el próximo sync intentará de nuevo
                     });
                 } catch (err) {
                     console.error('Error:', err);
