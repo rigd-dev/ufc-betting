@@ -1,5 +1,6 @@
 {
   "name": "ufc-betting-tracker",
+  "type": "module",
   "version": "1.0.0",
   "description": "Real-time UFC betting tracker with Firebase",
   "main": "index.html",

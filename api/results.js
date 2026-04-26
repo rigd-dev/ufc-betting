@@ -40,7 +40,7 @@ export default async function handler(req, res) {
 
   if (req.method === 'DELETE') {
     // Clear all results
-    const r = await fetch(`${SUPABASE_URL}/rest/v1/results?id=gt.0`, {
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/results`, {
       method: 'DELETE',
       headers: { ...headers(), 'Prefer': 'return=minimal' }
     });

@@ -40,7 +40,7 @@ export default async function handler(req, res) {
 
   if (req.method === 'DELETE') {
     // Clear all predictions
-    const r = await fetch(`${SUPABASE_URL}/rest/v1/predictions?id=gt.0`, {
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/predictions`, {
       method: 'DELETE',
       headers: { ...headers(), 'Prefer': 'return=minimal' }
     });
