@@ -608,42 +608,45 @@
                                     )}
 
                                     {/* SECCIÓN PARA INGRESAR RESULTADO */}
-                                    <div className={`p-4 rounded mb-6 border-l-4 ${confirmedResults[fight.id] ? 'bg-green-900/10 border-green-500' : 'bg-orange-900/10 border-orange-500'}`}>
-                                        <h4 className={`font-bold mb-3 ${confirmedResults[fight.id] ? 'text-green-300' : 'text-orange-300'}`}>
-                                            {confirmedResults[fight.id] ? '✓ Resultado Confirmado' : 'Ingresar Resultado'}
+                                    <div className={`p-5 rounded mb-6 border-l-4 ${confirmedResults[fight.id] ? 'bg-green-900/10 border-green-500' : 'bg-orange-900/10 border-orange-500'}`}>
+                                        <h4 className={`font-bold mb-4 text-sm ${confirmedResults[fight.id] ? 'text-green-300' : 'text-orange-300'}`}>
+                                            {confirmedResults[fight.id] ? '✓ Resultado Confirmado' : '📊 Ingresar Resultado'}
                                         </h4>
-                                        <div className="grid grid-cols-3 gap-3">
+                                        <div className="grid grid-cols-3 gap-4">
                                             <div>
-                                                <label className="text-xs text-gray-400 block mb-2">GANADOR</label>
+                                                <label className="text-xs text-gray-400 block mb-1 font-semibold tracking-wide">GANADOR</label>
                                                 <select
                                                     value={results[fight.id]?.winner || ''}
                                                     onChange={(e) => updateResult(fight.id, 'winner', e.target.value)}
+                                                    className="w-full text-sm"
                                                 >
                                                     <option value="">Selecciona...</option>
                                                     <option value={fight.fighter1}>{fight.fighter1}</option>
                                                     <option value={fight.fighter2}>{fight.fighter2}</option>
                                                     <option value="Empate">Empate</option>
                                                 </select>
-                                                {results[fight.id]?.winner && <p className="text-xs text-green-400 mt-1 font-bold">✓ {results[fight.id].winner}</p>}
+                                                {results[fight.id]?.winner && <p className="text-xs text-green-400 mt-2 font-bold">✓ {results[fight.id].winner}</p>}
                                             </div>
                                             <div>
-                                                <label className="text-xs text-gray-400 block mb-2">MÉTODO</label>
+                                                <label className="text-xs text-gray-400 block mb-1 font-semibold tracking-wide">MÉTODO</label>
                                                 <select
                                                     value={results[fight.id]?.method || ''}
                                                     onChange={(e) => updateResult(fight.id, 'method', e.target.value)}
+                                                    className="w-full text-sm"
                                                 >
                                                     <option value="">Selecciona...</option>
                                                     <option value="Decisión">Decisión</option>
                                                     <option value="KO/TKO">KO/TKO</option>
                                                     <option value="Sumisión">Sumisión</option>
                                                 </select>
-                                                {results[fight.id]?.method && <p className="text-xs text-green-400 mt-1 font-bold">✓ {results[fight.id].method}</p>}
+                                                {results[fight.id]?.method && <p className="text-xs text-green-400 mt-2 font-bold">✓ {results[fight.id].method}</p>}
                                             </div>
                                             <div>
-                                                <label className="text-xs text-gray-400 block mb-2">ROUND</label>
+                                                <label className="text-xs text-gray-400 block mb-1 font-semibold tracking-wide">ROUND</label>
                                                 <select
                                                     value={results[fight.id]?.round || ''}
                                                     onChange={(e) => updateResult(fight.id, 'round', e.target.value)}
+                                                    className="w-full text-sm"
                                                 >
                                                     <option value="">Selecciona...</option>
                                                     {Array.from({length: fight.round}, (_, i) => (
@@ -651,7 +654,7 @@
                                                     ))}
                                                     <option value="final">Decisión Final</option>
                                                 </select>
-                                                {results[fight.id]?.round && <p className="text-xs text-green-400 mt-1 font-bold">✓ R{results[fight.id].round}</p>}
+                                                {results[fight.id]?.round && <p className="text-xs text-green-400 mt-2 font-bold">✓ R{results[fight.id].round}</p>}
                                             </div>
                                         </div>
                                         <button
