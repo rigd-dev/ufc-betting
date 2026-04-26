@@ -326,9 +326,10 @@
                     // Guardar en API sin bloquear la UI
                     api.savePrediction(fightId, player, field, value).then(res => {
                         console.log(`[API] savePrediction succeeded:`, res);
+                        alert(`✓ Guardado: ${field} = ${value}`);
                     }).catch(err => {
                         console.error('[API] Error guardando predicción:', err);
-                        // No revertir - mantener el cambio local, el próximo sync intentará de nuevo
+                        alert(`❌ Error guardando: ${err.message}`);
                     });
                 } catch (err) {
                     console.error('Error:', err);
@@ -354,9 +355,10 @@
                     // Guardar en API sin bloquear la UI
                     api.saveResult(fightId, field, value).then(res => {
                         console.log(`[API] saveResult succeeded:`, res);
+                        alert(`✓ Guardado: ${field} = ${value}`);
                     }).catch(err => {
                         console.error('[API] Error guardando resultado:', err);
-                        // No revertir - mantener el cambio local, el próximo sync intentará de nuevo
+                        alert(`❌ Error guardando: ${err.message}`);
                     });
                 } catch (err) {
                     console.error('Error:', err);
