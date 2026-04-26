@@ -165,7 +165,7 @@
             },
 
             async clearAllPredictions() {
-                const res = await fetch(`${SUPABASE_URL}/rest/v1/predictions`, {
+                const res = await fetch(`${SUPABASE_URL}/rest/v1/predictions?id=gt.-1`, {
                     method: 'DELETE',
                     headers: {
                         'apikey': SUPABASE_KEY,
@@ -177,7 +177,7 @@
             },
 
             async clearAllResults() {
-                const res = await fetch(`${SUPABASE_URL}/rest/v1/results`, {
+                const res = await fetch(`${SUPABASE_URL}/rest/v1/results?id=gt.-1`, {
                     method: 'DELETE',
                     headers: {
                         'apikey': SUPABASE_KEY,
@@ -358,28 +358,25 @@
             };
 
             const clearAll = async () => {
-                if (!window.confirm('¿Borrar TODAS las predicciones y resultados? ⚠️')) return;
+                if (!window.confirm('¿Borrar TODAS las predicciones y resultados en Supabase? ⚠️ NO se puede deshacer')) return;
 
                 try {
-                    // Borrar de Supabase primero
-                    try {
-                        await Promise.all([
-                            api.clearAllPredictions(),
-                            api.clearAllResults()
-                        ]);
-                    } catch (err) {
-                        console.warn('Error borrando de Supabase:', err);
-                    }
+                    // Borrar de Supabase - esto es definitivo
+                    const results = await Promise.all([
+                        api.clearAllPredictions(),
+                        api.clearAllResults()
+                    ]);
 
-                    // Limpiar estado local (esto siempre funciona)
+                    // Limpiar estado local
                     setPredictions({});
                     setResults({});
 
-                    // Forzar reload para sincronizar
-                    setTimeout(() => window.location.reload(), 500);
+                    alert('✓ TODO BORRADO DE SUPABASE. Volviste a cero.');
+                    // Recarga para sincronizar y confirmar
+                    setTimeout(() => window.location.reload(), 1000);
                 } catch (err) {
-                    console.error('Error limpiando:', err);
-                    window.location.reload();
+                    console.error('Error borrando:', err);
+                    alert('❌ Error: ' + err.message);
                 }
             };
 
