@@ -135,13 +135,27 @@
             },
 
             async savePrediction(fight_id, player, field, value) {
+                // Try DELETE then POST for clean upsert (avoids 409 conflicts)
+                try {
+                    // First delete any existing record
+                    await fetch(`${SUPABASE_URL}/rest/v1/predictions?fight_id=eq.${fight_id}&player=eq.${player}&field=eq.${field}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'apikey': SUPABASE_KEY,
+                            'Authorization': `Bearer ${SUPABASE_KEY}`
+                        }
+                    });
+                } catch (e) {
+                    console.log('Delete attempt:', e);
+                }
+
+                // Then insert the new value
                 const res = await fetch(`${SUPABASE_URL}/rest/v1/predictions`, {
                     method: 'POST',
                     headers: {
                         'apikey': SUPABASE_KEY,
                         'Authorization': `Bearer ${SUPABASE_KEY}`,
-                        'Content-Type': 'application/json',
-                        'Prefer': 'resolution=merge-duplicates'
+                        'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({ fight_id, player, field, value })
                 });
@@ -150,13 +164,27 @@
             },
 
             async saveResult(fight_id, field, value) {
+                // Try DELETE then POST for clean upsert (avoids 409 conflicts)
+                try {
+                    // First delete any existing record
+                    await fetch(`${SUPABASE_URL}/rest/v1/results?fight_id=eq.${fight_id}&field=eq.${field}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'apikey': SUPABASE_KEY,
+                            'Authorization': `Bearer ${SUPABASE_KEY}`
+                        }
+                    });
+                } catch (e) {
+                    console.log('Delete attempt:', e);
+                }
+
+                // Then insert the new value
                 const res = await fetch(`${SUPABASE_URL}/rest/v1/results`, {
                     method: 'POST',
                     headers: {
                         'apikey': SUPABASE_KEY,
                         'Authorization': `Bearer ${SUPABASE_KEY}`,
-                        'Content-Type': 'application/json',
-                        'Prefer': 'resolution=merge-duplicates'
+                        'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({ fight_id, field, value })
                 });
