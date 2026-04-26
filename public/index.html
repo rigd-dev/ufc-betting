@@ -292,7 +292,27 @@
                             groupedPreds[pred.fight_id][pred.player][pred.field] = pred.value;
                         });
                         setPredictions(prev => {
-                            // Merge new data with existing to prevent losing local changes
+                            // Si hay cambios recientes, no sobrescribir completamente
+                            const timeSinceLastChange = now - lastLocalChangeRef.current;
+                            if (timeSinceLastChange < 5000) {
+                                // Merge conservador: solo agregar lo que no existe
+                                const merged = JSON.parse(JSON.stringify(prev));
+                                Object.keys(groupedPreds).forEach(fightId => {
+                                    if (!merged[fightId]) merged[fightId] = {};
+                                    Object.keys(groupedPreds[fightId]).forEach(player => {
+                                        if (!merged[fightId][player]) merged[fightId][player] = {};
+                                        // Solo agregar campos que no existen
+                                        Object.keys(groupedPreds[fightId][player]).forEach(field => {
+                                            if (!merged[fightId][player][field]) {
+                                                merged[fightId][player][field] = groupedPreds[fightId][player][field];
+                                            }
+                                        });
+                                    });
+                                });
+                                return merged;
+                            }
+
+                            // Si no hay cambios recientes, hacer merge completo
                             const merged = JSON.parse(JSON.stringify(prev));
                             Object.keys(groupedPreds).forEach(fightId => {
                                 if (!merged[fightId]) merged[fightId] = {};
@@ -310,11 +330,25 @@
                             groupedRes[res.fight_id][res.field] = res.value;
                         });
 
-                        // No sobrescribir si hay cambios locales recientes (menos de 2 segundos)
+                        // Merge inteligente: solo actualizar si no hay cambios locales recientes
                         const timeSinceLastChange = now - lastLocalChangeRef.current;
-                        if (timeSinceLastChange > 2000) {
-                            setResults(groupedRes);
-                        }
+                        setResults(prev => {
+                            if (timeSinceLastChange < 5000) {
+                                // Cambios recientes: no sobrescribir, solo mergear lo que no tenemos
+                                const merged = JSON.parse(JSON.stringify(prev));
+                                Object.keys(groupedRes).forEach(fightId => {
+                                    if (!merged[fightId]) merged[fightId] = {};
+                                    // Solo actualizar campos que no existen localmente
+                                    Object.keys(groupedRes[fightId]).forEach(field => {
+                                        if (!merged[fightId][field]) {
+                                            merged[fightId][field] = groupedRes[fightId][field];
+                                        }
+                                    });
+                                });
+                                return merged;
+                            }
+                            return groupedRes;
+                        });
 
                         setConnected(true);
                     } catch (err) {
