@@ -272,13 +272,9 @@
                 },
             ];
 
-            // Cargar datos
+            // Cargar datos solo en el montaje - sin polling para evitar conflictos
             useEffect(() => {
                 const loadData = async () => {
-                    const now = Date.now();
-                    if (now - lastUpdateRef.current < 1000) return; // No actualizar más de una vez por segundo
-                    lastUpdateRef.current = now;
-
                     try {
                         const [preds, ress] = await Promise.all([
                             api.getPredictions(),
@@ -291,77 +287,26 @@
                             if (!groupedPreds[pred.fight_id][pred.player]) groupedPreds[pred.fight_id][pred.player] = {};
                             groupedPreds[pred.fight_id][pred.player][pred.field] = pred.value;
                         });
-                        setPredictions(prev => {
-                            // Si hay cambios recientes, no sobrescribir completamente
-                            const timeSinceLastChange = now - lastLocalChangeRef.current;
-                            if (timeSinceLastChange < 10000) {
-                                // Merge conservador: solo agregar lo que no existe
-                                const merged = JSON.parse(JSON.stringify(prev));
-                                Object.keys(groupedPreds).forEach(fightId => {
-                                    if (!merged[fightId]) merged[fightId] = {};
-                                    Object.keys(groupedPreds[fightId]).forEach(player => {
-                                        if (!merged[fightId][player]) merged[fightId][player] = {};
-                                        // Solo agregar campos que no existen
-                                        Object.keys(groupedPreds[fightId][player]).forEach(field => {
-                                            if (!merged[fightId][player][field]) {
-                                                merged[fightId][player][field] = groupedPreds[fightId][player][field];
-                                            }
-                                        });
-                                    });
-                                });
-                                return merged;
-                            }
-
-                            // Si no hay cambios recientes, hacer merge completo
-                            const merged = JSON.parse(JSON.stringify(prev));
-                            Object.keys(groupedPreds).forEach(fightId => {
-                                if (!merged[fightId]) merged[fightId] = {};
-                                Object.keys(groupedPreds[fightId]).forEach(player => {
-                                    if (!merged[fightId][player]) merged[fightId][player] = {};
-                                    Object.assign(merged[fightId][player], groupedPreds[fightId][player]);
-                                });
-                            });
-                            return merged;
-                        });
+                        setPredictions(groupedPreds);
+                        console.log('[Initial Load] Predictions loaded:', groupedPreds);
 
                         const groupedRes = {};
                         ress.forEach(res => {
                             if (!groupedRes[res.fight_id]) groupedRes[res.fight_id] = {};
                             groupedRes[res.fight_id][res.field] = res.value;
                         });
-
-                        // Merge inteligente: solo actualizar si no hay cambios locales recientes
-                        const timeSinceLastChange = now - lastLocalChangeRef.current;
-                        console.log(`[Poll] timeSinceLastChange=${timeSinceLastChange}ms, grace period=5000ms`);
-                        setResults(prev => {
-                            if (timeSinceLastChange < 5000) {
-                                console.log(`[Poll] Within grace period, conservative merge`);
-                                // Cambios recientes: no sobrescribir, solo mergear lo que no tenemos
-                                const merged = JSON.parse(JSON.stringify(prev));
-                                Object.keys(groupedRes).forEach(fightId => {
-                                    if (!merged[fightId]) merged[fightId] = {};
-                                    // Solo actualizar campos que no existen localmente
-                                    Object.keys(groupedRes[fightId]).forEach(field => {
-                                        if (!merged[fightId][field]) {
-                                            merged[fightId][field] = groupedRes[fightId][field];
-                                        }
-                                    });
-                                });
-                                return merged;
-                            }
-                            console.log(`[Poll] OUTSIDE grace period, doing full update from Supabase`, groupedRes);
-                            return groupedRes;
-                        });
+                        setResults(groupedRes);
+                        console.log('[Initial Load] Results loaded:', groupedRes);
 
                         setConnected(true);
                     } catch (err) {
                         console.error('Error loading data:', err);
+                        setConnected(false);
                     }
                 };
 
                 loadData();
-                const interval = setInterval(loadData, 3000); // Increased to 3 seconds
-                return () => clearInterval(interval);
+                // Load initial data once, no polling
             }, []);
 
             const updatePrediction = async (fightId, player, field, value) => {
