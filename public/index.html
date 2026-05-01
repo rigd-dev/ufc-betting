@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UFC Perth - Della Maddalena vs Prates - Betting Tracker</title>
+    <title>UFC Perth - Della Maddalena vs Prates</title>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -21,20 +21,13 @@
                     colors: {
                         cream: '#F6F5F0',
                         charcoal: '#1A1A1A',
-                        charcoalLight: '#333333',
                         secondary: '#666666',
-                        accentWarm1: '#FF7A00',
-                        accentWarm2: '#FFBA08',
-                        accentCool1: '#0052D4',
-                        accentCool2: '#4364F7',
+                        accentWarm: '#FF7A00',
+                        accentCool: '#0052D4',
                     },
                     fontFamily: {
                         sans: ['Sora', 'sans-serif'],
                         serif: ['EB Garamond', 'serif'],
-                    },
-                    boxShadow: {
-                        'glass': '0 8px 32px 0 rgba(26, 26, 26, 0.05)',
-                        'glass-hover': '0 12px 40px 0 rgba(26, 26, 26, 0.08)',
                     }
                 }
             }
@@ -46,40 +39,29 @@
             background-color: #F6F5F0;
             color: #1A1A1A;
             -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
             background-image: 
                 radial-gradient(at 0% 0%, hsla(28,100%,74%,0.15) 0px, transparent 50%),
                 radial-gradient(at 100% 0%, hsla(217,100%,60%,0.1) 0px, transparent 50%);
             background-attachment: fixed;
         }
-
         .glass-panel {
-            background: rgba(255, 255, 255, 0.6);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            background: rgba(255, 255, 255, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.8);
-            border-radius: 16px;
+            border-radius: 20px;
             box-shadow: 0 8px 32px 0 rgba(26, 26, 26, 0.05);
             transition: all 0.3s ease;
         }
-        
-        .glass-panel:hover {
-            box-shadow: 0 12px 40px 0 rgba(26, 26, 26, 0.08);
-            transform: translateY(-2px);
-        }
-
         .sticky-header {
             position: sticky;
             top: 0;
-            z-index: 50;
-            background: rgba(246, 245, 240, 0.85);
+            z-index: 40;
+            background: rgba(246, 245, 240, 0.9);
             backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
             border-bottom: 1px solid rgba(26, 26, 26, 0.05);
             padding: 12px 0;
         }
-
-        /* Custom Select Styling */
         select {
             appearance: none;
             background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23666666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
@@ -87,34 +69,28 @@
             background-position: right 12px center;
             background-size: 16px;
         }
-
-        .score-number {
-            background: linear-gradient(135deg, #FF7A00 0%, #FFBA08 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        .score-warm { background: linear-gradient(135deg, #FF7A00, #FFBA08); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .score-cool { background: linear-gradient(135deg, #0052D4, #4364F7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        
+        .fighter-img-container {
+            position: relative;
+            background: linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(26,26,26,0.05) 100%);
+            overflow: hidden;
+            border: 2px solid #fff;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease;
+            cursor: pointer;
+        }
+        .fighter-img-container:hover {
+            transform: scale(1.05);
+            border-color: #1A1A1A;
         }
         
-        .score-number-cool {
-            background: linear-gradient(135deg, #0052D4 0%, #4364F7 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        
-        .btn-editorial {
-            background: #1A1A1A;
-            color: #F6F5F0;
-            border-radius: 8px;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            transition: all 0.2s;
-        }
-        .btn-editorial:hover {
-            background: #333333;
-            transform: translateY(-1px);
-        }
-        .btn-editorial:active {
-            transform: translateY(1px);
-        }
+        /* Modal Animation */
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .modal-overlay { animation: fadeIn 0.2s ease-out; }
+        .modal-content { animation: slideUp 0.3s ease-out; }
     </style>
 </head>
 <body>
@@ -124,57 +100,27 @@
         const { useState, useEffect, useRef } = React;
 
         const api = {
-            async getPredictions() {
-                const res = await fetch('/api/predictions');
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                return res.json();
-            },
-            async getResults() {
-                const res = await fetch('/api/results');
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                return res.json();
-            },
+            async getPredictions() { const r = await fetch('/api/predictions'); return r.json(); },
+            async getResults() { const r = await fetch('/api/results'); return r.json(); },
             async savePrediction(fight_id, player, field, value) {
-                const res = await fetch('/api/predictions', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ fight_id, player, field, value })
-                });
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                return res.json();
+                return fetch('/api/predictions', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({fight_id, player, field, value}) });
             },
             async saveResult(fight_id, field, value) {
-                const res = await fetch('/api/results', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ fight_id, field, value })
-                });
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                return res.json();
+                return fetch('/api/results', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({fight_id, field, value}) });
             },
-            async clearAllPredictions() {
-                const res = await fetch('/api/predictions', { method: 'DELETE' });
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                return res.json();
-            },
-            async clearAllResults() {
-                const res = await fetch('/api/results', { method: 'DELETE' });
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                return res.json();
+            async clearAll() {
+                await fetch('/api/predictions', { method: 'DELETE' });
+                await fetch('/api/results', { method: 'DELETE' });
             },
             async saveConfirmed(fight_id) {
-                const res = await fetch('/api/confirmed', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ fight_id })
-                });
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                return res.json();
+                return fetch('/api/confirmed', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({fight_id}) });
+            },
+            async unconfirm(fight_id) {
+                 return fetch(`/api/results?fight_id=${fight_id}&field=confirmed`, { method: 'DELETE' });
             },
             async fetchGeminiResults() {
-                const res = await fetch('/api/gemini-update', { method: 'POST' });
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                return res.json();
+                const r = await fetch('/api/gemini-update', { method: 'POST' });
+                return r.json();
             }
         };
 
@@ -182,552 +128,330 @@
             const [predictions, setPredictions] = useState({});
             const [results, setResults] = useState({});
             const [confirmedResults, setConfirmedResults] = useState({});
-            const [connected, setConnected] = useState(false);
             const [isAdmin, setIsAdmin] = useState(false);
             const [showLogin, setShowLogin] = useState(false);
             const [password, setPassword] = useState('');
-            const scrollRef = useRef(0);
-            const lastLocalChangeRef = useRef(0);
-
-            const getInitials = (name) => {
-                return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
-            };
+            const [modalFighter, setModalFighter] = useState(null);
 
             const allFights = [
                 {
-                    id: 1,
-                    fighter1: 'Jack Della Maddalena',
-                    fighter2: 'Carlos Prates',
-                    record1: '18-3-0',
-                    record2: '23-7-0',
-                    weight: 'Welterweight',
-                    round: 5,
-                    featured: true,
-                    image1: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-03/DELLA_MADDALENA_JACK_L_03-09.png',
-                    image2: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-08/PRATES_CARLOS_L_08-17.png'
+                    id: 1, round: 5, weight: 'Welterweight', featured: true,
+                    f1: { name: 'Jack Della Maddalena', rec: '18-3-0', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-03/DELLA_MADDALENA_JACK_L_03-09.png', style: 'Striker', specialty: 'Elite Boxing & Body Shots', recent: 'W-W-W-W-W' },
+                    f2: { name: 'Carlos Prates', rec: '23-7-0', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-08/PRATES_CARLOS_L_08-17.png', style: 'Muay Thai', specialty: 'Lethal Kicks & Precision', recent: 'W-W-W-W-W' }
                 },
                 {
-                    id: 2,
-                    fighter1: 'Tai Tuivasa',
-                    fighter2: 'Louie Sutherland',
-                    record1: '15-7-0',
-                    record2: '6-3-0',
-                    weight: 'Heavyweight',
-                    round: 3,
-                    featured: false,
-                    image1: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-03/TUIVASA_TAI_L_03-16.png',
-                    image2: ''
+                    id: 2, round: 3, weight: 'Heavyweight',
+                    f1: { name: 'Tai Tuivasa', rec: '15-7-0', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-03/TUIVASA_TAI_L_03-16.png', style: 'Brawler', specialty: 'KO Power & Hooks', recent: 'L-L-L-L-L' },
+                    f2: { name: 'Louie Sutherland', rec: '6-3-0', img: '', style: 'Striker', specialty: 'Aggressive Pressure', recent: 'W-L-W-L-W' }
                 },
                 {
-                    id: 3,
-                    fighter1: 'Beneil Dariush',
-                    fighter2: 'Quillan Salkilld',
-                    record1: '22-6-1',
-                    record2: '7-1-0',
-                    weight: 'Lightweight',
-                    round: 3,
-                    featured: false,
-                    image1: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2023-12/DARIUSH_BENEIL_L_12-02.png',
-                    image2: ''
+                    id: 3, round: 3, weight: 'Lightweight',
+                    f1: { name: 'Beneil Dariush', rec: '22-6-1', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2023-12/DARIUSH_BENEIL_L_12-02.png', style: 'BJJ Black Belt', specialty: 'Grappling & Heavy Hands', recent: 'L-L-W-W-W' },
+                    f2: { name: 'Quillan Salkilld', rec: '7-1-0', img: '', style: 'Mixed Martial Artist', specialty: 'Well-rounded', recent: 'W-W-W-W-W' }
                 },
                 {
-                    id: 4,
-                    fighter1: 'Tim Elliott',
-                    fighter2: 'Steve Erceg',
-                    record1: '20-13-1',
-                    record2: '12-3-0',
-                    weight: 'Flyweight',
-                    round: 3,
-                    featured: false,
-                    image1: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2023-12/ELLIOTT_TIM_L_12-09.png',
-                    image2: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-05/ERCEG_STEVE_L_05-04.png'
+                    id: 4, round: 3, weight: 'Flyweight',
+                    f1: { name: 'Tim Elliott', rec: '20-13-1', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2023-12/ELLIOTT_TIM_L_12-09.png', style: 'Wrestler', specialty: 'Unorthodox Scrambling', recent: 'W-L-W-L-W' },
+                    f2: { name: 'Steve Erceg', rec: '12-3-0', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-05/ERCEG_STEVE_L_05-04.png', style: 'Striker', specialty: 'Technical Boxing', recent: 'L-W-W-W-W' }
                 },
                 {
-                    id: 5,
-                    fighter1: 'Marwan Rahiki',
-                    fighter2: 'Ollie Schmid',
-                    record1: '9-2-0',
-                    record2: '7-1-0',
-                    weight: 'Featherweight',
-                    round: 3,
-                    featured: false,
-                    image1: '',
-                    image2: ''
+                    id: 5, round: 3, weight: 'Featherweight',
+                    f1: { name: 'Marwan Rahiki', rec: '9-2-0', img: '', style: 'Grappler', specialty: 'Submissions', recent: 'W-W-L-W-W' },
+                    f2: { name: 'Ollie Schmid', rec: '7-1-0', img: '', style: 'Striker', specialty: 'Kickboxing', recent: 'W-W-W-W-L' }
                 },
                 {
-                    id: 6,
-                    fighter1: 'Shamil Gaziev',
-                    fighter2: 'Brando Pericic',
-                    record1: '13-1-0',
-                    record2: '8-1-0',
-                    weight: 'Heavyweight',
-                    round: 3,
-                    featured: false,
-                    image1: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-03/GAZIEV_SHAMIL_L_03-02.png',
-                    image2: ''
-                },
+                    id: 6, round: 3, weight: 'Heavyweight',
+                    f1: { name: 'Shamil Gaziev', rec: '13-1-0', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-03/GAZIEV_SHAMIL_L_03-02.png', style: 'Wrestler', specialty: 'Ground and Pound', recent: 'W-L-W-W-W' },
+                    f2: { name: 'Brando Pericic', rec: '8-1-0', img: '', style: 'Striker', specialty: 'Knockout Power', recent: 'W-W-W-L-W' }
+                }
             ];
 
             useEffect(() => {
-                const loadData = async () => {
-                    try {
-                        const [preds, ress] = await Promise.all([
-                            api.getPredictions(),
-                            api.getResults()
-                        ]);
-
-                        const groupedPreds = {};
-                        preds.forEach(pred => {
-                            if (!groupedPreds[pred.fight_id]) groupedPreds[pred.fight_id] = {};
-                            if (!groupedPreds[pred.fight_id][pred.player]) groupedPreds[pred.fight_id][pred.player] = {};
-                            groupedPreds[pred.fight_id][pred.player][pred.field] = pred.value;
-                        });
-                        setPredictions(groupedPreds);
-
-                        const groupedRes = {};
-                        const confirmedFights = {};
-                        ress.forEach(res => {
-                            if (!groupedRes[res.fight_id]) groupedRes[res.fight_id] = {};
-                            if (res.field === 'confirmed') {
-                                confirmedFights[res.fight_id] = true;
-                            } else {
-                                groupedRes[res.fight_id][res.field] = res.value;
-                            }
-                        });
-                        setResults(groupedRes);
-                        setConfirmedResults(confirmedFights);
-                        setConnected(true);
-                    } catch (err) {
-                        console.error('Error loading data:', err);
-                        setConnected(false);
-                    }
+                const load = async () => {
+                    const [preds, ress] = await Promise.all([api.getPredictions(), api.getResults()]);
+                    const pMap = {}, rMap = {}, cMap = {};
+                    preds.forEach(p => { if(!pMap[p.fight_id]) pMap[p.fight_id]={}; if(!pMap[p.fight_id][p.player]) pMap[p.fight_id][p.player]={}; pMap[p.fight_id][p.player][p.field] = p.value; });
+                    ress.forEach(r => { if(!rMap[r.fight_id]) rMap[r.fight_id]={}; if(r.field==='confirmed') cMap[r.fight_id]=true; else rMap[r.fight_id][r.field] = r.value; });
+                    setPredictions(pMap); setResults(rMap); setConfirmedResults(cMap);
                 };
-
-                loadData();
+                load();
             }, []);
 
-            const updatePrediction = async (fightId, player, field, value) => {
-                try {
-                    lastLocalChangeRef.current = Date.now();
-                    scrollRef.current = window.scrollY;
-                    const newPreds = JSON.parse(JSON.stringify(predictions));
-                    if (!newPreds[fightId]) newPreds[fightId] = {};
-                    if (!newPreds[fightId][player]) newPreds[fightId][player] = {};
-                    newPreds[fightId][player][field] = value;
-                    setPredictions(newPreds);
-                    setTimeout(() => window.scrollTo(0, scrollRef.current), 0);
-
-                    api.savePrediction(fightId, player, field, value).catch(err => {
-                        console.error('[API] Error:', err);
-                    });
-                } catch (err) {
-                    console.error('Error:', err);
-                }
+            const handlePred = (id, pl, f, v) => {
+                setPredictions(prev => ({...prev, [id]: {...prev[id], [pl]: {...(prev[id]?.[pl]||{}), [f]: v}}}));
+                api.savePrediction(id, pl, f, v);
             };
 
-            const updateResult = async (fightId, field, value) => {
-                try {
-                    lastLocalChangeRef.current = Date.now();
-                    scrollRef.current = window.scrollY;
-                    const newRes = JSON.parse(JSON.stringify(results));
-                    if (!newRes[fightId]) newRes[fightId] = {};
-                    newRes[fightId][field] = value;
-                    setResults(newRes);
-                    setTimeout(() => window.scrollTo(0, scrollRef.current), 0);
-
-                    api.saveResult(fightId, field, value).catch(err => {
-                        console.error('[API] Error:', err);
-                    });
-                } catch (err) {
-                    console.error('Error:', err);
-                }
+            const handleRes = (id, f, v) => {
+                setResults(prev => ({...prev, [id]: {...(prev[id]||{}), [f]: v}}));
+                api.saveResult(id, f, v);
             };
 
-            const clearAll = async () => {
-                if (!window.confirm('¿Borrar TODAS las predicciones y resultados? NO se puede deshacer.')) return;
-                try {
-                    await Promise.all([api.clearAllPredictions(), api.clearAllResults()]);
-                    setPredictions({});
-                    setResults({});
-                    alert('✓ Todo borrado exitosamente.');
-                    setTimeout(() => window.location.reload(), 1000);
-                } catch (err) {
-                    alert('❌ Error: ' + err.message);
-                }
+            const calcPts = (id, pl) => {
+                const p = predictions[id]?.[pl], r = results[id];
+                if (!p?.winner || !r?.winner || !confirmedResults[id]) return 0;
+                let pts = 0;
+                if (p.winner === r.winner) pts += 1;
+                if (p.method === r.method) pts += 1;
+                if (p.round == r.round || (p.round === 'final' && r.round === 'final')) pts += 1;
+                return allFights.find(f => f.id === id)?.featured ? pts * 2 : pts;
             };
 
-            const calculatePoints = (fightId, player) => {
-                const pred = predictions[fightId]?.[player];
-                const result = results[fightId];
-
-                if (!pred || !pred.winner || !result || !result.winner) return 0;
-
-                let points = 0;
-                if (pred.winner === result.winner) points += 1;
-                if (pred.method === result.method) points += 1;
-                if (pred.round === result.round || (pred.round && result.round && parseInt(pred.round) === parseInt(result.round))) {
-                    points += 1;
-                }
-
-                const fight = allFights.find(f => f.id === fightId);
-                if (fight?.featured) return points * 2;
-                return points;
-            };
-
-            const getTotalScore = (player) => {
-                let total = 0;
-                allFights.forEach(fight => {
-                    total += calculatePoints(fight.id, player);
-                });
-                return total;
-            };
-
-            const getResultText = (fightId) => {
-                const result = results[fightId];
-                if (!result?.winner) return null;
-                return `${result.winner} — ${result.method}${result.round && result.round !== 'final' ? ` (R${result.round})` : ' (Dec)'}`;
-            };
-
-            const sortedFights = [...allFights].sort((a, b) => {
-                const aConfirmed = !!confirmedResults[a.id];
-                const bConfirmed = !!confirmedResults[b.id];
-                return aConfirmed - bConfirmed;
-            });
-
-            const confirmResult = (fightId) => {
-                const res = results[fightId];
-                if (!res?.winner || !res?.method || !res?.round) {
-                    alert('⚠️ Completa Ganador, Método y Round antes de confirmar');
-                    return;
-                }
-                setConfirmedResults({...confirmedResults, [fightId]: true});
-                api.saveConfirmed(fightId).catch(err => console.error(err));
-            };
+            const getSilhouette = (name) => `https://ui-avatars.com/api/?name=${name.replace(' ', '+')}&background=EAEAEA&color=1A1A1A&size=256&font-size=0.33&bold=true`;
 
             return (
-                <div className="min-h-screen font-sans pb-24 text-charcoal">
-                    {/* EDITORIAL HEADER */}
+                <div className="min-h-screen pb-24">
+                    {/* Header */}
                     <div className="sticky-header">
-                        <div className="max-w-5xl mx-auto px-4 md:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
-                            
-                            {/* TITLE & BADGE */}
-                            <div className="flex flex-col items-center md:items-start">
-                                <div className="flex items-center gap-2 mb-1">
-                                    <span className="bg-charcoal text-cream text-[10px] font-bold tracking-widest px-2 py-0.5 rounded-sm uppercase">Main Event</span>
-                                    <span className={`w-2 h-2 rounded-full ${connected ? 'bg-green-500' : 'bg-red-500'} animate-pulse`}></span>
-                                </div>
-                                <h1 className="text-2xl md:text-3xl font-black uppercase tracking-tight">UFC Perth</h1>
-                                <p className="font-serif italic text-secondary text-lg">Della Maddalena vs. Prates</p>
+                        <div className="max-w-4xl mx-auto px-4 flex justify-between items-center">
+                            <div>
+                                <h1 className="text-xl md:text-2xl font-black uppercase">UFC Perth</h1>
+                                <p className="font-serif italic text-secondary text-sm md:text-base">Maddalena vs. Prates</p>
                             </div>
-
-                            {/* SCOREBOARD */}
-                            <div className="flex items-center bg-white/40 backdrop-blur-md rounded-2xl p-2 px-6 border border-white/60 shadow-sm gap-8">
+                            <div className="flex gap-6 bg-white/50 px-4 py-2 rounded-xl border border-white">
                                 <div className="text-center">
-                                    <p className="text-[10px] font-bold uppercase tracking-widest text-secondary mb-1">Papá</p>
-                                    <div className="text-3xl font-black score-number leading-none">{getTotalScore('player1')}</div>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest">Papá</p>
+                                    <p className="text-2xl font-black score-warm leading-none">{allFights.reduce((acc, f) => acc + calcPts(f.id, 'player1'), 0)}</p>
                                 </div>
-                                <div className="h-8 w-px bg-charcoal/10"></div>
+                                <div className="w-px bg-charcoal/10"></div>
                                 <div className="text-center">
-                                    <p className="text-[10px] font-bold uppercase tracking-widest text-secondary mb-1">Hijo</p>
-                                    <div className="text-3xl font-black score-number-cool leading-none">{getTotalScore('player2')}</div>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest">Hijo</p>
+                                    <p className="text-2xl font-black score-cool leading-none">{allFights.reduce((acc, f) => acc + calcPts(f.id, 'player2'), 0)}</p>
                                 </div>
                             </div>
+                            <button onClick={() => setShowLogin(true)} className="hidden md:block text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-black/5">
+                                {isAdmin ? 'Admin ✅' : 'Admin'}
+                            </button>
+                        </div>
+                    </div>
 
-                            {/* ADMIN ACTIONS */}
-                            <div className="flex items-center gap-2">
-                                <button onClick={() => isAdmin ? clearAll() : setShowLogin(true)} className="text-xs font-semibold px-4 py-2 rounded-lg border border-charcoal/10 hover:bg-white/50 transition">
-                                    {isAdmin ? 'Reset Data' : 'Admin Login'}
-                                </button>
+                    {/* Mobile Admin Toggle */}
+                    <div className="md:hidden flex justify-center mt-4">
+                        <button onClick={() => setShowLogin(true)} className="text-xs font-semibold px-4 py-2 bg-white rounded-lg shadow-sm border border-charcoal/5">
+                            {isAdmin ? 'Modo Administrador Activo ✅' : 'Acceso Administrador'}
+                        </button>
+                    </div>
+
+                    {/* Main Content */}
+                    <div className="max-w-3xl mx-auto px-4 mt-8 space-y-12">
+                        {allFights.sort((a,b) => (confirmedResults[a.id]?1:0) - (confirmedResults[b.id]?1:0)).map(fight => (
+                            <div key={fight.id} className="glass-panel p-4 md:p-8">
+                                
+                                {/* Official Result Banner */}
+                                {confirmedResults[fight.id] && (
+                                    <div className="bg-green-50 border border-green-200 text-green-800 px-4 py-2 rounded-lg mb-6 flex justify-between items-center">
+                                        <span className="text-xs font-bold uppercase tracking-widest">Resultado Oficial</span>
+                                        <span className="font-serif italic text-sm">{results[fight.id]?.winner} • {results[fight.id]?.method} {results[fight.id]?.round !== 'final' ? `(R${results[fight.id]?.round})` : ''}</span>
+                                    </div>
+                                )}
+
+                                {/* FIGHTER DISPLAY */}
+                                <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-8">
+                                    {/* F1 */}
+                                    <div className="flex flex-col items-center w-full md:w-2/5" onClick={() => setModalFighter(fight.f1)}>
+                                        <div className="w-32 h-32 md:w-40 md:h-40 rounded-full fighter-img-container mb-3 flex-shrink-0">
+                                            <img src={fight.f1.img || getSilhouette(fight.f1.name)} alt={fight.f1.name} className="w-full h-full object-cover object-top" />
+                                        </div>
+                                        <h3 className="text-xl font-bold text-center leading-tight">{fight.f1.name}</h3>
+                                        <p className="text-accentWarm font-bold text-sm">{fight.f1.rec}</p>
+                                    </div>
+
+                                    {/* VS */}
+                                    <div className="flex flex-col items-center w-full md:w-1/5 py-4 md:py-0">
+                                        <span className="text-xs text-secondary uppercase tracking-widest font-bold mb-2">{fight.weight}</span>
+                                        <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center border border-charcoal/10 shadow-sm">
+                                            <span className="font-black text-charcoal">VS</span>
+                                        </div>
+                                        <span className="text-[10px] text-secondary mt-2 bg-white px-2 py-1 rounded">{fight.round} Rounds</span>
+                                    </div>
+
+                                    {/* F2 */}
+                                    <div className="flex flex-col items-center w-full md:w-2/5" onClick={() => setModalFighter(fight.f2)}>
+                                        <div className="w-32 h-32 md:w-40 md:h-40 rounded-full fighter-img-container mb-3 flex-shrink-0">
+                                            <img src={fight.f2.img || getSilhouette(fight.f2.name)} alt={fight.f2.name} className="w-full h-full object-cover object-top" />
+                                        </div>
+                                        <h3 className="text-xl font-bold text-center leading-tight">{fight.f2.name}</h3>
+                                        <p className="text-accentCool font-bold text-sm">{fight.f2.rec}</p>
+                                    </div>
+                                </div>
+
+                                {/* PREDICTIONS */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-white/40 p-4 rounded-xl border border-white">
+                                    {/* PAPA */}
+                                    <div>
+                                        <div className="flex justify-between items-center mb-2">
+                                            <span className="text-xs font-bold uppercase tracking-widest text-accentWarm">Papá</span>
+                                            {confirmedResults[fight.id] && <span className="text-xs font-bold bg-white px-2 py-0.5 rounded shadow-sm">+{calcPts(fight.id, 'player1')} pts</span>}
+                                        </div>
+                                        <div className="space-y-2">
+                                            <select className="w-full bg-white border border-charcoal/10 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-accentWarm/50"
+                                                    value={predictions[fight.id]?.player1?.winner || ''} onChange={e => handlePred(fight.id, 'player1', 'winner', e.target.value)}>
+                                                <option value="" disabled>Selecciona Ganador...</option>
+                                                <option value={fight.f1.name}>{fight.f1.name}</option>
+                                                <option value={fight.f2.name}>{fight.f2.name}</option>
+                                            </select>
+                                            <div className="flex gap-2">
+                                                <select className="w-1/2 bg-white border border-charcoal/10 rounded-lg px-3 py-2 text-sm" value={predictions[fight.id]?.player1?.method || ''} onChange={e => handlePred(fight.id, 'player1', 'method', e.target.value)}>
+                                                    <option value="" disabled>Método</option>
+                                                    <option value="Decisión">Decisión</option><option value="KO/TKO">KO</option><option value="Sumisión">Sumisión</option>
+                                                </select>
+                                                <select className="w-1/2 bg-white border border-charcoal/10 rounded-lg px-3 py-2 text-sm" value={predictions[fight.id]?.player1?.round || ''} onChange={e => handlePred(fight.id, 'player1', 'round', e.target.value)}>
+                                                    <option value="" disabled>Round</option>
+                                                    {Array.from({length: fight.round}, (_, i) => <option key={i+1} value={i+1}>R{i+1}</option>)}
+                                                    <option value="final">Final</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* HIJO */}
+                                    <div>
+                                        <div className="flex justify-between items-center mb-2">
+                                            <span className="text-xs font-bold uppercase tracking-widest text-accentCool">Hijo</span>
+                                            {confirmedResults[fight.id] && <span className="text-xs font-bold bg-white px-2 py-0.5 rounded shadow-sm">+{calcPts(fight.id, 'player2')} pts</span>}
+                                        </div>
+                                        <div className="space-y-2">
+                                            <select className="w-full bg-white border border-charcoal/10 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-accentCool/50"
+                                                    value={predictions[fight.id]?.player2?.winner || ''} onChange={e => handlePred(fight.id, 'player2', 'winner', e.target.value)}>
+                                                <option value="" disabled>Selecciona Ganador...</option>
+                                                <option value={fight.f1.name}>{fight.f1.name}</option>
+                                                <option value={fight.f2.name}>{fight.f2.name}</option>
+                                            </select>
+                                            <div className="flex gap-2">
+                                                <select className="w-1/2 bg-white border border-charcoal/10 rounded-lg px-3 py-2 text-sm" value={predictions[fight.id]?.player2?.method || ''} onChange={e => handlePred(fight.id, 'player2', 'method', e.target.value)}>
+                                                    <option value="" disabled>Método</option>
+                                                    <option value="Decisión">Decisión</option><option value="KO/TKO">KO</option><option value="Sumisión">Sumisión</option>
+                                                </select>
+                                                <select className="w-1/2 bg-white border border-charcoal/10 rounded-lg px-3 py-2 text-sm" value={predictions[fight.id]?.player2?.round || ''} onChange={e => handlePred(fight.id, 'player2', 'round', e.target.value)}>
+                                                    <option value="" disabled>Round</option>
+                                                    {Array.from({length: fight.round}, (_, i) => <option key={i+1} value={i+1}>R{i+1}</option>)}
+                                                    <option value="final">Final</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* ADMIN SECTION */}
                                 {isAdmin && (
-                                    <button 
-                                        className="btn-editorial px-4 py-2 text-xs flex items-center gap-2"
-                                        onClick={async () => {
-                                            if (window.confirm('Update results automatically with Gemini?')) {
-                                                try {
-                                                    const res = await api.fetchGeminiResults();
-                                                    alert('Success: ' + res.message);
-                                                    window.location.reload();
-                                                } catch (err) {
-                                                    alert('Error: ' + err.message);
-                                                }
-                                            }
-                                        }}
-                                    >
-                                        <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-                                        Auto Update
-                                    </button>
+                                    <div className="mt-6 pt-4 border-t border-charcoal/10">
+                                        <div className="flex flex-col md:flex-row items-center gap-3">
+                                            <span className="text-xs font-bold uppercase bg-charcoal text-white px-2 py-1 rounded">Admin</span>
+                                            
+                                            <select className="w-full md:w-auto flex-1 bg-white border border-charcoal/20 rounded-lg px-3 py-2 text-sm"
+                                                    value={results[fight.id]?.winner || ''} onChange={e => handleRes(fight.id, 'winner', e.target.value)} disabled={confirmedResults[fight.id]}>
+                                                <option value="">Oficial: Ganador...</option>
+                                                <option value={fight.f1.name}>{fight.f1.name}</option>
+                                                <option value={fight.f2.name}>{fight.f2.name}</option>
+                                            </select>
+                                            
+                                            <div className="flex w-full md:w-auto gap-3">
+                                                <select className="w-1/2 md:w-28 bg-white border border-charcoal/20 rounded-lg px-3 py-2 text-sm"
+                                                        value={results[fight.id]?.method || ''} onChange={e => handleRes(fight.id, 'method', e.target.value)} disabled={confirmedResults[fight.id]}>
+                                                    <option value="">Método</option>
+                                                    <option value="Decisión">Decisión</option><option value="KO/TKO">KO</option><option value="Sumisión">Sumisión</option>
+                                                </select>
+                                                <select className="w-1/2 md:w-24 bg-white border border-charcoal/20 rounded-lg px-3 py-2 text-sm"
+                                                        value={results[fight.id]?.round || ''} onChange={e => handleRes(fight.id, 'round', e.target.value)} disabled={confirmedResults[fight.id]}>
+                                                    <option value="">Rnd</option>
+                                                    {Array.from({length: fight.round}, (_, i) => <option key={i+1} value={i+1}>{i+1}</option>)}
+                                                    <option value="final">Final</option>
+                                                </select>
+                                            </div>
+
+                                            {confirmedResults[fight.id] ? (
+                                                <button onClick={() => { setConfirmedResults(p=>({...p,[fight.id]:false})); api.unconfirm(fight.id); }} className="w-full md:w-auto bg-gray-200 text-charcoal font-bold px-4 py-2 rounded-lg text-sm">Editar</button>
+                                            ) : (
+                                                <button onClick={() => { setConfirmedResults(p=>({...p,[fight.id]:true})); api.saveConfirmed(fight.id); }} className="w-full md:w-auto btn-editorial px-4 py-2 rounded-lg text-sm">Confirmar</button>
+                                            )}
+                                        </div>
+                                    </div>
                                 )}
                             </div>
-                        </div>
+                        ))}
                     </div>
 
-                    {/* MAIN CONTENT GRID */}
-                    <div className="max-w-5xl mx-auto px-4 md:px-8 mt-12">
-                        
-                        <h2 className="text-sm font-bold uppercase tracking-widest text-secondary mb-6 border-b border-charcoal/10 pb-2">Fight Card Predictions</h2>
-
-                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                            
-                            {/* LEFT COLUMN: FIGHTS */}
-                            <div className="lg:col-span-8 space-y-6">
-                                {sortedFights.map((fight, idx) => (
-                                    <div key={fight.id} className="glass-panel p-6 relative overflow-hidden">
-                                        
-                                        {/* Status Line */}
-                                        {confirmedResults[fight.id] && getResultText(fight.id) && (
-                                            <div className="absolute top-0 left-0 w-full bg-green-100 border-b border-green-200 px-6 py-2 flex items-center justify-between">
-                                                <span className="text-xs font-bold text-green-800 uppercase tracking-widest">Official Result</span>
-                                                <span className="text-sm font-serif italic text-green-900">{getResultText(fight.id)}</span>
-                                            </div>
-                                        )}
-
-                                        <div className={`mt-${confirmedResults[fight.id] ? '8' : '0'}`}>
-                                            
-                                            {/* FIGHTER VERSUS LAYOUT */}
-                                            <div className="flex items-center justify-between mb-8">
-                                                
-                                                {/* Fighter 1 */}
-                                                <div className="flex flex-col items-start w-2/5">
-                                                    <div className="flex items-center gap-4 mb-3">
-                                                        <div className="w-16 h-16 rounded-full bg-cream border-2 border-white shadow-sm overflow-hidden flex items-center justify-center shrink-0">
-                                                            {fight.image1 ? (
-                                                                <img src={fight.image1} alt={fight.fighter1} className="w-full h-full object-cover object-top" />
-                                                            ) : (
-                                                                <span className="text-xl font-bold text-charcoal/30">{getInitials(fight.fighter1)}</span>
-                                                            )}
-                                                        </div>
-                                                        <div>
-                                                            <h3 className="text-lg md:text-xl font-bold leading-none">{fight.fighter1}</h3>
-                                                            <p className="font-serif italic text-secondary text-sm mt-1">{fight.record1}</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                {/* VS Badge */}
-                                                <div className="w-1/5 flex flex-col items-center justify-center">
-                                                    <span className="text-xs font-bold text-secondary/50 uppercase tracking-widest mb-1">VS</span>
-                                                    <span className="text-[10px] bg-charcoal/5 text-charcoal px-2 py-1 rounded font-semibold whitespace-nowrap">{fight.weight}</span>
-                                                    <span className="text-[10px] text-secondary mt-1">{fight.round} Rnds</span>
-                                                </div>
-
-                                                {/* Fighter 2 */}
-                                                <div className="flex flex-col items-end w-2/5 text-right">
-                                                    <div className="flex items-center gap-4 mb-3 flex-row-reverse">
-                                                        <div className="w-16 h-16 rounded-full bg-cream border-2 border-white shadow-sm overflow-hidden flex items-center justify-center shrink-0">
-                                                            {fight.image2 ? (
-                                                                <img src={fight.image2} alt={fight.fighter2} className="w-full h-full object-cover object-top" />
-                                                            ) : (
-                                                                <span className="text-xl font-bold text-charcoal/30">{getInitials(fight.fighter2)}</span>
-                                                            )}
-                                                        </div>
-                                                        <div>
-                                                            <h3 className="text-lg md:text-xl font-bold leading-none">{fight.fighter2}</h3>
-                                                            <p className="font-serif italic text-secondary text-sm mt-1">{fight.record2}</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <hr className="border-charcoal/5 mb-6" />
-
-                                            {/* PREDICTIONS SECTION */}
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                                
-                                                {/* PAPA */}
-                                                <div className="bg-cream/50 rounded-xl p-4 border border-white">
-                                                    <div className="flex justify-between items-center mb-4">
-                                                        <h4 className="text-xs font-bold uppercase tracking-widest text-accentWarm1">Papá</h4>
-                                                        <span className="text-xs font-bold bg-white px-2 py-0.5 rounded shadow-sm">
-                                                            {calculatePoints(fight.id, 'player1')} <span className="text-secondary/50 font-normal">pts</span>
-                                                        </span>
-                                                    </div>
-                                                    
-                                                    <div className="space-y-3">
-                                                        <select className="w-full bg-white border border-charcoal/10 rounded-lg px-3 py-2 text-sm font-semibold text-charcoal focus:outline-none focus:ring-2 focus:ring-accentWarm1/50"
-                                                                value={predictions[fight.id]?.player1?.winner || ''}
-                                                                onChange={(e) => updatePrediction(fight.id, 'player1', 'winner', e.target.value)}>
-                                                            <option value="" disabled>Ganador...</option>
-                                                            <option value={fight.fighter1}>{fight.fighter1}</option>
-                                                            <option value={fight.fighter2}>{fight.fighter2}</option>
-                                                        </select>
-
-                                                        <div className="grid grid-cols-2 gap-3">
-                                                            <select className="w-full bg-white border border-charcoal/10 rounded-lg px-3 py-2 text-sm text-charcoal focus:outline-none focus:ring-2 focus:ring-accentWarm1/50"
-                                                                    value={predictions[fight.id]?.player1?.method || ''}
-                                                                    onChange={(e) => updatePrediction(fight.id, 'player1', 'method', e.target.value)}>
-                                                                <option value="" disabled>Vía...</option>
-                                                                <option value="Decisión">Decisión</option>
-                                                                <option value="KO/TKO">KO/TKO</option>
-                                                                <option value="Sumisión">Sumisión</option>
-                                                            </select>
-                                                            
-                                                            <select className="w-full bg-white border border-charcoal/10 rounded-lg px-3 py-2 text-sm text-charcoal focus:outline-none focus:ring-2 focus:ring-accentWarm1/50"
-                                                                    value={predictions[fight.id]?.player1?.round || ''}
-                                                                    onChange={(e) => updatePrediction(fight.id, 'player1', 'round', e.target.value)}>
-                                                                <option value="" disabled>Round...</option>
-                                                                {Array.from({length: fight.round}, (_, i) => <option key={i+1} value={i+1}>R{i+1}</option>)}
-                                                                <option value="final">Decisión</option>
-                                                            </select>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                {/* HIJO */}
-                                                <div className="bg-cream/50 rounded-xl p-4 border border-white">
-                                                    <div className="flex justify-between items-center mb-4">
-                                                        <h4 className="text-xs font-bold uppercase tracking-widest text-accentCool1">Hijo</h4>
-                                                        <span className="text-xs font-bold bg-white px-2 py-0.5 rounded shadow-sm">
-                                                            {calculatePoints(fight.id, 'player2')} <span className="text-secondary/50 font-normal">pts</span>
-                                                        </span>
-                                                    </div>
-                                                    
-                                                    <div className="space-y-3">
-                                                        <select className="w-full bg-white border border-charcoal/10 rounded-lg px-3 py-2 text-sm font-semibold text-charcoal focus:outline-none focus:ring-2 focus:ring-accentCool1/50"
-                                                                value={predictions[fight.id]?.player2?.winner || ''}
-                                                                onChange={(e) => updatePrediction(fight.id, 'player2', 'winner', e.target.value)}>
-                                                            <option value="" disabled>Ganador...</option>
-                                                            <option value={fight.fighter1}>{fight.fighter1}</option>
-                                                            <option value={fight.fighter2}>{fight.fighter2}</option>
-                                                        </select>
-
-                                                        <div className="grid grid-cols-2 gap-3">
-                                                            <select className="w-full bg-white border border-charcoal/10 rounded-lg px-3 py-2 text-sm text-charcoal focus:outline-none focus:ring-2 focus:ring-accentCool1/50"
-                                                                    value={predictions[fight.id]?.player2?.method || ''}
-                                                                    onChange={(e) => updatePrediction(fight.id, 'player2', 'method', e.target.value)}>
-                                                                <option value="" disabled>Vía...</option>
-                                                                <option value="Decisión">Decisión</option>
-                                                                <option value="KO/TKO">KO/TKO</option>
-                                                                <option value="Sumisión">Sumisión</option>
-                                                            </select>
-                                                            
-                                                            <select className="w-full bg-white border border-charcoal/10 rounded-lg px-3 py-2 text-sm text-charcoal focus:outline-none focus:ring-2 focus:ring-accentCool1/50"
-                                                                    value={predictions[fight.id]?.player2?.round || ''}
-                                                                    onChange={(e) => updatePrediction(fight.id, 'player2', 'round', e.target.value)}>
-                                                                <option value="" disabled>Round...</option>
-                                                                {Array.from({length: fight.round}, (_, i) => <option key={i+1} value={i+1}>R{i+1}</option>)}
-                                                                <option value="final">Decisión</option>
-                                                            </select>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                            </div>
-
-                                            {/* ADMIN RESULT INPUT */}
-                                            {isAdmin && !confirmedResults[fight.id] && (
-                                                <div className="mt-6 pt-6 border-t border-charcoal/5">
-                                                    <div className="flex items-center gap-3">
-                                                        <select className="flex-1 bg-charcoal/5 border-transparent rounded-lg px-3 py-2 text-xs font-semibold focus:ring-2 focus:ring-charcoal"
-                                                                value={results[fight.id]?.winner || ''}
-                                                                onChange={(e) => updateResult(fight.id, 'winner', e.target.value)}>
-                                                            <option value="">Oficial: Ganador...</option>
-                                                            <option value={fight.fighter1}>{fight.fighter1}</option>
-                                                            <option value={fight.fighter2}>{fight.fighter2}</option>
-                                                        </select>
-                                                        <select className="w-24 bg-charcoal/5 border-transparent rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-charcoal"
-                                                                value={results[fight.id]?.method || ''}
-                                                                onChange={(e) => updateResult(fight.id, 'method', e.target.value)}>
-                                                            <option value="">Método</option>
-                                                            <option value="Decisión">Decisión</option>
-                                                            <option value="KO/TKO">KO</option>
-                                                            <option value="Sumisión">Sumisión</option>
-                                                        </select>
-                                                        <select className="w-24 bg-charcoal/5 border-transparent rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-charcoal"
-                                                                value={results[fight.id]?.round || ''}
-                                                                onChange={(e) => updateResult(fight.id, 'round', e.target.value)}>
-                                                            <option value="">Rnd</option>
-                                                            {Array.from({length: fight.round}, (_, i) => <option key={i+1} value={i+1}>{i+1}</option>)}
-                                                            <option value="final">Final</option>
-                                                        </select>
-                                                        <button 
-                                                            onClick={() => confirmResult(fight.id)}
-                                                            className="btn-editorial px-4 py-2 text-xs whitespace-nowrap"
-                                                        >
-                                                            Confirmar
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            )}
-
-                                        </div>
+                    {/* FIGHTER MODAL */}
+                    {modalFighter && (
+                        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 modal-overlay bg-charcoal/40 backdrop-blur-sm" onClick={() => setModalFighter(null)}>
+                            <div className="bg-cream rounded-3xl p-6 md:p-10 w-full max-w-md modal-content shadow-2xl border border-white" onClick={e => e.stopPropagation()}>
+                                <div className="flex justify-between items-start mb-6">
+                                    <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-white shadow-md">
+                                        <img src={modalFighter.img || getSilhouette(modalFighter.name)} className="w-full h-full object-cover object-top" />
                                     </div>
-                                ))}
-                            </div>
-
-                            {/* RIGHT COLUMN: SUMMARY STICKY */}
-                            <div className="lg:col-span-4 relative">
-                                <div className="sticky top-28 space-y-6">
-                                    <div className="glass-panel p-6">
-                                        <h3 className="text-sm font-bold uppercase tracking-widest text-secondary mb-4 border-b border-charcoal/10 pb-2">Resumen: Papá</h3>
-                                        <div className="space-y-3">
-                                            {allFights.map(fight => {
-                                                const pred = predictions[fight.id]?.player1;
-                                                return (
-                                                    <div key={fight.id} className="flex items-center justify-between text-sm">
-                                                        <span className="font-semibold text-charcoal truncate pr-2">{fight.fighter1.split(' ')[0]} vs {fight.fighter2.split(' ')[0]}</span>
-                                                        {pred?.winner ? (
-                                                            <span className="text-xs text-secondary whitespace-nowrap">{pred.winner.split(' ').pop()} • {pred.method}</span>
-                                                        ) : (
-                                                            <span className="text-xs text-charcoal/20 italic">Pendiente</span>
-                                                        )}
-                                                    </div>
-                                                )
-                                            })}
-                                        </div>
-                                    </div>
-
-                                    <div className="glass-panel p-6">
-                                        <h3 className="text-sm font-bold uppercase tracking-widest text-secondary mb-4 border-b border-charcoal/10 pb-2">Resumen: Hijo</h3>
-                                        <div className="space-y-3">
-                                            {allFights.map(fight => {
-                                                const pred = predictions[fight.id]?.player2;
-                                                return (
-                                                    <div key={fight.id} className="flex items-center justify-between text-sm">
-                                                        <span className="font-semibold text-charcoal truncate pr-2">{fight.fighter1.split(' ')[0]} vs {fight.fighter2.split(' ')[0]}</span>
-                                                        {pred?.winner ? (
-                                                            <span className="text-xs text-secondary whitespace-nowrap">{pred.winner.split(' ').pop()} • {pred.method}</span>
-                                                        ) : (
-                                                            <span className="text-xs text-charcoal/20 italic">Pendiente</span>
-                                                        )}
-                                                    </div>
-                                                )
-                                            })}
-                                        </div>
-                                    </div>
+                                    <button onClick={() => setModalFighter(null)} className="w-8 h-8 rounded-full bg-charcoal/5 flex items-center justify-center font-bold hover:bg-charcoal/10 transition">&times;</button>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* LOGIN MODAL */}
-                    {showLogin && (
-                        <div className="fixed inset-0 bg-charcoal/40 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
-                            <div className="glass-panel p-8 w-full max-w-sm">
-                                <h2 className="font-serif italic text-2xl mb-1 text-center">Acceso Admin</h2>
-                                <p className="text-xs text-secondary text-center mb-6 uppercase tracking-widest font-bold">Autenticación requerida</p>
+                                <h2 className="text-3xl font-black leading-none mb-1">{modalFighter.name}</h2>
+                                <p className="font-serif italic text-xl text-secondary mb-6">{modalFighter.rec}</p>
                                 
-                                <input 
-                                    type="password" 
-                                    placeholder="Contraseña..." 
-                                    className="w-full mb-6 bg-white border border-charcoal/10 focus:border-charcoal focus:ring-1 focus:ring-charcoal rounded-lg px-4 py-3 text-sm transition"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    onKeyDown={(e) => e.key === 'Enter' && (password === 'ufc2026' ? (setIsAdmin(true), setShowLogin(false)) : alert('Incorrecto'))}
-                                />
-                                <div className="flex gap-3">
-                                    <button 
-                                        className="flex-1 border border-charcoal/20 text-charcoal font-semibold py-2.5 rounded-lg hover:bg-charcoal/5 transition text-sm"
-                                        onClick={() => setShowLogin(false)}
-                                    >
-                                        Cancelar
-                                    </button>
-                                    <button 
-                                        className="flex-1 btn-editorial text-sm"
-                                        onClick={() => password === 'ufc2026' ? (setIsAdmin(true), setShowLogin(false)) : alert('Incorrecto')}
-                                    >
-                                        Acceder
-                                    </button>
+                                <div className="space-y-4">
+                                    <div className="bg-white p-4 rounded-xl border border-charcoal/5 shadow-sm">
+                                        <p className="text-[10px] font-bold uppercase tracking-widest text-secondary mb-1">Estilo de Pelea</p>
+                                        <p className="font-semibold">{modalFighter.style}</p>
+                                    </div>
+                                    <div className="bg-white p-4 rounded-xl border border-charcoal/5 shadow-sm">
+                                        <p className="text-[10px] font-bold uppercase tracking-widest text-secondary mb-1">Especialidad (Highlights)</p>
+                                        <p className="font-semibold">{modalFighter.specialty}</p>
+                                    </div>
+                                    <div className="bg-white p-4 rounded-xl border border-charcoal/5 shadow-sm">
+                                        <p className="text-[10px] font-bold uppercase tracking-widest text-secondary mb-1">Últimas 5 peleas</p>
+                                        <div className="flex gap-1 mt-1">
+                                            {modalFighter.recent.split('-').map((res, i) => (
+                                                <span key={i} className={`w-6 h-6 flex items-center justify-center text-xs font-bold rounded ${res === 'W' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>{res}</span>
+                                            ))}
+                                        </div>
+                                    </div>
                                 </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* LOGIN & GLOBAL ADMIN TOOLS MODAL */}
+                    {showLogin && (
+                        <div className="fixed inset-0 bg-charcoal/60 backdrop-blur-md flex items-center justify-center z-[100] p-4 modal-overlay">
+                            <div className="bg-cream p-8 rounded-2xl w-full max-w-sm modal-content shadow-2xl border border-white">
+                                <h2 className="font-serif italic text-3xl mb-2 text-center">Admin Access</h2>
+                                
+                                {!isAdmin ? (
+                                    <>
+                                        <p className="text-xs text-secondary text-center mb-6 uppercase tracking-widest font-bold">Autenticación requerida</p>
+                                        <input 
+                                            type="password" placeholder="Contraseña..." 
+                                            className="w-full mb-4 bg-white border border-charcoal/20 focus:ring-2 focus:ring-charcoal rounded-lg px-4 py-3 text-sm"
+                                            value={password} onChange={e => setPassword(e.target.value)}
+                                            onKeyDown={e => e.key === 'Enter' && (password === 'ufc2026' ? (setIsAdmin(true), setPassword('')) : alert('Incorrecto'))}
+                                        />
+                                        <div className="flex gap-3">
+                                            <button className="flex-1 bg-charcoal/5 font-semibold py-3 rounded-lg text-sm" onClick={() => setShowLogin(false)}>Cancelar</button>
+                                            <button className="flex-1 btn-editorial text-sm py-3" onClick={() => password === 'ufc2026' ? (setIsAdmin(true), setPassword('')) : alert('Incorrecto')}>Entrar</button>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <div className="space-y-4 mt-6">
+                                        <button className="w-full flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-lg text-sm transition"
+                                            onClick={async () => {
+                                                if(window.confirm('¿Actualizar con Gemini?')) {
+                                                    try { const res = await api.fetchGeminiResults(); alert(res.message); window.location.reload(); } catch(e) { alert(e.message); }
+                                                }
+                                            }}>
+                                            🤖 Auto Actualizar con Gemini
+                                        </button>
+                                        <button className="w-full flex items-center justify-center gap-2 bg-red-100 hover:bg-red-200 text-red-700 font-bold py-3 rounded-lg text-sm transition"
+                                            onClick={async () => {
+                                                if(window.confirm('¿BORRAR TODO?')) {
+                                                    try { await api.clearAll(); alert('Borrado'); window.location.reload(); } catch(e) { alert(e.message); }
+                                                }
+                                            }}>
+                                            ⚠️ Resetear Toda la Base de Datos
+                                        </button>
+                                        <button className="w-full bg-charcoal/5 font-semibold py-3 rounded-lg text-sm" onClick={() => { setIsAdmin(false); setShowLogin(false); }}>
+                                            Cerrar Sesión
+                                        </button>
+                                        <button className="w-full underline text-secondary text-sm mt-2" onClick={() => setShowLogin(false)}>
+                                            Volver a las peleas
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     )}
