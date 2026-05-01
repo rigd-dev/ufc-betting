@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UFC Perth - Marcador de Apuestas</title>
+    <title>UFC Perth - Marcador Premium</title>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     
-    <!-- Google Fonts: Sora & EB Garamond -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Sora:wght@100..800&display=swap" rel="stylesheet">
@@ -30,9 +29,6 @@
                     fontFamily: {
                         sans: ['Sora', 'sans-serif'],
                         serif: ['EB Garamond', 'serif'],
-                    },
-                    animation: {
-                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
                     }
                 }
             }
@@ -49,8 +45,6 @@
                 radial-gradient(at 100% 0%, hsla(217,100%,60%,0.1) 0px, transparent 50%);
             background-attachment: fixed;
         }
-        
-        /* Glassmorphism */
         .glass-panel {
             background: rgba(255, 255, 255, 0.7);
             backdrop-filter: blur(20px);
@@ -58,9 +52,7 @@
             border: 1px solid rgba(255, 255, 255, 0.9);
             border-radius: 24px;
             box-shadow: 0 12px 40px 0 rgba(26, 26, 26, 0.06);
-            transition: all 0.3s ease;
         }
-        
         .sticky-header {
             position: sticky;
             top: 0;
@@ -68,61 +60,23 @@
             background: rgba(246, 245, 240, 0.85);
             backdrop-filter: blur(16px);
             border-bottom: 1px solid rgba(26, 26, 26, 0.05);
-            padding: 16px 0;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03);
+            padding: 12px 0;
         }
-        
-        /* Select styling */
-        select {
-            appearance: none;
-            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23666666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-            background-repeat: no-repeat;
-            background-position: right 12px center;
-            background-size: 16px;
-            transition: all 0.2s;
-        }
-        select:focus { box-shadow: 0 0 0 2px #1A1A1A; outline: none; }
-        
-        /* Typography Gradients */
         .score-warm { background: linear-gradient(135deg, #FF6B00, #FFB800); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .score-cool { background: linear-gradient(135deg, #0055FF, #00C3FF); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        
-        /* Fighter Images */
-        .fighter-img-container {
-            position: relative;
-            background: linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(26,26,26,0.08) 100%);
-            overflow: hidden;
-            border: 3px solid #fff;
-            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.15);
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-            cursor: pointer;
-        }
-        .fighter-img-container:hover {
-            transform: scale(1.05) translateY(-5px);
-            border-color: #1A1A1A;
-            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.3);
-        }
-        
-        /* Odds Badges */
-        .odds-fav { background-color: #E8F5E9; color: #2E7D32; border: 1px solid #A5D6A7; }
-        .odds-dog { background-color: #FFEBEE; color: #C62828; border: 1px solid #EF9A9A; }
-        
-        /* Modals */
-        @keyframes fadeIn { from { opacity: 0; backdrop-filter: blur(0px); } to { opacity: 1; backdrop-filter: blur(16px); } }
-        @keyframes scaleUp { from { transform: scale(0.95) translateY(20px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
-        .modal-overlay { animation: fadeIn 0.3s ease-out forwards; }
-        .modal-content { animation: scaleUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
-
-        /* Highlight winner */
         .leader-glow-warm { box-shadow: 0 0 30px rgba(255, 107, 0, 0.4); border-color: rgba(255, 107, 0, 0.5); }
         .leader-glow-cool { box-shadow: 0 0 30px rgba(0, 85, 255, 0.4); border-color: rgba(0, 85, 255, 0.5); }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
+        .fight-tab-active { background: #1A1A1A; color: #F6F5F0; }
     </style>
 </head>
 <body>
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect, useRef } = React;
+        const { useState, useEffect } = React;
 
         const api = {
             async getPredictions() { const r = await fetch('/api/predictions'); return r.json(); },
@@ -133,20 +87,10 @@
             async saveResult(fight_id, field, value) {
                 return fetch('/api/results', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({fight_id, field, value}) });
             },
-            async clearAll() {
-                await fetch('/api/predictions', { method: 'DELETE' });
-                await fetch('/api/results', { method: 'DELETE' });
-            },
-            async saveConfirmed(fight_id) {
-                return fetch('/api/confirmed', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({fight_id}) });
-            },
-            async unconfirm(fight_id) {
-                 return fetch(`/api/results?fight_id=${fight_id}&field=confirmed`, { method: 'DELETE' });
-            },
-            async fetchGeminiResults() {
-                const r = await fetch('/api/gemini-update', { method: 'POST' });
-                return r.json();
-            }
+            async clearAll() { await fetch('/api/predictions', { method: 'DELETE' }); await fetch('/api/results', { method: 'DELETE' }); },
+            async saveConfirmed(fight_id) { return fetch('/api/confirmed', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({fight_id}) }); },
+            async unconfirm(fight_id) { return fetch(`/api/results?fight_id=${fight_id}&field=confirmed`, { method: 'DELETE' }); },
+            async fetchGeminiResults() { const r = await fetch('/api/gemini-update', { method: 'POST' }); return r.json(); }
         };
 
         const UFCApp = () => {
@@ -157,80 +101,46 @@
             const [showLogin, setShowLogin] = useState(false);
             const [password, setPassword] = useState('');
             const [modalFighter, setModalFighter] = useState(null);
+            const [taleOfTape, setTaleOfTape] = useState(null);
+            const [activeTab, setActiveTab] = useState('Estelar');
+            const [activeFightId, setActiveFightId] = useState(1);
 
             const allFights = [
-                // CARTELERA ESTELAR
-                {
-                    id: 1, type: 'Estelar', round: 5, weight: 'Peso Wélter', featured: true,
-                    f1: { name: 'Jack Della Maddalena', rec: '18-3-0', odds: '-135', oddsType: 'Favorito', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-03/DELLA_MADDALENA_JACK_L_03-09.png', style: 'Boxeador Élite', specialty: 'Ganchos al Hígado / Presión', recent: [{r:'W', m:'KO/TKO', rnd:3}, {r:'W', m:'Decisión', rnd:3}, {r:'W', m:'Sumisión', rnd:1}, {r:'W', m:'KO/TKO', rnd:1}, {r:'W', m:'KO/TKO', rnd:1}] },
-                    f2: { name: 'Carlos Prates', rec: '23-7-0', odds: '+115', oddsType: 'Underdog', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-08/PRATES_CARLOS_L_08-17.png', style: 'Muay Thai / Kickboxing', specialty: 'Patadas Letales a la Cabeza', recent: [{r:'W', m:'KO/TKO', rnd:2}, {r:'W', m:'KO/TKO', rnd:1}, {r:'W', m:'KO/TKO', rnd:2}, {r:'W', m:'KO/TKO', rnd:1}, {r:'W', m:'Decisión', rnd:3}] }
+                { id: 1, type: 'Estelar', round: 5, weight: 'Peso Wélter', featured: true,
+                    f1: { name: 'Jack Della Maddalena', country: 'au', age: 29, height: '180cm', reach: '185cm', rec: '18-3-0', odds: '-135', oddsType: 'Favorito', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-03/DELLA_MADDALENA_JACK_L_03-09.png', style: 'Boxeador Élite', specialty: 'Ganchos al Hígado', recent: [{r:'W', m:'KO/TKO', rnd:3}, {r:'W', m:'Decisión', rnd:3}, {r:'W', m:'Sumisión', rnd:1}, {r:'W', m:'KO/TKO', rnd:1}, {r:'W', m:'KO/TKO', rnd:1}] },
+                    f2: { name: 'Carlos Prates', country: 'br', age: 30, height: '185cm', reach: '198cm', rec: '23-7-0', odds: '+115', oddsType: 'Underdog', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-08/PRATES_CARLOS_L_08-17.png', style: 'Muay Thai', specialty: 'Patadas Letales', recent: [{r:'W', m:'KO/TKO', rnd:2}, {r:'W', m:'KO/TKO', rnd:1}, {r:'W', m:'KO/TKO', rnd:2}, {r:'W', m:'KO/TKO', rnd:1}, {r:'W', m:'Decisión', rnd:3}] }
                 },
-                {
-                    id: 2, type: 'Co-Estelar', round: 3, weight: 'Peso Completo',
-                    f1: { name: 'Tai Tuivasa', rec: '15-7-0', odds: '+150', oddsType: 'Underdog', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-03/TUIVASA_TAI_L_03-16.png', style: 'Brawler (Peleador Callejero)', specialty: 'Poder de KO de un solo golpe', recent: [{r:'L', m:'Sumisión', rnd:1}, {r:'L', m:'KO/TKO', rnd:2}, {r:'L', m:'KO/TKO', rnd:1}, {r:'L', m:'KO/TKO', rnd:3}, {r:'W', m:'KO/TKO', rnd:2}] },
-                    f2: { name: 'Louie Sutherland', rec: '6-3-0', odds: '-170', oddsType: 'Favorito', img: '', style: 'Striker', specialty: 'Presión Agresiva', recent: [{r:'W', m:'KO/TKO', rnd:1}, {r:'L', m:'Decisión', rnd:3}, {r:'W', m:'KO/TKO', rnd:1}, {r:'L', m:'Sumisión', rnd:2}, {r:'W', m:'KO/TKO', rnd:1}] }
+                { id: 2, type: 'Estelar', round: 3, weight: 'Peso Completo',
+                    f1: { name: 'Tai Tuivasa', country: 'au', age: 31, height: '188cm', reach: '191cm', rec: '15-7-0', odds: '+150', oddsType: 'Underdog', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-03/TUIVASA_TAI_L_03-16.png', style: 'Brawler', specialty: 'Poder de KO', recent: [{r:'L', m:'Sumisión', rnd:1}, {r:'L', m:'KO/TKO', rnd:2}, {r:'L', m:'KO/TKO', rnd:1}, {r:'L', m:'KO/TKO', rnd:3}, {r:'W', m:'KO/TKO', rnd:2}] },
+                    f2: { name: 'Louie Sutherland', country: 'gb', age: 28, height: '191cm', reach: '193cm', rec: '6-3-0', odds: '-170', oddsType: 'Favorito', img: '', style: 'Striker', specialty: 'Presión Agresiva', recent: [{r:'W', m:'KO/TKO', rnd:1}, {r:'L', m:'Decisión', rnd:3}, {r:'W', m:'KO/TKO', rnd:1}, {r:'L', m:'Sumisión', rnd:2}, {r:'W', m:'KO/TKO', rnd:1}] }
                 },
-                {
-                    id: 3, type: 'Estelar', round: 3, weight: 'Peso Ligero',
-                    f1: { name: 'Beneil Dariush', rec: '22-6-1', odds: '-120', oddsType: 'Favorito', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2023-12/DARIUSH_BENEIL_L_12-02.png', style: 'Cinturón Negro BJJ', specialty: 'Control a ras de lona y Manos Pesadas', recent: [{r:'L', m:'KO/TKO', rnd:1}, {r:'L', m:'KO/TKO', rnd:1}, {r:'W', m:'Decisión', rnd:3}, {r:'W', m:'Decisión', rnd:3}, {r:'W', m:'Decisión', rnd:3}] },
-                    f2: { name: 'Quillan Salkilld', rec: '7-1-0', odds: '+100', oddsType: 'Underdog', img: '', style: 'Artes Marciales Mixtas', specialty: 'Completo / Explosivo', recent: [{r:'W', m:'Sumisión', rnd:2}, {r:'W', m:'KO/TKO', rnd:1}, {r:'W', m:'Decisión', rnd:3}, {r:'W', m:'Sumisión', rnd:1}, {r:'W', m:'KO/TKO', rnd:2}] }
+                { id: 3, type: 'Estelar', round: 3, weight: 'Peso Ligero',
+                    f1: { name: 'Beneil Dariush', country: 'us', age: 35, height: '178cm', reach: '183cm', rec: '22-6-1', odds: '-120', oddsType: 'Favorito', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2023-12/DARIUSH_BENEIL_L_12-02.png', style: 'BJJ', specialty: 'Control a ras de lona', recent: [{r:'L', m:'KO/TKO', rnd:1}, {r:'L', m:'KO/TKO', rnd:1}, {r:'W', m:'Decisión', rnd:3}, {r:'W', m:'Decisión', rnd:3}, {r:'W', m:'Decisión', rnd:3}] },
+                    f2: { name: 'Quillan Salkilld', country: 'au', age: 24, height: '183cm', reach: '188cm', rec: '7-1-0', odds: '+100', oddsType: 'Underdog', img: '', style: 'AMM', specialty: 'Completo', recent: [{r:'W', m:'Sumisión', rnd:2}, {r:'W', m:'KO/TKO', rnd:1}, {r:'W', m:'Decisión', rnd:3}, {r:'W', m:'Sumisión', rnd:1}, {r:'W', m:'KO/TKO', rnd:2}] }
                 },
-                {
-                    id: 4, type: 'Estelar', round: 3, weight: 'Peso Mosca',
-                    f1: { name: 'Tim Elliott', rec: '20-13-1', odds: '+210', oddsType: 'Underdog', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2023-12/ELLIOTT_TIM_L_12-09.png', style: 'Luchador / Unorthodox', specialty: 'Derribos impredecibles y Cardio', recent: [{r:'W', m:'Decisión', rnd:3}, {r:'L', m:'Sumisión', rnd:1}, {r:'W', m:'Decisión', rnd:3}, {r:'W', m:'Decisión', rnd:3}, {r:'L', m:'Decisión', rnd:3}] },
-                    f2: { name: 'Steve Erceg', rec: '12-3-0', odds: '-250', oddsType: 'Favorito', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-05/ERCEG_STEVE_L_05-04.png', style: 'Boxeador Técnico', specialty: 'Precisión y Velocidad de Manos', recent: [{r:'L', m:'Decisión', rnd:5}, {r:'W', m:'KO/TKO', rnd:2}, {r:'W', m:'Decisión', rnd:3}, {r:'W', m:'Decisión', rnd:3}, {r:'W', m:'Sumisión', rnd:1}] }
+                { id: 4, type: 'Estelar', round: 3, weight: 'Peso Mosca',
+                    f1: { name: 'Tim Elliott', country: 'us', age: 37, height: '170cm', reach: '168cm', rec: '20-13-1', odds: '+210', oddsType: 'Underdog', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2023-12/ELLIOTT_TIM_L_12-09.png', style: 'Luchador', specialty: 'Derribos', recent: [{r:'W', m:'Decisión', rnd:3}, {r:'L', m:'Sumisión', rnd:1}, {r:'W', m:'Decisión', rnd:3}, {r:'W', m:'Decisión', rnd:3}, {r:'L', m:'Decisión', rnd:3}] },
+                    f2: { name: 'Steve Erceg', country: 'au', age: 28, height: '173cm', reach: '174cm', rec: '12-3-0', odds: '-250', oddsType: 'Favorito', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-05/ERCEG_STEVE_L_05-04.png', style: 'Boxeador Técnico', specialty: 'Precisión', recent: [{r:'L', m:'Decisión', rnd:5}, {r:'W', m:'KO/TKO', rnd:2}, {r:'W', m:'Decisión', rnd:3}, {r:'W', m:'Decisión', rnd:3}, {r:'W', m:'Sumisión', rnd:1}] }
                 },
-                // PRELIMINARES
-                {
-                    id: 5, type: 'Preliminar', round: 3, weight: 'Peso Pluma',
-                    f1: { name: 'Marwan Rahiki', rec: '9-2-0', odds: '-110', oddsType: 'Pick em', img: '', style: 'Luchador / Grappler', specialty: 'Estrangulaciones (Chokes)', recent: [{r:'W', m:'Sumisión', rnd:2}, {r:'W', m:'Decisión', rnd:3}, {r:'L', m:'KO/TKO', rnd:1}, {r:'W', m:'Sumisión', rnd:1}, {r:'W', m:'Decisión', rnd:3}] },
-                    f2: { name: 'Ollie Schmid', rec: '7-1-0', odds: '-110', oddsType: 'Pick em', img: '', style: 'Kickboxer', specialty: 'Pateo a las piernas', recent: [{r:'W', m:'KO/TKO', rnd:3}, {r:'W', m:'KO/TKO', rnd:1}, {r:'W', m:'Decisión', rnd:3}, {r:'W', m:'Sumisión', rnd:2}, {r:'L', m:'Decisión', rnd:3}] }
+                { id: 5, type: 'Preliminar', round: 3, weight: 'Peso Pluma',
+                    f1: { name: 'Marwan Rahiki', country: 'au', age: 26, height: '175cm', reach: '178cm', rec: '9-2-0', odds: '-110', oddsType: 'Pick em', img: '', style: 'Grappler', specialty: 'Estrangulaciones', recent: [{r:'W', m:'Sumisión', rnd:2}, {r:'W', m:'Decisión', rnd:3}, {r:'L', m:'KO/TKO', rnd:1}, {r:'W', m:'Sumisión', rnd:1}, {r:'W', m:'Decisión', rnd:3}] },
+                    f2: { name: 'Ollie Schmid', country: 'au', age: 25, height: '178cm', reach: '183cm', rec: '7-1-0', odds: '-110', oddsType: 'Pick em', img: '', style: 'Kickboxer', specialty: 'Pateo', recent: [{r:'W', m:'KO/TKO', rnd:3}, {r:'W', m:'KO/TKO', rnd:1}, {r:'W', m:'Decisión', rnd:3}, {r:'W', m:'Sumisión', rnd:2}, {r:'L', m:'Decisión', rnd:3}] }
                 },
-                {
-                    id: 6, type: 'Preliminar', round: 3, weight: 'Peso Completo',
-                    f1: { name: 'Shamil Gaziev', rec: '13-1-0', odds: '-180', oddsType: 'Favorito', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-03/GAZIEV_SHAMIL_L_03-02.png', style: 'Lucha Libre', specialty: 'Ground and Pound (Golpeo en suelo)', recent: [{r:'W', m:'Decisión', rnd:3}, {r:'L', m:'KO/TKO', rnd:4}, {r:'W', m:'KO/TKO', rnd:2}, {r:'W', m:'Sumisión', rnd:1}, {r:'W', m:'KO/TKO', rnd:1}] },
-                    f2: { name: 'Brando Pericic', rec: '8-1-0', odds: '+155', oddsType: 'Underdog', img: '', style: 'Striker Poderoso', specialty: 'Gancho de derecha', recent: [{r:'W', m:'KO/TKO', rnd:1}, {r:'W', m:'KO/TKO', rnd:1}, {r:'W', m:'Decisión', rnd:3}, {r:'L', m:'Sumisión', rnd:2}, {r:'W', m:'KO/TKO', rnd:1}] }
+                { id: 6, type: 'Preliminar', round: 3, weight: 'Peso Completo',
+                    f1: { name: 'Shamil Gaziev', country: 'bh', age: 34, height: '193cm', reach: '201cm', rec: '13-1-0', odds: '-180', oddsType: 'Favorito', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-03/GAZIEV_SHAMIL_L_03-02.png', style: 'Lucha', specialty: 'Ground and Pound', recent: [{r:'W', m:'Decisión', rnd:3}, {r:'L', m:'KO/TKO', rnd:4}, {r:'W', m:'KO/TKO', rnd:2}, {r:'W', m:'Sumisión', rnd:1}, {r:'W', m:'KO/TKO', rnd:1}] },
+                    f2: { name: 'Brando Pericic', country: 'au', age: 27, height: '185cm', reach: '191cm', rec: '8-1-0', odds: '+155', oddsType: 'Underdog', img: '', style: 'Striker', specialty: 'Gancho derecha', recent: [{r:'W', m:'KO/TKO', rnd:1}, {r:'W', m:'KO/TKO', rnd:1}, {r:'W', m:'Decisión', rnd:3}, {r:'L', m:'Sumisión', rnd:2}, {r:'W', m:'KO/TKO', rnd:1}] }
                 },
-                {
-                    id: 7, type: 'Preliminar', round: 3, weight: 'Peso Pluma',
-                    f1: { name: 'Joshua Culibao', rec: '11-3-1', odds: '+120', oddsType: 'Underdog', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2023-07/CULIBAO_JOSHUA_L_07-22.png', style: 'Striker Rápido', specialty: 'Volumen de Golpes', recent: [{r:'L', m:'Decisión', rnd:3}, {r:'L', m:'Decisión', rnd:3}, {r:'W', m:'Sumisión', rnd:2}, {r:'W', m:'Decisión', rnd:3}, {r:'W', m:'Decisión', rnd:3}] },
-                    f2: { name: 'Melquizael Costa', rec: '20-6-0', odds: '-140', oddsType: 'Favorito', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2023-12/COSTA_MELQUIZAEL_L_12-02.png', style: 'Capoeira / BJJ', specialty: 'Movimientos Inesperados', recent: [{r:'L', m:'KO/TKO', rnd:3}, {r:'W', m:'Decisión', rnd:3}, {r:'L', m:'Sumisión', rnd:2}, {r:'W', m:'KO/TKO', rnd:1}, {r:'W', m:'Sumisión', rnd:1}] }
+                { id: 7, type: 'Preliminar', round: 3, weight: 'Peso Pluma',
+                    f1: { name: 'Joshua Culibao', country: 'au', age: 30, height: '178cm', reach: '185cm', rec: '11-3-1', odds: '+120', oddsType: 'Underdog', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2023-07/CULIBAO_JOSHUA_L_07-22.png', style: 'Striker', specialty: 'Volumen', recent: [{r:'L', m:'Decisión', rnd:3}, {r:'L', m:'Decisión', rnd:3}, {r:'W', m:'Sumisión', rnd:2}, {r:'W', m:'Decisión', rnd:3}, {r:'W', m:'Decisión', rnd:3}] },
+                    f2: { name: 'Melquizael Costa', country: 'br', age: 27, height: '178cm', reach: '183cm', rec: '20-6-0', odds: '-140', oddsType: 'Favorito', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2023-12/COSTA_MELQUIZAEL_L_12-02.png', style: 'Capoeira', specialty: 'Movimientos Inesperados', recent: [{r:'L', m:'KO/TKO', rnd:3}, {r:'W', m:'Decisión', rnd:3}, {r:'L', m:'Sumisión', rnd:2}, {r:'W', m:'KO/TKO', rnd:1}, {r:'W', m:'Sumisión', rnd:1}] }
                 },
-                {
-                    id: 8, type: 'Preliminar', round: 3, weight: 'Peso Medio',
-                    f1: { name: 'Jacob Malkoun', rec: '8-3-0', odds: '-200', oddsType: 'Favorito', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-03/MALKOUN_JACOB_L_03-30.png', style: 'Luchador / Grappler', specialty: 'Control de Lona Total', recent: [{r:'W', m:'KO/TKO', rnd:2}, {r:'L', m:'DQ', rnd:3}, {r:'W', m:'Decisión', rnd:3}, {r:'L', m:'Decisión', rnd:3}, {r:'W', m:'Decisión', rnd:3}] },
-                    f2: { name: 'Cody Brundage', rec: '10-6-0', odds: '+170', oddsType: 'Underdog', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-04/BRUNDAGE_CODY_L_04-13.png', style: 'Lucha Libre', specialty: 'Derribos Explosivos', recent: [{r:'L', m:'Sumisión', rnd:2}, {r:'W', m:'KO/TKO', rnd:1}, {r:'W', m:'DQ', rnd:1}, {r:'L', m:'Decisión', rnd:3}, {r:'L', m:'Sumisión', rnd:1}] }
+                { id: 8, type: 'Preliminar', round: 3, weight: 'Peso Medio',
+                    f1: { name: 'Jacob Malkoun', country: 'au', age: 29, height: '175cm', reach: '183cm', rec: '8-3-0', odds: '-200', oddsType: 'Favorito', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-03/MALKOUN_JACOB_L_03-30.png', style: 'Grappler', specialty: 'Control de Lona', recent: [{r:'W', m:'KO/TKO', rnd:2}, {r:'L', m:'DQ', rnd:3}, {r:'W', m:'Decisión', rnd:3}, {r:'L', m:'Decisión', rnd:3}, {r:'W', m:'Decisión', rnd:3}] },
+                    f2: { name: 'Cody Brundage', country: 'us', age: 30, height: '183cm', reach: '183cm', rec: '10-6-0', odds: '+170', oddsType: 'Underdog', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-04/BRUNDAGE_CODY_L_04-13.png', style: 'Lucha', specialty: 'Derribos', recent: [{r:'L', m:'Sumisión', rnd:2}, {r:'W', m:'KO/TKO', rnd:1}, {r:'W', m:'DQ', rnd:1}, {r:'L', m:'Decisión', rnd:3}, {r:'L', m:'Sumisión', rnd:1}] }
                 },
-                // PRIMERAS PRELIMINARES
-                {
-                    id: 9, type: 'Primeras Preliminares', round: 3, weight: 'Peso Pluma',
-                    f1: { name: 'Jack Jenkins', rec: '12-3-0', odds: '-150', oddsType: 'Favorito', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2023-02/JENKINS_JACK_L_02-11.png', style: 'Striker', specialty: 'Pateo a las piernas', recent: [{r:'L', m:'KO/TKO', rnd:2}, {r:'W', m:'Decisión', rnd:3}, {r:'W', m:'Decisión', rnd:3}, {r:'W', m:'KO/TKO', rnd:3}, {r:'W', m:'Decisión', rnd:3}] },
-                    f2: { name: 'Chepe Mariscal', rec: '15-6-0', odds: '+130', oddsType: 'Underdog', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2023-06/MARISCAL_CHEPE_L.png', style: 'Brawler / Lucha', specialty: 'Presión Incansable', recent: [{r:'W', m:'Decisión', rnd:3}, {r:'W', m:'Decisión', rnd:3}, {r:'W', m:'KO/TKO', rnd:2}, {r:'W', m:'Decisión', rnd:3}, {r:'L', m:'Decisión', rnd:3}] }
-                },
-                {
-                    id: 10, type: 'Primeras Preliminares', round: 3, weight: 'Peso Semicompleto',
-                    f1: { name: 'Jimmy Crute', rec: '12-4-1', odds: '+110', oddsType: 'Underdog', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2023-02/CRUTE_JIMMY_L_02-11.png', style: 'BJJ / Striker', specialty: 'Lucha Ofensiva', recent: [{r:'L', m:'Sumisión', rnd:2}, {r:'D', m:'Empate', rnd:3}, {r:'L', m:'KO/TKO', rnd:1}, {r:'L', m:'KO/TKO', rnd:1}, {r:'W', m:'KO/TKO', rnd:1}] },
-                    f2: { name: 'Modestas Bukauskas', rec: '15-6-0', odds: '-130', oddsType: 'Favorito', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2023-11/BUKAUSKAS_MODESTAS_L_11-04.png', style: 'Kickboxing', specialty: 'Ataques a distancia', recent: [{r:'L', m:'KO/TKO', rnd:2}, {r:'W', m:'Decisión', rnd:3}, {r:'W', m:'Decisión', rnd:3}, {r:'W', m:'Decisión', rnd:4}, {r:'W', m:'Decisión', rnd:3}] }
-                },
-                {
-                    id: 11, type: 'Primeras Preliminares', round: 3, weight: 'Peso Completo',
-                    f1: { name: 'Justin Tafa', rec: '7-3-0', odds: '-180', oddsType: 'Favorito', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-02/TAFA_JUSTIN_L_02-17.png', style: 'Boxeador / Brawler', specialty: 'Poder de KO (Mano Izquierda)', recent: [{r:'L', m:'Decisión', rnd:3}, {r:'W', m:'KO/TKO', rnd:1}, {r:'NC', m:'No Contest', rnd:1}, {r:'W', m:'KO/TKO', rnd:1}, {r:'L', m:'Decisión', rnd:3}] },
-                    f2: { name: 'Thomas Petersen', rec: '8-2-0', odds: '+150', oddsType: 'Underdog', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-02/PETERSEN_THOMAS_L_02-03.png', style: 'Lucha Libre', specialty: 'Derribos Poderosos', recent: [{r:'L', m:'Decisión', rnd:3}, {r:'W', m:'Sumisión', rnd:2}, {r:'W', m:'KO/TKO', rnd:1}, {r:'W', m:'KO/TKO', rnd:2}, {r:'L', m:'KO/TKO', rnd:1}] }
-                },
-                {
-                    id: 12, type: 'Primeras Preliminares', round: 3, weight: 'Peso Paja Femenino',
-                    f1: { name: 'Casey O\'Neill', rec: '9-2-0', odds: '-200', oddsType: 'Favorito', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2023-12/ONEILL_CASEY_L_12-16.png', style: 'Striker Agresiva', specialty: 'Volumen y Presión', recent: [{r:'L', m:'Sumisión', rnd:2}, {r:'L', m:'Decisión', rnd:3}, {r:'W', m:'Decisión', rnd:3}, {r:'W', m:'KO/TKO', rnd:2}, {r:'W', m:'Sumisión', rnd:2}] },
-                    f2: { name: 'Luana Pinheiro', rec: '11-2-0', odds: '+160', oddsType: 'Underdog', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2023-11/PINHEIRO_LUANA_L_11-18.png', style: 'Judo / Striking', specialty: 'Derribos de Judo', recent: [{r:'L', m:'KO/TKO', rnd:3}, {r:'W', m:'Decisión', rnd:3}, {r:'W', m:'Decisión', rnd:3}, {r:'W', m:'KO/TKO', rnd:1}, {r:'W', m:'Decisión', rnd:3}] }
-                },
-                {
-                    id: 13, type: 'Primeras Preliminares', round: 3, weight: 'Peso Mosca',
-                    f1: { name: 'Shannon Ross', rec: '13-8-0', odds: '+250', oddsType: 'Underdog', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2023-07/ROSS_SHANNON_L_07-08.png', style: 'Boxeador', specialty: 'Intercambios en corto', recent: [{r:'L', m:'KO/TKO', rnd:1}, {r:'L', m:'KO/TKO', rnd:1}, {r:'L', m:'KO/TKO', rnd:2}, {r:'W', m:'Decisión', rnd:3}, {r:'L', m:'Decisión', rnd:3}] },
-                    f2: { name: 'Jesus Aguilar', rec: '9-2-0', odds: '-300', oddsType: 'Favorito', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2023-07/AGUILAR_JESUS_L_07-08.png', style: 'Grappler', specialty: 'Guillotinas letales', recent: [{r:'W', m:'KO/TKO', rnd:1}, {r:'L', m:'Sumisión', rnd:1}, {r:'W', m:'Sumisión', rnd:3}, {r:'W', m:'Decisión', rnd:3}, {r:'W', m:'Sumisión', rnd:2}] }
-                },
-                {
-                    id: 14, type: 'Primeras Preliminares', round: 3, weight: 'Peso Ligero',
-                    f1: { name: 'Jamie Mullarkey', rec: '17-7-0', odds: '-110', oddsType: 'Pick em', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2023-12/MULLARKEY_JAMIE_L_12-09.png', style: 'Boxeador', specialty: 'Gran Corazón y Resistencia', recent: [{r:'L', m:'KO/TKO', rnd:2}, {r:'W', m:'Decisión', rnd:3}, {r:'L', m:'KO/TKO', rnd:2}, {r:'W', m:'Decisión', rnd:3}, {r:'L', m:'KO/TKO', rnd:3}] },
-                    f2: { name: 'Nasrat Haqparast', rec: '16-5-0', odds: '-110', oddsType: 'Pick em', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2023-12/HAQPARAST_NASRAT_L_12-09.png', style: 'Kickboxer', specialty: 'Velocidad y Precisión', recent: [{r:'W', m:'KO/TKO', rnd:1}, {r:'W', m:'Decisión', rnd:3}, {r:'W', m:'Decisión', rnd:3}, {r:'L', m:'Decisión', rnd:3}, {r:'L', m:'Decisión', rnd:3}] }
+                { id: 9, type: 'Preliminar', round: 3, weight: 'Peso Pluma',
+                    f1: { name: 'Jack Jenkins', country: 'au', age: 30, height: '175cm', reach: '178cm', rec: '12-3-0', odds: '-150', oddsType: 'Favorito', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2023-02/JENKINS_JACK_L_02-11.png', style: 'Striker', specialty: 'Pateo piernas', recent: [{r:'L', m:'KO/TKO', rnd:2}, {r:'W', m:'Decisión', rnd:3}, {r:'W', m:'Decisión', rnd:3}, {r:'W', m:'KO/TKO', rnd:3}, {r:'W', m:'Decisión', rnd:3}] },
+                    f2: { name: 'Chepe Mariscal', country: 'us', age: 31, height: '170cm', reach: '175cm', rec: '15-6-0', odds: '+130', oddsType: 'Underdog', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2023-06/MARISCAL_CHEPE_L.png', style: 'Brawler', specialty: 'Presión', recent: [{r:'W', m:'Decisión', rnd:3}, {r:'W', m:'Decisión', rnd:3}, {r:'W', m:'KO/TKO', rnd:2}, {r:'W', m:'Decisión', rnd:3}, {r:'L', m:'Decisión', rnd:3}] }
                 }
             ];
 
@@ -245,16 +155,8 @@
                 load();
             }, []);
 
-            const handlePred = (id, pl, f, v) => {
-                setPredictions(prev => ({...prev, [id]: {...prev[id], [pl]: {...(prev[id]?.[pl]||{}), [f]: v}}}));
-                api.savePrediction(id, pl, f, v);
-            };
-
-            const handleRes = (id, f, v) => {
-                setResults(prev => ({...prev, [id]: {...(prev[id]||{}), [f]: v}}));
-                api.saveResult(id, f, v);
-            };
-
+            const handlePred = (id, pl, f, v) => { setPredictions(prev => ({...prev, [id]: {...prev[id], [pl]: {...(prev[id]?.[pl]||{}), [f]: v}}})); api.savePrediction(id, pl, f, v); };
+            const handleRes = (id, f, v) => { setResults(prev => ({...prev, [id]: {...(prev[id]||{}), [f]: v}})); api.saveResult(id, f, v); };
             const calcPts = (id, pl) => {
                 const p = predictions[id]?.[pl], r = results[id];
                 if (!p?.winner || !r?.winner || !confirmedResults[id]) return 0;
@@ -265,362 +167,151 @@
                 return allFights.find(f => f.id === id)?.featured ? pts * 2 : pts;
             };
 
-            const getSilhouette = (name) => `https://ui-avatars.com/api/?name=${name.replace(' ', '+')}&background=EAEAEA&color=1A1A1A&size=256&font-size=0.33&bold=true`;
-
             const getWeightLbs = (weight) => {
-                const map = {
-                    'Peso Paja Femenino': '115.0 lbs',
-                    'Peso Mosca': '125.0 lbs',
-                    'Peso Gallo': '135.0 lbs',
-                    'Peso Pluma': '145.0 lbs',
-                    'Peso Ligero': '155.0 lbs',
-                    'Peso Wélter': '170.0 lbs',
-                    'Peso Medio': '185.0 lbs',
-                    'Peso Semicompleto': '205.0 lbs',
-                    'Peso Completo': '265.0 lbs'
-                };
+                const map = { 'Peso Mosca': '125.0 lbs', 'Peso Paja Femenino': '115.0 lbs', 'Peso Gallo': '135.0 lbs', 'Peso Pluma': '145.0 lbs', 'Peso Ligero': '155.0 lbs', 'Peso Wélter': '170.0 lbs', 'Peso Medio': '185.0 lbs', 'Peso Semicompleto': '205.0 lbs', 'Peso Completo': '265.0 lbs' };
                 return map[weight] || '';
             };
+
+            const getSilhouette = (name) => `https://ui-avatars.com/api/?name=${name.replace(' ', '+')}&background=EAEAEA&color=1A1A1A&size=256&font-size=0.33&bold=true`;
+            const getFlag = (code) => `https://flagcdn.com/w40/${code.toLowerCase()}.png`;
 
             const papaScore = allFights.reduce((acc, f) => acc + calcPts(f.id, 'player1'), 0);
             const hijoScore = allFights.reduce((acc, f) => acc + calcPts(f.id, 'player2'), 0);
 
+            const currentFight = allFights.find(f => f.id === activeFightId);
+            const filteredFights = allFights.filter(f => f.type === activeTab || (activeTab === 'Estelar' && f.type === 'Co-Estelar'));
+
             return (
                 <div className="min-h-screen pb-32 relative">
-                    {/* Header - INTUITIVE SCORING */}
                     <div className="sticky-header">
-                        <div className="max-w-4xl mx-auto px-2 md:px-4">
-                            <div className="flex flex-row justify-between items-center gap-2 md:gap-6">
-                                
-                                {/* Info del Evento */}
-                                <div className="text-left flex-shrink-0">
-                                    <h1 className="text-lg sm:text-xl md:text-3xl font-black uppercase tracking-tight flex items-center gap-1 md:gap-2">
-                                        🥊 UFC PERTH
-                                    </h1>
-                                    <p className="font-serif italic text-secondary text-[10px] sm:text-xs md:text-base leading-tight">Cartelera Completa</p>
-                                </div>
-                                
-                                {/* SCOREBOARD INTUITIVO (EL CENTRO DE ATENCIÓN) */}
-                                <div className={`relative bg-white/80 p-1.5 sm:p-2 md:p-3 px-3 sm:px-4 md:px-8 rounded-xl md:rounded-2xl border-2 flex gap-3 sm:gap-4 md:gap-12 transition-all duration-500 transform hover:scale-105 ${papaScore > hijoScore ? 'leader-glow-warm' : hijoScore > papaScore ? 'leader-glow-cool' : 'border-white shadow-xl'}`}>
-                                    <div className="text-center flex flex-col items-center">
-                                        <div className={`text-[8px] md:text-xs font-black uppercase tracking-widest px-1.5 md:px-3 py-0.5 md:py-1 rounded-full mb-0.5 md:mb-1 ${papaScore > hijoScore ? 'bg-orange-100 text-orange-700' : 'text-secondary'}`}>Papá {papaScore > hijoScore && '👑'}</div>
-                                        <div className="text-xl sm:text-2xl md:text-5xl font-black score-warm leading-none">{papaScore}</div>
-                                    </div>
-                                    <div className="w-px bg-charcoal/10"></div>
-                                    <div className="text-center flex flex-col items-center">
-                                        <div className={`text-[8px] md:text-xs font-black uppercase tracking-widest px-1.5 md:px-3 py-0.5 md:py-1 rounded-full mb-0.5 md:mb-1 ${hijoScore > papaScore ? 'bg-blue-100 text-blue-700' : 'text-secondary'}`}>Hijo {hijoScore > papaScore && '👑'}</div>
-                                        <div className="text-xl sm:text-2xl md:text-5xl font-black score-cool leading-none">{hijoScore}</div>
-                                    </div>
-                                </div>
-
-                                <button onClick={() => setShowLogin(true)} className="text-xs font-semibold px-4 py-2 bg-charcoal text-cream rounded-lg shadow-sm hover:bg-black transition hidden md:block flex-shrink-0">
-                                    {isAdmin ? 'Admin ✅' : 'Admin'}
-                                </button>
+                        <div className="max-w-4xl mx-auto px-4 flex justify-between items-center gap-4">
+                            <div className="text-left flex-shrink-0">
+                                <h1 className="text-lg sm:text-xl md:text-3xl font-black uppercase tracking-tight">🥊 UFC PERTH</h1>
                             </div>
+                            <div className={`relative bg-white/80 p-2 px-4 md:px-8 rounded-2xl border-2 flex gap-4 md:gap-12 transition-all ${papaScore > hijoScore ? 'leader-glow-warm' : hijoScore > papaScore ? 'leader-glow-cool' : 'border-white'}`}>
+                                <div className="text-center"><div className="text-[10px] font-black uppercase tracking-widest">{papaScore > hijoScore ? 'Papá 👑' : 'Papá'}</div><div className="text-2xl md:text-5xl font-black score-warm leading-none">{papaScore}</div></div>
+                                <div className="w-px bg-charcoal/10"></div>
+                                <div className="text-center"><div className="text-[10px] font-black uppercase tracking-widest">{hijoScore > papaScore ? 'Hijo 👑' : 'Hijo'}</div><div className="text-2xl md:text-5xl font-black score-cool leading-none">{hijoScore}</div></div>
+                            </div>
+                            <button onClick={() => setShowLogin(true)} className="hidden md:block text-xs font-semibold px-4 py-2 bg-charcoal text-cream rounded-lg">{isAdmin ? 'Admin ✅' : 'Admin'}</button>
                         </div>
                     </div>
 
-                    <div className="md:hidden flex justify-center mt-4 px-4">
-                        <button onClick={() => setShowLogin(true)} className="w-full text-xs font-bold uppercase tracking-widest px-4 py-3 bg-charcoal text-white rounded-xl shadow-lg">
-                            {isAdmin ? 'Panel Admin Activo ✅' : 'Acceso Administrador'}
-                        </button>
-                    </div>
+                    <div className="max-w-3xl mx-auto px-4 mt-8">
+                        <div className="flex gap-2 mb-8 bg-charcoal/5 p-1 rounded-2xl">
+                            {['Estelar', 'Preliminar'].map(t => (
+                                <button key={t} onClick={() => { setActiveTab(t); setActiveFightId(allFights.find(f => f.type === t || (t === 'Estelar' && f.type === 'Co-Estelar')).id); }} className={`flex-1 py-3 rounded-xl font-bold text-sm transition ${activeTab === t ? 'bg-charcoal text-cream shadow-lg' : 'hover:bg-charcoal/5'}`}>
+                                    {t === 'Estelar' ? 'Cartelera Estelar' : 'Preliminares'}
+                                </button>
+                            ))}
+                        </div>
 
-                    {/* Main Content */}
-                    <div className="max-w-4xl mx-auto px-4 mt-8 space-y-16">
-                        {allFights.map(fight => (
-                            <div key={fight.id} className={`glass-panel p-4 md:p-8 relative ${confirmedResults[fight.id] ? 'opacity-80 scale-[0.98]' : ''}`}>
-                                
-                                {/* Banner de tipo de pelea */}
-                                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-charcoal text-cream text-xs font-bold uppercase tracking-widest px-4 py-1.5 rounded-full shadow-lg border-2 border-white">
-                                    {fight.type} {fight.featured && '⭐ (Doble Puntos)'}
+                        <div className="flex overflow-x-auto gap-2 mb-8 pb-2 custom-scrollbar">
+                            {filteredFights.map(f => (
+                                <button key={f.id} onClick={() => setActiveFightId(f.id)} className={`px-4 py-2 rounded-full whitespace-nowrap font-black text-[10px] uppercase border transition ${activeFightId === f.id ? 'bg-charcoal text-cream' : 'bg-white border-charcoal/10'}`}>
+                                    Pelea {allFights.indexOf(f) + 1}
+                                </button>
+                            ))}
+                        </div>
+
+                        {currentFight && (
+                            <div className="glass-panel p-6 md:p-12 relative animate-fade-in">
+                                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-charcoal text-cream text-[10px] font-black uppercase tracking-widest px-6 py-2 rounded-full border-4 border-white shadow-xl">
+                                    {currentFight.type} {currentFight.featured && '• Doble Puntos'}
                                 </div>
 
-                                {/* Official Result Banner */}
-                                {confirmedResults[fight.id] && (
-                                    <div className="bg-success/10 border border-success/30 text-green-900 px-5 py-3 rounded-xl mb-8 mt-4 flex flex-col md:flex-row justify-between items-center shadow-sm">
-                                        <span className="text-xs font-black uppercase tracking-widest bg-success text-white px-2 py-1 rounded mb-2 md:mb-0">Resultado Oficial</span>
-                                        <span className="font-serif italic text-lg text-center md:text-right">
-                                            <strong className="font-sans font-black">{results[fight.id]?.winner}</strong> ganó por {results[fight.id]?.method} {results[fight.id]?.round !== 'final' ? `(R${results[fight.id]?.round})` : '(Decisión)'}
-                                        </span>
-                                    </div>
-                                )}
-
-                                {/* FIGHTER DISPLAY (A DÓNDE DEBES VER) */}
-                                <div className="flex flex-row items-center justify-between gap-2 md:gap-6 mb-10 mt-6">
-                                    {/* F1 */}
-                                    <div className="flex flex-col items-center w-[40%] md:w-2/5 group" onClick={() => setModalFighter(fight.f1)}>
-                                        <div className="w-24 h-24 sm:w-32 sm:h-32 md:w-44 md:h-44 rounded-full fighter-img-container mb-3 flex-shrink-0 relative">
-                                            <img src={fight.f1.img || getSilhouette(fight.f1.name)} alt={fight.f1.name} className="w-full h-full object-cover object-top" />
-                                            {/* Hint to click */}
-                                            <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <span className="text-white text-[10px] md:text-xs font-bold uppercase tracking-widest px-2 py-1 bg-black/60 rounded">Ver Detalles</span>
+                                <div className="flex justify-between items-center mb-12 mt-4">
+                                    <div className="flex-1 text-center group cursor-pointer" onClick={() => setModalFighter(currentFight.f1)}>
+                                        <div className="relative inline-block mb-4">
+                                            <div className="w-24 h-24 md:w-48 md:h-48 rounded-full border-4 border-white shadow-2xl overflow-hidden bg-white">
+                                                <img src={currentFight.f1.img || getSilhouette(currentFight.f1.name)} className="w-full h-full object-cover object-top" />
                                             </div>
+                                            <img src={getFlag(currentFight.f1.country)} className="absolute bottom-0 right-0 w-8 h-8 md:w-12 md:h-12 border-4 border-white rounded-full shadow-lg" />
                                         </div>
-                                        <h3 className="text-sm md:text-2xl font-black text-center leading-tight mb-1">{fight.f1.name}</h3>
-                                        <div className={`text-[10px] md:text-xs font-bold px-2 py-0.5 rounded-full mb-1 ${fight.f1.oddsType === 'Favorito' ? 'odds-fav' : fight.f1.oddsType === 'Underdog' ? 'odds-dog' : 'bg-gray-100'}`}>
-                                            {fight.f1.oddsType} <span className="font-black">{fight.f1.odds}</span>
-                                        </div>
-                                        <p className="text-secondary font-bold text-xs md:text-sm font-serif italic mb-1">{fight.f1.rec}</p>
-                                        <p className="text-[10px] font-black text-charcoal bg-charcoal/5 px-2 py-0.5 rounded border border-charcoal/10 shadow-sm">{getWeightLbs(fight.weight)}</p>
+                                        <h3 className="text-lg md:text-3xl font-black mb-1">{currentFight.f1.name}</h3>
+                                        <div className={`inline-block text-[10px] font-black px-3 py-1 rounded-full mb-2 ${currentFight.f1.oddsType === 'Favorito' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>{currentFight.f1.odds}</div>
+                                        <p className="text-secondary text-xs font-serif italic">{currentFight.f1.rec}</p>
                                     </div>
 
-                                    {/* VS */}
-                                    <div className="flex flex-col items-center justify-center w-[20%] md:w-1/5 pt-2">
-                                        <div className="flex flex-col gap-2 md:gap-3 items-center">
-                                            <span className="text-[9px] md:text-xs text-secondary uppercase tracking-widest font-black bg-white px-2 py-1 rounded-full border border-charcoal/10 text-center shadow-sm w-max max-w-full overflow-hidden text-ellipsis">
-                                                <span className="md:hidden">{fight.weight.split(' ')[1] || fight.weight.slice(0, 4)}</span>
-                                                <span className="hidden md:inline">{fight.weight}</span>
-                                            </span>
-                                            
-                                            <div className="w-10 h-10 md:w-16 md:h-16 rounded-full bg-charcoal text-cream flex items-center justify-center shadow-lg border-4 border-white z-10 relative">
-                                                <span className="text-sm md:text-xl font-black">VS</span>
-                                            </div>
-                                            
-                                            <span className="text-[10px] md:text-xs text-charcoal font-bold bg-white px-3 py-1 rounded-full border border-charcoal/10 text-center shadow-sm whitespace-nowrap">
-                                                {fight.round} Rnds
-                                            </span>
-                                        </div>
+                                    <div className="flex flex-col items-center gap-4">
+                                        <button onClick={() => setTaleOfTape(currentFight)} className="bg-charcoal/5 hover:bg-charcoal text-charcoal hover:text-white p-3 rounded-full transition shadow-sm border border-charcoal/10">📊</button>
+                                        <div className="text-2xl md:text-5xl font-black opacity-10">VS</div>
+                                        <div className="text-center"><div className="text-[10px] font-black bg-charcoal/5 px-2 py-1 rounded mb-1">{currentFight.weight}</div><div className="text-[10px] font-black bg-charcoal text-white px-2 py-1 rounded">{currentFight.round} RNDS</div></div>
                                     </div>
 
-                                    {/* F2 */}
-                                    <div className="flex flex-col items-center w-[40%] md:w-2/5 group" onClick={() => setModalFighter(fight.f2)}>
-                                        <div className="w-24 h-24 sm:w-32 sm:h-32 md:w-44 md:h-44 rounded-full fighter-img-container mb-3 flex-shrink-0 relative">
-                                            <img src={fight.f2.img || getSilhouette(fight.f2.name)} alt={fight.f2.name} className="w-full h-full object-cover object-top" />
-                                            <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <span className="text-white text-[10px] md:text-xs font-bold uppercase tracking-widest px-2 py-1 bg-black/60 rounded">Ver Detalles</span>
+                                    <div className="flex-1 text-center group cursor-pointer" onClick={() => setModalFighter(currentFight.f2)}>
+                                        <div className="relative inline-block mb-4">
+                                            <div className="w-24 h-24 md:w-48 md:h-48 rounded-full border-4 border-white shadow-2xl overflow-hidden bg-white">
+                                                <img src={currentFight.f2.img || getSilhouette(currentFight.f2.name)} className="w-full h-full object-cover object-top" />
                                             </div>
+                                            <img src={getFlag(currentFight.f2.country)} className="absolute bottom-0 right-0 w-8 h-8 md:w-12 md:h-12 border-4 border-white rounded-full shadow-lg" />
                                         </div>
-                                        <h3 className="text-sm md:text-2xl font-black text-center leading-tight mb-1">{fight.f2.name}</h3>
-                                        <div className={`text-[10px] md:text-xs font-bold px-2 py-0.5 rounded-full mb-1 ${fight.f2.oddsType === 'Favorito' ? 'odds-fav' : fight.f2.oddsType === 'Underdog' ? 'odds-dog' : 'bg-gray-100'}`}>
-                                            {fight.f2.oddsType} <span className="font-black">{fight.f2.odds}</span>
-                                        </div>
-                                        <p className="text-secondary font-bold text-xs md:text-sm font-serif italic mb-1">{fight.f2.rec}</p>
-                                        <p className="text-[10px] font-black text-charcoal bg-charcoal/5 px-2 py-0.5 rounded border border-charcoal/10 shadow-sm">{getWeightLbs(fight.weight)}</p>
+                                        <h3 className="text-lg md:text-3xl font-black mb-1">{currentFight.f2.name}</h3>
+                                        <div className={`inline-block text-[10px] font-black px-3 py-1 rounded-full mb-2 ${currentFight.f2.oddsType === 'Favorito' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>{currentFight.f2.odds}</div>
+                                        <p className="text-secondary text-xs font-serif italic">{currentFight.f2.rec}</p>
                                     </div>
                                 </div>
 
-                                {/* PREDICCIONES (ZONAS RESALTADAS) */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative">
-                                    
-                                    {/* PAPA ZONE */}
-                                    <div className="bg-orange-50/50 p-5 rounded-2xl border-2 border-orange-100 shadow-sm relative overflow-hidden transition-all hover:border-orange-300">
-                                        <div className="absolute top-0 right-0 w-24 h-24 bg-orange-200/40 rounded-full blur-2xl -mr-10 -mt-10"></div>
-                                        <div className="flex justify-between items-center mb-4 relative z-10">
-                                            <span className="text-sm font-black uppercase tracking-widest text-orange-600 bg-orange-100 px-3 py-1 rounded-md">Tus Picks (Papá)</span>
-                                            {confirmedResults[fight.id] && <span className="text-sm font-black bg-white text-orange-600 px-3 py-1 rounded-lg shadow-sm border border-orange-200">+{calcPts(fight.id, 'player1')} pts</span>}
-                                        </div>
-                                        <div className="space-y-3 relative z-10">
-                                            <select className="w-full bg-white border border-orange-200 rounded-xl px-4 py-3 text-sm font-bold text-charcoal shadow-sm hover:border-orange-400 focus:ring-2 focus:ring-orange-400"
-                                                    value={predictions[fight.id]?.player1?.winner || ''} onChange={e => handlePred(fight.id, 'player1', 'winner', e.target.value)}>
-                                                <option value="" disabled>👑 Selecciona Ganador...</option>
-                                                <option value={fight.f1.name}>{fight.f1.name}</option>
-                                                <option value={fight.f2.name}>{fight.f2.name}</option>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    {['player1', 'player2'].map((p, i) => (
+                                        <div key={p} className={`p-6 rounded-3xl border-2 ${i === 0 ? 'bg-orange-50 border-orange-100' : 'bg-blue-50 border-blue-100'}`}>
+                                            <div className="text-xs font-black uppercase mb-4 opacity-50">{i === 0 ? 'Pick Papá' : 'Pick Hijo'}</div>
+                                            <select className="w-full bg-white border border-charcoal/10 rounded-xl px-4 py-3 text-sm font-bold mb-3" value={predictions[currentFight.id]?.[p]?.winner || ''} onChange={e => handlePred(currentFight.id, p, 'winner', e.target.value)}>
+                                                <option value="" disabled>Selecciona Ganador...</option>
+                                                <option value={currentFight.f1.name}>{currentFight.f1.name}</option>
+                                                <option value={currentFight.f2.name}>{currentFight.f2.name}</option>
                                             </select>
-                                            <div className="flex gap-3">
-                                                <select className="w-1/2 bg-white border border-orange-200 rounded-xl px-4 py-3 text-sm font-semibold shadow-sm hover:border-orange-400" value={predictions[fight.id]?.player1?.method || ''} onChange={e => handlePred(fight.id, 'player1', 'method', e.target.value)}>
-                                                    <option value="" disabled>🥊 Método</option>
-                                                    <option value="Decisión">Decisión</option><option value="KO/TKO">KO / TKO</option><option value="Sumisión">Sumisión</option>
-                                                </select>
-                                                <select className="w-1/2 bg-white border border-orange-200 rounded-xl px-4 py-3 text-sm font-semibold shadow-sm hover:border-orange-400" value={predictions[fight.id]?.player1?.round || ''} onChange={e => handlePred(fight.id, 'player1', 'round', e.target.value)}>
-                                                    <option value="" disabled>⏱️ Round</option>
-                                                    {Array.from({length: fight.round}, (_, i) => <option key={i+1} value={i+1}>R {i+1}</option>)}
-                                                    <option value="final">Final / Decisión</option>
-                                                </select>
+                                            <div className="flex gap-2">
+                                                <select className="flex-1 bg-white border border-charcoal/10 rounded-xl px-4 py-3 text-xs font-bold" value={predictions[currentFight.id]?.[p]?.method || ''} onChange={e => handlePred(currentFight.id, p, 'method', e.target.value)}><option value="" disabled>Método</option><option value="Decisión">Decisión</option><option value="KO/TKO">KO/TKO</option><option value="Sumisión">Sumisión</option></select>
+                                                <select className="flex-1 bg-white border border-charcoal/10 rounded-xl px-4 py-3 text-xs font-bold" value={predictions[currentFight.id]?.[p]?.round || ''} onChange={e => handlePred(currentFight.id, p, 'round', e.target.value)}><option value="" disabled>Round</option>{Array.from({length: currentFight.round}, (_, i) => <option key={i+1} value={i+1}>R{i+1}</option>)}<option value="final">F</option></select>
                                             </div>
                                         </div>
-                                    </div>
-
-                                    {/* HIJO ZONE */}
-                                    <div className="bg-blue-50/50 p-5 rounded-2xl border-2 border-blue-100 shadow-sm relative overflow-hidden transition-all hover:border-blue-300">
-                                        <div className="absolute top-0 right-0 w-24 h-24 bg-blue-200/40 rounded-full blur-2xl -mr-10 -mt-10"></div>
-                                        <div className="flex justify-between items-center mb-4 relative z-10">
-                                            <span className="text-sm font-black uppercase tracking-widest text-blue-600 bg-blue-100 px-3 py-1 rounded-md">Tus Picks (Hijo)</span>
-                                            {confirmedResults[fight.id] && <span className="text-sm font-black bg-white text-blue-600 px-3 py-1 rounded-lg shadow-sm border border-blue-200">+{calcPts(fight.id, 'player2')} pts</span>}
-                                        </div>
-                                        <div className="space-y-3 relative z-10">
-                                            <select className="w-full bg-white border border-blue-200 rounded-xl px-4 py-3 text-sm font-bold text-charcoal shadow-sm hover:border-blue-400 focus:ring-2 focus:ring-blue-400"
-                                                    value={predictions[fight.id]?.player2?.winner || ''} onChange={e => handlePred(fight.id, 'player2', 'winner', e.target.value)}>
-                                                <option value="" disabled>👑 Selecciona Ganador...</option>
-                                                <option value={fight.f1.name}>{fight.f1.name}</option>
-                                                <option value={fight.f2.name}>{fight.f2.name}</option>
-                                            </select>
-                                            <div className="flex gap-3">
-                                                <select className="w-1/2 bg-white border border-blue-200 rounded-xl px-4 py-3 text-sm font-semibold shadow-sm hover:border-blue-400" value={predictions[fight.id]?.player2?.method || ''} onChange={e => handlePred(fight.id, 'player2', 'method', e.target.value)}>
-                                                    <option value="" disabled>🥊 Método</option>
-                                                    <option value="Decisión">Decisión</option><option value="KO/TKO">KO / TKO</option><option value="Sumisión">Sumisión</option>
-                                                </select>
-                                                <select className="w-1/2 bg-white border border-blue-200 rounded-xl px-4 py-3 text-sm font-semibold shadow-sm hover:border-blue-400" value={predictions[fight.id]?.player2?.round || ''} onChange={e => handlePred(fight.id, 'player2', 'round', e.target.value)}>
-                                                    <option value="" disabled>⏱️ Round</option>
-                                                    {Array.from({length: fight.round}, (_, i) => <option key={i+1} value={i+1}>R {i+1}</option>)}
-                                                    <option value="final">Final / Decisión</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    ))}
                                 </div>
 
-                                {/* ADMIN SECTION */}
                                 {isAdmin && (
-                                    <div className="mt-8 pt-6 border-t-2 border-dashed border-charcoal/20">
-                                        <div className="bg-charcoal/5 p-4 rounded-xl flex flex-col md:flex-row items-center gap-4">
-                                            <span className="text-xs font-black uppercase tracking-widest bg-charcoal text-white px-3 py-1.5 rounded flex items-center gap-1">
-                                                ⚙️ Oficial
-                                            </span>
-                                            
-                                            <select className="w-full md:w-auto flex-1 bg-white border border-charcoal/20 rounded-lg px-3 py-2 text-sm font-bold"
-                                                    value={results[fight.id]?.winner || ''} onChange={e => handleRes(fight.id, 'winner', e.target.value)} disabled={confirmedResults[fight.id]}>
-                                                <option value="">¿Quién ganó realmente?</option>
-                                                <option value={fight.f1.name}>{fight.f1.name}</option>
-                                                <option value={fight.f2.name}>{fight.f2.name}</option>
-                                            </select>
-                                            
-                                            <div className="flex w-full md:w-auto gap-2">
-                                                <select className="w-1/2 md:w-32 bg-white border border-charcoal/20 rounded-lg px-3 py-2 text-sm font-bold"
-                                                        value={results[fight.id]?.method || ''} onChange={e => handleRes(fight.id, 'method', e.target.value)} disabled={confirmedResults[fight.id]}>
-                                                    <option value="">Método</option>
-                                                    <option value="Decisión">Decisión</option><option value="KO/TKO">KO / TKO</option><option value="Sumisión">Sumisión</option>
-                                                </select>
-                                                <select className="w-1/2 md:w-28 bg-white border border-charcoal/20 rounded-lg px-3 py-2 text-sm font-bold"
-                                                        value={results[fight.id]?.round || ''} onChange={e => handleRes(fight.id, 'round', e.target.value)} disabled={confirmedResults[fight.id]}>
-                                                    <option value="">Round</option>
-                                                    {Array.from({length: fight.round}, (_, i) => <option key={i+1} value={i+1}>{i+1}</option>)}
-                                                    <option value="final">Final</option>
-                                                </select>
-                                            </div>
-
-                                            {confirmedResults[fight.id] ? (
-                                                <button onClick={() => { setConfirmedResults(p=>({...p,[fight.id]:false})); api.unconfirm(fight.id); }} className="w-full md:w-auto bg-gray-300 text-charcoal font-black px-6 py-2 rounded-lg text-sm uppercase tracking-wider hover:bg-gray-400">Editar</button>
-                                            ) : (
-                                                <button onClick={() => { setConfirmedResults(p=>({...p,[fight.id]:true})); api.saveConfirmed(fight.id); }} className="w-full md:w-auto bg-success text-white font-black px-6 py-2 rounded-lg text-sm uppercase tracking-wider hover:bg-green-600 shadow-md">Confirmar</button>
-                                            )}
-                                        </div>
+                                    <div className="mt-12 pt-8 border-t border-charcoal/10 flex flex-wrap gap-4 items-center justify-center">
+                                        <div className="text-[10px] font-black bg-charcoal text-white px-3 py-1 rounded">ADMIN</div>
+                                        <select className="bg-white border rounded-xl px-4 py-2 text-xs font-bold" value={results[currentFight.id]?.winner || ''} onChange={e => handleRes(currentFight.id, 'winner', e.target.value)} disabled={confirmedResults[currentFight.id]}><option value="">Ganador...</option><option value={currentFight.f1.name}>{currentFight.f1.name}</option><option value={currentFight.f2.name}>{currentFight.f2.name}</option></select>
+                                        <button onClick={() => { setConfirmedResults(p=>({...p,[currentFight.id]:!p[currentFight.id]})); confirmedResults[currentFight.id] ? api.unconfirm(currentFight.id) : api.saveConfirmed(currentFight.id); }} className={`px-6 py-2 rounded-xl text-xs font-black uppercase transition ${confirmedResults[currentFight.id] ? 'bg-gray-200' : 'bg-success text-white'}`}>{confirmedResults[currentFight.id] ? 'Editar' : 'Confirmar'}</button>
                                     </div>
                                 )}
                             </div>
-                        ))}
+                        )}
                     </div>
 
-                    {/* FIGHTER MODAL DETALLADO EN ESPAÑOL */}
                     {modalFighter && (
-                        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 modal-overlay bg-charcoal/40 backdrop-blur-md" onClick={() => setModalFighter(null)}>
-                            <div className="bg-cream/80 backdrop-blur-xl rounded-3xl p-6 md:p-8 w-full max-w-lg modal-content shadow-2xl border border-white/50 relative flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}>
-                                {/* Header del Modal */}
-                                <div className="flex justify-between items-start mb-6 relative z-10 flex-shrink-0">
-                                    <div className="w-24 h-24 md:w-32 md:h-32 rounded-full overflow-hidden border-4 border-white shadow-lg bg-gray-100/50 flex-shrink-0">
-                                        <img src={modalFighter.img || getSilhouette(modalFighter.name)} className="w-full h-full object-cover object-top" />
-                                    </div>
-                                    <button onClick={() => setModalFighter(null)} className="w-10 h-10 rounded-full bg-white/50 border border-charcoal/10 shadow-sm flex items-center justify-center font-bold hover:bg-charcoal hover:text-white transition text-xl">&times;</button>
-                                </div>
-                                
-                                {/* Scrollable Content */}
-                                <div className="overflow-y-auto pr-2 custom-scrollbar">
-                                    <h2 className="text-3xl md:text-4xl font-black leading-none mb-1 uppercase tracking-tight">{modalFighter.name}</h2>
-                                    <div className="flex flex-wrap items-center gap-3 mb-6">
-                                        <p className="font-serif italic text-xl text-secondary flex items-center gap-2">
-                                            Récord: <span className="font-sans font-bold text-charcoal bg-charcoal/5 px-2 py-0.5 rounded">{modalFighter.rec}</span>
-                                        </p>
-                                        {/* PESO EN EL MODAL */}
-                                        {allFights.find(f => f.f1.name === modalFighter.name || f.f2.name === modalFighter.name) && (
-                                            <span className="bg-charcoal text-white text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest shadow-sm">
-                                                {getWeightLbs(allFights.find(f => f.f1.name === modalFighter.name || f.f2.name === modalFighter.name).weight)}
-                                            </span>
-                                        )}
-                                    </div>
-                                    
-                                    {/* Info Cards */}
-                                    <div className="space-y-4">
-                                        <div className="flex flex-col sm:flex-row gap-4">
-                                            <div className="flex-1 bg-white/60 backdrop-blur-md p-4 rounded-2xl border border-white shadow-sm">
-                                                <p className="text-[10px] md:text-xs font-black uppercase tracking-widest text-secondary mb-1">🥊 Estilo de Pelea</p>
-                                                <p className="font-bold text-sm md:text-base">{modalFighter.style}</p>
-                                            </div>
-                                            <div className="flex-1 bg-white/60 backdrop-blur-md p-4 rounded-2xl border border-white shadow-sm">
-                                                <p className="text-[10px] md:text-xs font-black uppercase tracking-widest text-secondary mb-1">🔥 Especialidad</p>
-                                                <p className="font-bold text-sm md:text-base">{modalFighter.specialty}</p>
-                                            </div>
-                                        </div>
-                                        
-                                        {/* Últimas 5 Peleas Detalladas */}
-                                        <div className="bg-white/60 backdrop-blur-md p-5 rounded-2xl border border-white shadow-sm">
-                                            <p className="text-xs font-black uppercase tracking-widest text-secondary mb-3 border-b border-charcoal/5 pb-2">Últimas 5 Peleas</p>
-                                            <div className="space-y-3">
-                                                {modalFighter.recent.map((fight, i) => (
-                                                    <div key={i} className="flex items-center justify-between">
-                                                        <div className="flex items-center gap-3">
-                                                            <span className={`w-8 h-8 flex items-center justify-center text-sm font-black rounded-full shadow-sm ${fight.r === 'W' ? 'bg-success/20 text-success border border-success/30' : 'bg-danger/10 text-danger border border-danger/20'}`}>
-                                                                {fight.r}
-                                                            </span>
-                                                            <span className="font-bold text-sm">
-                                                                {fight.r === 'W' ? 'Victoria' : 'Derrota'}
-                                                            </span>
-                                                        </div>
-                                                        <div className="text-right">
-                                                            <span className="text-xs font-bold bg-charcoal/5 px-2 py-1 rounded text-charcoal">
-                                                                {fight.m}
-                                                            </span>
-                                                            <span className="text-[10px] text-secondary font-bold ml-2 uppercase whitespace-nowrap">
-                                                                Rnd {fight.rnd}
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </div>
+                        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-charcoal/40 backdrop-blur-md" onClick={() => setModalFighter(null)}>
+                            <div className="bg-white/90 backdrop-blur-2xl rounded-[40px] p-8 md:p-12 w-full max-w-xl shadow-2xl border border-white relative max-h-[90vh] overflow-y-auto custom-scrollbar" onClick={e => e.stopPropagation()}>
+                                <div className="flex justify-between items-start mb-8"><div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-xl"><img src={modalFighter.img || getSilhouette(modalFighter.name)} className="w-full h-full object-cover object-top" /></div><button onClick={() => setModalFighter(null)} className="text-4xl">&times;</button></div>
+                                <h2 className="text-4xl font-black mb-2">{modalFighter.name}</h2>
+                                <div className="flex items-center gap-3 mb-8"><img src={getFlag(modalFighter.country)} className="w-10 rounded shadow-sm" /><span className="text-xl font-serif italic">{modalFighter.rec}</span></div>
+                                <div className="grid grid-cols-2 gap-4 mb-8"><div className="bg-charcoal/5 p-6 rounded-3xl"><div className="text-[10px] font-black uppercase mb-1 opacity-50">Estilo</div><div className="font-bold">{modalFighter.style}</div></div><div className="bg-charcoal/5 p-6 rounded-3xl"><div className="text-[10px] font-black uppercase mb-1 opacity-50">Especialidad</div><div className="font-bold">{modalFighter.specialty}</div></div></div>
+                                <div className="space-y-4">
+                                    <div className="text-xs font-black uppercase tracking-widest border-b pb-2">Últimas Peleas</div>
+                                    {modalFighter.recent.map((f, i) => (
+                                        <div key={i} className="flex justify-between items-center"><div className="flex items-center gap-4"><span className={`w-8 h-8 flex items-center justify-center font-black rounded-full text-xs ${f.r === 'W' ? 'bg-success/20 text-success' : 'bg-danger/10 text-danger'}`}>{f.r}</span><span className="font-bold">{f.r === 'W' ? 'Victoria' : 'Derrota'}</span></div><div className="text-right"><div className="text-xs font-bold">{f.m}</div><div className="text-[10px] opacity-50">RND {f.rnd}</div></div></div>
+                                    ))}
                                 </div>
                             </div>
                         </div>
                     )}
 
-                    {/* LOGIN & GLOBAL ADMIN TOOLS MODAL */}
-                    {showLogin && (
-                        <div className="fixed inset-0 bg-charcoal/60 backdrop-blur-md flex items-center justify-center z-[100] p-4 modal-overlay">
-                            <div className="bg-cream p-8 rounded-3xl w-full max-w-sm modal-content shadow-2xl border border-white">
-                                <h2 className="font-sans font-black uppercase tracking-tight text-3xl mb-2 text-center">Admin Access</h2>
-                                
-                                {!isAdmin ? (
-                                    <>
-                                        <p className="text-xs text-secondary text-center mb-6 uppercase tracking-widest font-bold">Autenticación requerida</p>
-                                        <input 
-                                            type="password" placeholder="Contraseña..." 
-                                            className="w-full mb-6 bg-white border-2 border-charcoal/10 focus:border-charcoal focus:ring-0 rounded-xl px-5 py-4 text-sm font-bold transition"
-                                            value={password} onChange={e => setPassword(e.target.value)}
-                                            onKeyDown={e => e.key === 'Enter' && (password === 'ufc2026' ? (setIsAdmin(true), setPassword('')) : alert('Incorrecto'))}
-                                        />
-                                        <div className="flex gap-3">
-                                            <button className="flex-1 bg-white border border-charcoal/10 font-bold py-3.5 rounded-xl text-sm shadow-sm hover:bg-gray-50 transition" onClick={() => setShowLogin(false)}>Cancelar</button>
-                                            <button className="flex-1 bg-charcoal text-white font-bold py-3.5 rounded-xl text-sm shadow-md hover:bg-black transition" onClick={() => password === 'ufc2026' ? (setIsAdmin(true), setPassword('')) : alert('Incorrecto')}>Entrar</button>
-                                        </div>
-                                    </>
-                                ) : (
-                                    <div className="space-y-4 mt-6">
-                                        <button className="w-full flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-700 text-white font-black uppercase tracking-wider py-4 rounded-xl text-sm transition shadow-lg"
-                                            onClick={async () => {
-                                                if(window.confirm('¿Actualizar automáticamente todos los resultados con Inteligencia Artificial (Gemini)?')) {
-                                                    try { const res = await api.fetchGeminiResults(); alert(res.message); window.location.reload(); } catch(e) { alert(e.message); }
-                                                }
-                                            }}>
-                                            🤖 Actualizar con Gemini
-                                        </button>
-                                        <button className="w-full flex items-center justify-center gap-2 bg-danger/10 hover:bg-danger/20 text-danger border border-danger/30 font-black uppercase tracking-wider py-4 rounded-xl text-sm transition"
-                                            onClick={async () => {
-                                                if(window.confirm('⚠️ ¿ESTÁS SEGURO? Esto borrará TODAS las predicciones y resultados.')) {
-                                                    try { await api.clearAll(); alert('Base de datos vaciada exitosamente.'); window.location.reload(); } catch(e) { alert(e.message); }
-                                                }
-                                            }}>
-                                            ⚠️ Borrar Todo (Reset)
-                                        </button>
-                                        <div className="pt-4 border-t border-charcoal/10">
-                                            <button className="w-full bg-white border border-charcoal/10 font-bold py-3 rounded-xl text-sm mb-2" onClick={() => { setIsAdmin(false); setShowLogin(false); }}>
-                                                Cerrar Sesión
-                                            </button>
-                                            <button className="w-full text-secondary font-bold text-xs uppercase tracking-widest py-2" onClick={() => setShowLogin(false)}>
-                                                Cerrar Panel
-                                            </button>
-                                        </div>
-                                    </div>
-                                )}
+                    {taleOfTape && (
+                        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-charcoal/40 backdrop-blur-md" onClick={() => setTaleOfTape(null)}>
+                            <div className="bg-charcoal text-white rounded-[40px] p-8 md:p-12 w-full max-w-2xl shadow-2xl relative" onClick={e => e.stopPropagation()}>
+                                <button onClick={() => setTaleOfTape(null)} className="absolute top-8 right-8 text-4xl">&times;</button>
+                                <h2 className="text-center text-xs font-black tracking-[0.4em] uppercase mb-12 opacity-50">Cara a Cara</h2>
+                                <div className="flex justify-between items-center gap-4">
+                                    <div className="flex-1 text-center"><div className="text-xl font-black mb-1">{taleOfTape.f1.name}</div><div className="text-[10px] opacity-50 uppercase">{taleOfTape.f1.rec}</div></div>
+                                    <div className="text-xs font-black opacity-20">VS</div>
+                                    <div className="flex-1 text-center"><div className="text-xl font-black mb-1">{taleOfTape.f2.name}</div><div className="text-[10px] opacity-50 uppercase">{taleOfTape.f2.rec}</div></div>
+                                </div>
+                                <div className="mt-12 space-y-8">
+                                    {[ ['EDAD', 'age'], ['ALTURA', 'height'], ['ALCANCE', 'reach'] ].map(([label, key]) => (
+                                        <div key={key} className="relative"><div className="flex justify-between text-lg font-black mb-2"><span>{taleOfTape.f1[key]}</span><span>{taleOfTape.f2[key]}</span></div><div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[8px] font-black tracking-widest opacity-30">{label}</div><div className="h-1 bg-white/10 rounded-full overflow-hidden flex"><div className="h-full bg-accentWarm" style={{width: '50%'}}></div><div className="h-full bg-accentCool" style={{width: '50%'}}></div></div></div>
+                                    ))}
+                                </div>
                             </div>
                         </div>
                     )}
