@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UFC Vegas 116 - Sterling vs Zalal - Betting Tracker</title>
+    <title>UFC Perth - Della Maddalena vs Prates - Betting Tracker</title>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -161,6 +161,12 @@
                 });
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
                 return res.json();
+            },
+
+            async fetchGeminiResults() {
+                const res = await fetch('/api/gemini-update', { method: 'POST' });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                return res.json();
             }
         };
 
@@ -169,6 +175,9 @@
             const [results, setResults] = useState({});
             const [confirmedResults, setConfirmedResults] = useState({});
             const [connected, setConnected] = useState(false);
+            const [isAdmin, setIsAdmin] = useState(false);
+            const [showLogin, setShowLogin] = useState(false);
+            const [password, setPassword] = useState('');
             const lastUpdateRef = useRef(0);
             const scrollRef = useRef(0);
             const lastLocalChangeRef = useRef(0);
@@ -178,66 +187,78 @@
             };
 
             const allFights = [
-                // MAIN CARD ONLY
+                // MAIN CARD UFC PERTH (May 2, 2026)
                 {
                     id: 1,
-                    fighter1: 'Marcus Almeida',
-                    fighter2: 'Ryan Spann',
-                    weight: 'Peso Semipesado',
-                    round: 3,
-                    featured: false,
-                    image1: 'https://www.ufcespanol.com/images/styles/card_advance_small_280x356/s3/2025-07/072325-Marcus-Bucheca-HERO.jpg?itok=JFtM0fAa',
-                    image2: 'https://encrypted-tbn1.gstatic.com/licensed-image?q=tbn:ANd9GcSSch-jHbIFkzO7gKgJ7VKxOQI6u8A6OVtiPjmqJ7qqt8yZxNemeWXmILy1H5Pkmh31PSoa4R3dwKGVbEM'
+                    fighter1: 'Jack Della Maddalena',
+                    fighter2: 'Carlos Prates',
+                    record1: '18-3-0',
+                    record2: '23-7-0',
+                    weight: 'Peso Welter',
+                    round: 5,
+                    featured: true,
+                    image1: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-03/DELLA_MADDALENA_JACK_L_03-09.png',
+                    image2: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-08/PRATES_CARLOS_L_08-17.png'
                 },
                 {
                     id: 2,
-                    fighter1: 'Montel Jackson',
-                    fighter2: 'Raoni Barcelos',
-                    weight: 'Peso Gallo',
+                    fighter1: 'Tai Tuivasa',
+                    fighter2: 'Louie Sutherland',
+                    record1: '15-7-0',
+                    record2: '6-3-0',
+                    weight: 'Peso Pesado',
                     round: 3,
                     featured: false,
-                    image1: 'https://www.ufcespanol.com/images/styles/athlete_bio_full_body/s3/2026-04/JACKSON_MONTEL_L_04-25.png?itok=6upYAlWP',
-                    image2: 'https://www.ufcespanol.com/images/styles/athlete_bio_full_body/s3/2025-01/BARCELOS_RAONI_L_01-18.png?itok=TesqOAZR'
+                    image1: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-03/TUIVASA_TAI_L_03-16.png',
+                    image2: ''
                 },
                 {
                     id: 3,
-                    fighter1: 'Adrian Luna Martinetti',
-                    fighter2: 'Davey Grant',
-                    weight: 'Peso Gallo',
-                    round: 3,
-                    featured: false,
-                    image1: 'https://www.ufcespanol.com/images/styles/athlete_bio_full_body/s3/2026-04/MARTINETTI_ADRIAN_R_04-25.png?itok=DjxeQMaC',
-                    image2: 'https://www.ufcespanol.com/images/styles/athlete_bio_full_body/s3/2026-04/GRANT_DAVEY_L_04-25.png?itok=DfGtIIH3'
-                },
-                {
-                    id: 4,
-                    fighter1: 'Rafa Garcia',
-                    fighter2: 'Alexander Hernandez',
+                    fighter1: 'Beneil Dariush',
+                    fighter2: 'Quillan Salkilld',
+                    record1: '22-6-1',
+                    record2: '7-1-0',
                     weight: 'Peso Ligero',
                     round: 3,
                     featured: false,
-                    image1: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQwM47yN_kgL_HhNSzqaBzS28qW32_p4FmbSb6uJUebmmGzSqd5JC70VBsRvaAPdsPFLzDpi35-ryirLWoSDTpR0OaVVCNBgpUNSmOIhFo&s=10',
-                    image2: 'https://upload.wikimedia.org/wikipedia/commons/1/10/Alexander_Hernandez_Jan_19%2C_2019.jpg'
+                    image1: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2023-12/DARIUSH_BENEIL_L_12-02.png',
+                    image2: ''
+                },
+                {
+                    id: 4,
+                    fighter1: 'Tim Elliott',
+                    fighter2: 'Steve Erceg',
+                    record1: '20-13-1',
+                    record2: '12-3-0',
+                    weight: 'Peso Mosca',
+                    round: 3,
+                    featured: false,
+                    image1: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2023-12/ELLIOTT_TIM_L_12-09.png',
+                    image2: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-05/ERCEG_STEVE_L_05-04.png'
                 },
                 {
                     id: 5,
-                    fighter1: 'Norma Dumont',
-                    fighter2: 'Joselyne Edwards',
-                    weight: 'Peso Pluma Femenil',
+                    fighter1: 'Marwan Rahiki',
+                    fighter2: 'Ollie Schmid',
+                    record1: '9-2-0',
+                    record2: '7-1-0',
+                    weight: 'Peso Pluma',
                     round: 3,
                     featured: false,
-                    image1: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSaoQb1CM49XWKOKEWszhH9KUsBN-wysUVFz7DrX5BlxJCOqtgvENmBsfPSKYcDLqP40JhFiRIzpXKzWZxQFJRs0WJgS93_qKcaz0OBXXM&s=10',
-                    image2: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQquoDypI4LElHMxGuu2L1uclgFK29ZxF-moLJM_jzy54D57cICXKX3pAuy2LFVEtZbwGALz6g_JGoH0ri4amRBjinjqgggpicbZ3OufA&s=10'
+                    image1: '',
+                    image2: ''
                 },
                 {
                     id: 6,
-                    fighter1: 'Aljamain Sterling',
-                    fighter2: 'Youssef Zalal',
-                    weight: 'Peso Pluma',
-                    round: 5,
-                    featured: true,
-                    image1: 'https://platform.mmafighting.com/wp-content/uploads/sites/109/chorus/uploads/chorus_asset/file/24331244/1435297464.jpg?quality=90&strip=all&crop=0%2C0%2C100%2C92.098493201029&w=2400',
-                    image2: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQg-l8JNWrt-sXoYj7ikyB6Axl1AKkz5S5qifaLGQOnDU1KM4NtooBxFbbb&s=10'
+                    fighter1: 'Shamil Gaziev',
+                    fighter2: 'Brando Pericic',
+                    record1: '13-1-0',
+                    record2: '8-1-0',
+                    weight: 'Peso Pesado',
+                    round: 3,
+                    featured: false,
+                    image1: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-03/GAZIEV_SHAMIL_L_03-02.png',
+                    image2: ''
                 },
             ];
 
@@ -420,13 +441,13 @@
                     <div className="sticky-header">
                         <div className="max-w-7xl mx-auto px-4">
                             <div className="text-center mb-2">
-                                <h1 className="text-xl font-black mb-0">🥊 UFC VEGAS 116</h1>
-                                <p className="text-xs text-yellow-300">Sterling vs Zalal</p>
+                                <h1 className="text-xl font-black mb-0">🥊 UFC PERTH</h1>
+                                <p className="text-xs text-yellow-300">Della Maddalena vs Prates</p>
                             </div>
 
                             {/* RESULTADO OFICIAL */}
                             <div className="bg-gradient-to-r from-purple-900 to-blue-900 p-3 rounded-lg text-center">
-                                <p className="text-xs text-gray-300 mb-1">RESULTADO</p>
+                                <p className="text-xs text-gray-300 mb-1">PUNTUACIÓN</p>
                                 <div className="flex justify-around items-center">
                                     <div>
                                         <p className="text-sm font-bold">Papá</p>
@@ -442,10 +463,61 @@
                                 </div>
                                 <div className="flex justify-center items-center gap-3 mt-2">
                                     <p className="text-xs text-gray-400">🟢 {connected ? 'Sincronizado' : 'Conectando...'}</p>
-                                    <button className="refresh-btn" onClick={clearAll}>🔄 Reset</button>
+                                    <button className="refresh-btn" onClick={() => isAdmin ? clearAll() : setShowLogin(true)}>
+                                        {isAdmin ? '🔄 Reset' : '🔑 Admin'}
+                                    </button>
+                                    {isAdmin && (
+                                        <button 
+                                            className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-md text-xs font-bold transition flex items-center gap-1 shadow-lg"
+                                            onClick={async () => {
+                                                if (window.confirm('¿Quieres que Gemini busque los resultados y los actualice automáticamente?')) {
+                                                    try {
+                                                        const res = await api.fetchGeminiResults();
+                                                        alert('Actualización exitosa: ' + res.message);
+                                                        window.location.reload();
+                                                    } catch (err) {
+                                                        alert('Error: ' + err.message);
+                                                    }
+                                                }
+                                            }}
+                                        >
+                                            🤖 Actualizar con Gemini
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                         </div>
+
+                        {/* LOGIN MODAL */}
+                        {showLogin && (
+                            <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4">
+                                <div className="bg-[#1a1a2e] border-2 border-yellow-500/30 p-6 rounded-xl w-full max-w-sm shadow-2xl">
+                                    <h2 className="text-xl font-black mb-4 text-center">🔐 ACCESO ADMIN</h2>
+                                    <input 
+                                        type="password" 
+                                        placeholder="Introduce contraseña..." 
+                                        className="w-full mb-4 bg-black/40 border-gray-700 focus:border-yellow-500"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        onKeyDown={(e) => e.key === 'Enter' && (password === 'ufc2026' ? (setIsAdmin(true), setShowLogin(false)) : alert('Incorrecto'))}
+                                    />
+                                    <div className="flex gap-2">
+                                        <button 
+                                            className="flex-1 bg-yellow-500 text-black font-bold py-2 rounded hover:bg-yellow-400 transition"
+                                            onClick={() => password === 'ufc2026' ? (setIsAdmin(true), setShowLogin(false)) : alert('Incorrecto')}
+                                        >
+                                            Entrar
+                                        </button>
+                                        <button 
+                                            className="flex-1 bg-gray-700 text-white font-bold py-2 rounded hover:bg-gray-600 transition"
+                                            onClick={() => setShowLogin(false)}
+                                        >
+                                            Cancelar
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     {/* PELEAS */}
@@ -481,15 +553,20 @@
                                                 >
                                                     <span className="text-6xl font-black text-blue-100 drop-shadow-lg">{getInitials(fight.fighter1)}</span>
                                                 </div>
-                                                <p className="text-lg font-bold text-white">{fight.fighter1}</p>
-                                                <p className="text-xs text-gray-400">{fight.weight}</p>
+                                                <p className="text-lg font-bold text-white leading-tight">{fight.fighter1}</p>
+                                                <p className="text-xs text-yellow-500 font-bold mb-1">{fight.record1}</p>
+                                                <p className="text-[10px] text-gray-400 uppercase tracking-wider">{fight.weight}</p>
                                             </div>
 
                                             {/* VS */}
-                                            <div className="flex flex-col items-center justify-center">
-                                                <p className="text-3xl text-yellow-400 font-black mb-3">⚡</p>
-                                                <p className="text-gray-500 font-bold mb-2">vs</p>
-                                                <p className="text-xs text-gray-500 text-center font-semibold">{fight.round} Rounds</p>
+                                            <div className="flex flex-col items-center justify-center pt-8">
+                                                <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center border border-white/10 mb-2">
+                                                    <p className="text-xl text-yellow-400 font-black">⚡</p>
+                                                </div>
+                                                <p className="text-gray-500 font-black text-sm italic">VS</p>
+                                                <div className="mt-4 px-2 py-1 bg-white/5 rounded text-[10px] text-gray-500 font-bold uppercase tracking-tighter">
+                                                    {fight.round} Rounds
+                                                </div>
                                             </div>
 
                                             {/* FIGHTER 2 */}
@@ -498,7 +575,7 @@
                                                     <img
                                                         src={fight.image2}
                                                         alt={fight.fighter2}
-                                                        className="w-full h-40 object-cover rounded-lg border-2 border-red-500 mb-3 shadow-lg"
+                                                        className="w-full h-40 object-cover rounded-lg border-2 border-red-500/50 mb-3 shadow-lg hover:border-red-500 transition-colors"
                                                         onError={(e) => {
                                                             e.target.style.display = 'none';
                                                             e.target.nextElementSibling.style.display = 'flex';
@@ -506,13 +583,14 @@
                                                     />
                                                 ) : null}
                                                 <div
-                                                    className="w-full h-40 rounded-lg border-2 border-red-500 bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center mb-3 shadow-lg"
+                                                    className="w-full h-40 rounded-lg border-2 border-red-500/50 bg-gradient-to-br from-red-900/50 to-black flex items-center justify-center mb-3 shadow-lg"
                                                     style={{display: fight.image2 ? 'none' : 'flex'}}
                                                 >
-                                                    <span className="text-6xl font-black text-red-100 drop-shadow-lg">{getInitials(fight.fighter2)}</span>
+                                                    <span className="text-6xl font-black text-red-100/20 drop-shadow-lg">{getInitials(fight.fighter2)}</span>
                                                 </div>
-                                                <p className="text-lg font-bold text-white">{fight.fighter2}</p>
-                                                <p className="text-xs text-gray-400">&nbsp;</p>
+                                                <p className="text-lg font-bold text-white leading-tight">{fight.fighter2}</p>
+                                                <p className="text-xs text-red-400 font-bold mb-1">{fight.record2}</p>
+                                                <p className="text-[10px] text-gray-400 uppercase tracking-wider">&nbsp;</p>
                                             </div>
                                         </div>
                                     </div>

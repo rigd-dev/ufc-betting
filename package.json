@@ -15,5 +15,8 @@
     "realtime"
   ],
   "author": "Raul",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1"
+  }
 }
