@@ -116,58 +116,58 @@
             const allFights = [
                 // PRELIMS (Peleas 1-7)
                 { id: 1, type: 'Preliminar', round: 3, weight: 'Peso Ligero',
-                    f1: { name: 'Dom Mar Fan', country: 'au', age: 25, height: '178cm', reach: '183cm', rec: '6-1-0', odds: '+150', oddsType: 'Underdog', img: '', style: 'MMA', specialty: 'Boxeo Explosivo', recent: [{r:'W', m:'Decisión', rnd:3}, {r:'W', m:'KO/TKO', rnd:1}, {r:'W', m:'KO/TKO', rnd:1}, {r:'W', m:'Decisión', rnd:3}, {r:'L', m:'Sumisión', rnd:2}], ko: 60, sub: 20, dec: 20 },
-                    f2: { name: 'Kody Steele', country: 'us', age: 29, height: '175cm', reach: '175cm', rec: '6-0-0', odds: '-180', oddsType: 'Favorito', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-08/STEELE_KODY_L_08-17.png', style: 'Grappler Élite', specialty: 'Lucha Ofensiva', recent: [{r:'W', m:'KO/TKO', rnd:2}, {r:'W', m:'Decisión', rnd:3}, {r:'W', m:'KO/TKO', rnd:1}, {r:'W', m:'Sumisión', rnd:1}, {r:'W', m:'Decisión', rnd:3}], ko: 30, sub: 40, dec: 30 }
+                    f1: { name: 'Dom Mar Fan', country: 'au', age: 25, height: '178cm', reach: '183cm', legReach: '40"', weightLbs: '155.0 lb', rec: '6-1-0', odds: '+150', oddsType: 'Underdog', img: '', style: 'MMA', specialty: 'Boxeo Explosivo', recent: [{r:'W', m:'Decisión', rnd:3}, {r:'W', m:'KO/TKO', rnd:1}, {r:'W', m:'KO/TKO', rnd:1}, {r:'W', m:'Decisión', rnd:3}, {r:'L', m:'Sumisión', rnd:2}], ko: 60, sub: 20, dec: 20 },
+                    f2: { name: 'Kody Steele', country: 'us', age: 29, height: '175cm', reach: '175cm', legReach: '38"', weightLbs: '155.0 lb', rec: '6-0-0', odds: '-180', oddsType: 'Favorito', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-08/STEELE_KODY_L_08-17.png', style: 'Grappler Élite', specialty: 'Lucha Ofensiva', recent: [{r:'W', m:'KO/TKO', rnd:2}, {r:'W', m:'Decisión', rnd:3}, {r:'W', m:'KO/TKO', rnd:1}, {r:'W', m:'Sumisión', rnd:1}, {r:'W', m:'Decisión', rnd:3}], ko: 30, sub: 40, dec: 30 }
                 },
                 { id: 2, type: 'Preliminar', round: 3, weight: 'Peso Wélter',
-                    f1: { name: 'Jonathan Micallef', country: 'au', age: 26, height: '180cm', reach: '183cm', rec: '6-1-0', odds: '+245', oddsType: 'Underdog', img: '', style: 'Striker', specialty: 'Contraataque', recent: [{r:'W', m:'KO/TKO', rnd:2}, {r:'W', m:'KO/TKO', rnd:1}], ko: 80, sub: 0, dec: 20 },
-                    f2: { name: 'Themba Gorimbo', country: 'zw', age: 33, height: '185cm', reach: '196cm', rec: '13-4-0', odds: '-300', oddsType: 'Favorito', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2023-05/GORIMBO_THEMBA_L_05-20.png', style: 'Grappler', specialty: 'Control de Lona', recent: [{r:'W', m:'Decisión', rnd:3}, {r:'W', m:'KO/TKO', rnd:1}, {r:'W', m:'Decisión', rnd:3}, {r:'L', m:'Sumisión', rnd:1}], ko: 20, sub: 30, dec: 50 }
+                    f1: { name: 'Jonathan Micallef', country: 'au', age: 26, height: '180cm', reach: '183cm', legReach: '39"', weightLbs: '170.0 lb', rec: '6-1-0', odds: '+245', oddsType: 'Underdog', img: '', style: 'Striker', specialty: 'Contraataque', recent: [{r:'W', m:'KO/TKO', rnd:2}, {r:'W', m:'KO/TKO', rnd:1}], ko: 80, sub: 0, dec: 20 },
+                    f2: { name: 'Themba Gorimbo', country: 'zw', age: 33, height: '185cm', reach: '196cm', legReach: '42"', weightLbs: '170.0 lb', rec: '13-4-0', odds: '-300', oddsType: 'Favorito', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2023-05/GORIMBO_THEMBA_L_05-20.png', style: 'Grappler', specialty: 'Alcance', recent: [{r:'W', m:'Decisión', rnd:3}, {r:'W', m:'KO/TKO', rnd:1}, {r:'W', m:'Decisión', rnd:3}, {r:'L', m:'Sumisión', rnd:1}], ko: 20, sub: 30, dec: 50 }
                 },
                 { id: 3, type: 'Preliminar', round: 3, weight: 'Peso Medio',
-                    f1: { name: 'Ben Johnston', country: 'au', age: 32, height: '185cm', reach: '191cm', rec: '6-1-0', odds: '+485', oddsType: 'Underdog', img: '', style: 'Brawler', specialty: 'Poder de manos', recent: [{r:'W', m:'Decisión', rnd:3}], ko: 50, sub: 0, dec: 50 },
-                    f2: { name: 'Mes Schultz', country: 'us', age: 27, height: '191cm', reach: '193cm', rec: '7-1-0', odds: '-650', oddsType: 'Favorito', img: '', style: 'Kickboxer', specialty: 'KOs largos', recent: [{r:'W', m:'KO/TKO', rnd:1}], ko: 70, sub: 10, dec: 20 }
+                    f1: { name: 'Ben Johnston', country: 'au', age: 32, height: '185cm', reach: '191cm', legReach: '41"', weightLbs: '185.0 lb', rec: '6-1-0', odds: '+485', oddsType: 'Underdog', img: '', style: 'Brawler', specialty: 'Poder de manos', recent: [{r:'W', m:'Decisión', rnd:3}], ko: 50, sub: 0, dec: 50 },
+                    f2: { name: 'Mes Schultz', country: 'us', age: 27, height: '191cm', reach: '193cm', legReach: '42"', weightLbs: '185.0 lb', rec: '7-1-0', odds: '-650', oddsType: 'Favorito', img: '', style: 'Kickboxer', specialty: 'KOs largos', recent: [{r:'W', m:'KO/TKO', rnd:1}], ko: 70, sub: 10, dec: 20 }
                 },
                 { id: 4, type: 'Preliminar', round: 3, weight: 'Peso Gallo',
-                    f1: { name: 'Cody Thicknesse', country: 'au', age: 24, height: '173cm', reach: '175cm', rec: '5-0-0', odds: '+340', oddsType: 'Underdog', img: '', style: 'MMA', specialty: 'Velocidad', recent: [{r:'W', m:'Sumisión', rnd:1}], ko: 20, sub: 60, dec: 20 },
-                    f2: { name: 'Vince Morales', country: 'us', age: 33, height: '170cm', reach: '178cm', rec: '16-7-0', odds: '-440', oddsType: 'Favorito', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2021-09/68037%252Fprofile-full-body-static%252FMORALES_VINCE_L_09-25.png', style: 'Boxeador Técnico', specialty: 'Combinaciones', recent: [{r:'W', m:'Decisión', rnd:3}, {r:'W', m:'KO/TKO', rnd:2}, {r:'W', m:'Decisión', rnd:3}], ko: 40, sub: 10, dec: 50 }
+                    f1: { name: 'Cody Thicknesse', country: 'au', age: 24, height: '173cm', reach: '175cm', legReach: '38"', weightLbs: '135.0 lb', rec: '5-0-0', odds: '+340', oddsType: 'Underdog', img: '', style: 'MMA', specialty: 'Velocidad', recent: [{r:'W', m:'Sumisión', rnd:1}], ko: 20, sub: 60, dec: 20 },
+                    f2: { name: 'Vince Morales', country: 'us', age: 33, height: '170cm', reach: '178cm', legReach: '38"', weightLbs: '135.0 lb', rec: '16-7-0', odds: '-440', oddsType: 'Favorito', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2021-09/68037%252Fprofile-full-body-static%252FMORALES_VINCE_L_09-25.png', style: 'Boxeador Técnico', specialty: 'Combinaciones', recent: [{r:'W', m:'Decisión', rnd:3}, {r:'W', m:'KO/TKO', rnd:2}, {r:'W', m:'Decisión', rnd:3}], ko: 40, sub: 10, dec: 50 }
                 },
                 { id: 5, type: 'Preliminar', round: 3, weight: 'Peso Medio',
-                    f1: { name: 'Jacob Malkoun', country: 'au', age: 29, height: '175cm', reach: '183cm', rec: '8-3-0', odds: '+400', oddsType: 'Underdog', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-03/MALKOUN_JACOB_L_03-30.png', style: 'Grappler', specialty: 'Presión constante', recent: [{r:'W', m:'KO/TKO', rnd:2}, {r:'L', m:'DQ', rnd:3}, {r:'W', m:'Decisión', rnd:3}, {r:'L', m:'Decisión', rnd:3}], ko: 10, sub: 10, dec: 80 },
-                    f2: { name: 'Gerald Meerschaert', country: 'us', age: 36, height: '185cm', reach: '196cm', rec: '36-17-0', odds: '-1000', oddsType: 'Favorito', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-03/MEERSCHAERT_GERALD_L_03-16.png', style: 'BJJ Maestro', specialty: 'Sumisiones técnicas', recent: [{r:'W', m:'Sumisión', rnd:2}, {r:'W', m:'Sumisión', rnd:1}, {r:'L', m:'Decisión', rnd:3}, {r:'L', m:'KO/TKO', rnd:1}], ko: 10, sub: 80, dec: 10 }
+                    f1: { name: 'Jacob Malkoun', country: 'au', age: 29, height: '175cm', reach: '183cm', legReach: '39"', weightLbs: '185.0 lb', rec: '8-3-0', odds: '+400', oddsType: 'Underdog', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-03/MALKOUN_JACOB_L_03-30.png', style: 'Grappler', specialty: 'Presión constante', recent: [{r:'W', m:'KO/TKO', rnd:2}, {r:'L', m:'DQ', rnd:3}, {r:'W', m:'Decisión', rnd:3}, {r:'L', m:'Decisión', rnd:3}], ko: 10, sub: 10, dec: 80 },
+                    f2: { name: 'Gerald Meerschaert', country: 'us', age: 36, height: '185cm', reach: '196cm', legReach: '42"', weightLbs: '185.0 lb', rec: '36-17-0', odds: '-1000', oddsType: 'Favorito', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-03/MEERSCHAERT_GERALD_L_03-16.png', style: 'BJJ Maestro', specialty: 'Sumisiones técnicas', recent: [{r:'W', m:'Sumisión', rnd:2}, {r:'W', m:'Sumisión', rnd:1}, {r:'L', m:'Decisión', rnd:3}, {r:'L', m:'KO/TKO', rnd:1}], ko: 10, sub: 80, dec: 10 }
                 },
                 { id: 6, type: 'Preliminar', round: 3, weight: 'Peso Completo',
-                    f1: { name: 'Junior Tafa', country: 'au', age: 27, height: '191cm', reach: '191cm', rec: '5-3-0', odds: '+205', oddsType: 'Underdog', img: '', style: 'Striker Poderoso', specialty: 'KO de un golpe', recent: [{r:'L', m:'KO/TKO', rnd:2}, {r:'W', m:'KO/TKO', rnd:1}, {r:'L', m:'Decisión', rnd:3}], ko: 90, sub: 0, dec: 10 },
-                    f2: { name: 'Kevin Christian', country: 'br', age: 29, height: '193cm', reach: '201cm', rec: '10-2-0', odds: '-245', oddsType: 'Favorito', img: '', style: 'Luchador / BJJ', specialty: 'Estrangulaciones', recent: [{r:'W', m:'Sumisión', rnd:1}], ko: 20, sub: 70, dec: 10 }
+                    f1: { name: 'Junior Tafa', country: 'au', age: 27, height: '191cm', reach: '191cm', legReach: '42"', weightLbs: '265.0 lb', rec: '5-3-0', odds: '+205', oddsType: 'Underdog', img: '', style: 'Striker Poderoso', specialty: 'KO de un golpe', recent: [{r:'L', m:'KO/TKO', rnd:2}, {r:'W', m:'KO/TKO', rnd:1}, {r:'L', m:'Decisión', rnd:3}], ko: 90, sub: 0, dec: 10 },
+                    f2: { name: 'Kevin Christian', country: 'br', age: 29, height: '193cm', reach: '201cm', legReach: '44"', weightLbs: '265.0 lb', rec: '10-2-0', odds: '-245', oddsType: 'Favorito', img: '', style: 'Luchador / BJJ', specialty: 'Estrangulaciones', recent: [{r:'W', m:'Sumisión', rnd:1}], ko: 20, sub: 70, dec: 10 }
                 },
                 { id: 7, type: 'Preliminar', round: 3, weight: 'Peso Medio',
-                    f1: { name: 'Dan Rowston', country: 'au', age: 30, height: '183cm', reach: '188cm', rec: '8-2-0', odds: '+175', oddsType: 'Underdog', img: '', style: 'All-arounder', specialty: 'Cardio', recent: [{r:'W', m:'Decisión', rnd:3}], ko: 40, sub: 30, dec: 30 },
-                    f2: { name: 'Robert Bryczek', country: 'pl', age: 33, height: '183cm', reach: '185cm', rec: '17-6-0', odds: '-210', oddsType: 'Favorito', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-02/BRYCZEK_ROBERT_L_02-10.png', style: 'Striker', specialty: 'Volumen alto', recent: [{r:'L', m:'Decisión', rnd:3}, {r:'W', m:'KO/TKO', rnd:1}], ko: 60, sub: 10, dec: 30 }
+                    f1: { name: 'Dan Rowston', country: 'au', age: 30, height: '183cm', reach: '188cm', legReach: '40"', weightLbs: '185.0 lb', rec: '8-2-0', odds: '+175', oddsType: 'Underdog', img: '', style: 'All-arounder', specialty: 'Cardio', recent: [{r:'W', m:'Decisión', rnd:3}], ko: 40, sub: 30, dec: 30 },
+                    f2: { name: 'Robert Bryczek', country: 'pl', age: 33, height: '183cm', reach: '185cm', legReach: '40"', weightLbs: '185.0 lb', rec: '17-6-0', odds: '-210', oddsType: 'Favorito', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-02/BRYCZEK_ROBERT_L_02-10.png', style: 'Striker', specialty: 'Volumen alto', recent: [{r:'L', m:'Decisión', rnd:3}, {r:'W', m:'KO/TKO', rnd:1}], ko: 60, sub: 10, dec: 30 }
                 },
 
                 // ESTELARES (Peleas 8-13)
                 { id: 8, type: 'Estelar', round: 3, weight: 'Peso Completo',
-                    f1: { name: 'Tai Tuivasa', country: 'au', age: 31, height: '188cm', reach: '191cm', rec: '15-7-0', odds: '+220', oddsType: 'Underdog', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-03/TUIVASA_TAI_L_03-16.png', style: 'Brawler', specialty: 'Codos y Ganchos', recent: [{r:'L', m:'Sumisión', rnd:1}, {r:'L', m:'KO/TKO', rnd:2}, {r:'L', m:'KO/TKO', rnd:1}], ko: 90, sub: 0, dec: 10 },
-                    f2: { name: 'Louie Sutherland', country: 'gb', age: 28, height: '191cm', reach: '193cm', rec: '6-3-0', odds: '-270', oddsType: 'Favorito', img: '', style: 'Striker', specialty: 'Presión agresiva', recent: [{r:'W', m:'KO/TKO', rnd:1}, {r:'L', m:'Decisión', rnd:3}], ko: 80, sub: 0, dec: 20 }
+                    f1: { name: 'Tai Tuivasa', country: 'au', age: 31, height: '188cm', reach: '191cm', legReach: '42"', weightLbs: '265.0 lb', rec: '15-7-0', odds: '+220', oddsType: 'Underdog', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-03/TUIVASA_TAI_L_03-16.png', style: 'Brawler', specialty: 'Codos y Ganchos', recent: [{r:'L', m:'Sumisión', rnd:1}, {r:'L', m:'KO/TKO', rnd:2}, {r:'L', m:'KO/TKO', rnd:1}], ko: 90, sub: 0, dec: 10 },
+                    f2: { name: 'Louie Sutherland', country: 'gb', age: 28, height: '191cm', reach: '193cm', legReach: '43"', weightLbs: '265.0 lb', rec: '6-3-0', odds: '-270', oddsType: 'Favorito', img: '', style: 'Striker', specialty: 'Presión agresiva', recent: [{r:'W', m:'KO/TKO', rnd:1}, {r:'L', m:'Decisión', rnd:3}], ko: 80, sub: 0, dec: 20 }
                 },
                 { id: 9, type: 'Estelar', round: 3, weight: 'Peso Completo',
-                    f1: { name: 'Shamil Gaziev', country: 'bh', age: 34, height: '193cm', reach: '201cm', rec: '13-1-0', odds: '-230', oddsType: 'Favorito', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-03/GAZIEV_SHAMIL_L_03-02.png', style: 'Lucha Libre', specialty: 'Ground and Pound', recent: [{r:'W', m:'Decisión', rnd:3}, {r:'L', m:'KO/TKO', rnd:4}], ko: 60, sub: 20, dec: 20 },
-                    f2: { name: 'Brando Pericic', country: 'au', age: 27, height: '185cm', reach: '191cm', rec: '8-1-0', odds: '+190', oddsType: 'Underdog', img: '', style: 'Kickboxer', specialty: 'Pateo explosivo', recent: [{r:'W', m:'KO/TKO', rnd:1}], ko: 70, sub: 10, dec: 20 }
+                    f1: { name: 'Shamil Gaziev', country: 'bh', age: 34, height: '193cm', reach: '201cm', legReach: '44"', weightLbs: '265.0 lb', rec: '13-1-0', odds: '-230', oddsType: 'Favorito', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-03/GAZIEV_SHAMIL_L_03-02.png', style: 'Lucha Libre', specialty: 'Ground and Pound', recent: [{r:'W', m:'Decisión', rnd:3}, {r:'L', m:'KO/TKO', rnd:4}], ko: 60, sub: 20, dec: 20 },
+                    f2: { name: 'Brando Pericic', country: 'au', age: 27, height: '185cm', reach: '191cm', legReach: '42"', weightLbs: '265.0 lb', rec: '8-1-0', odds: '+190', oddsType: 'Underdog', img: '', style: 'Kickboxer', specialty: 'Pateo explosivo', recent: [{r:'W', m:'KO/TKO', rnd:1}], ko: 70, sub: 10, dec: 20 }
                 },
                 { id: 10, type: 'Estelar', round: 3, weight: 'Peso Pluma',
-                    f1: { name: 'Marwan Rahiki', country: 'au', age: 26, height: '175cm', reach: '178cm', rec: '9-2-0', odds: '-650', oddsType: 'Favorito', img: '', style: 'Grappler', specialty: 'Sumisiones rápidas', recent: [{r:'W', m:'Sumisión', rnd:2}, {r:'W', m:'Decisión', rnd:3}], ko: 20, sub: 50, dec: 30 },
-                    f2: { name: 'Ollie Schmid', country: 'au', age: 25, height: '178cm', reach: '183cm', rec: '7-1-0', odds: '+485', oddsType: 'Underdog', img: '', style: 'Kickboxer', specialty: 'Piernas fuertes', recent: [{r:'W', m:'KO/TKO', rnd:3}], ko: 60, sub: 10, dec: 30 }
+                    f1: { name: 'Marwan Rahiki', country: 'ma', age: 26, height: "5' 8\"", reach: '72"', legReach: '42"', weightLbs: '145.00 LB', rec: '8-0-0', odds: '-800', oddsType: 'Favorito', img: '', style: 'Grappler', specialty: 'Sumisiones rápidas', recent: [{r:'W', m:'Sumisión', rnd:2}, {r:'W', m:'Decisión', rnd:3}], ko: 20, sub: 50, dec: 30 },
+                    f2: { name: 'Ollie Schmid', country: 'nz', age: 25, height: "5' 11\"", reach: '0"', legReach: '0"', weightLbs: '145.00 LB', rec: '4-2-0', odds: '+550', oddsType: 'Underdog', img: '', style: 'Kickboxer', specialty: 'Piernas fuertes', recent: [{r:'W', m:'KO/TKO', rnd:3}], ko: 60, sub: 10, dec: 30 }
                 },
                 { id: 11, type: 'Estelar', round: 3, weight: 'Peso Mosca',
-                    f1: { name: 'Tim Elliott', country: 'us', age: 37, height: '170cm', reach: '168cm', rec: '20-13-1', odds: '+155', oddsType: 'Underdog', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2023-12/ELLIOTT_TIM_L_12-09.png', style: 'Unorthodox Wrestler', specialty: 'Movimiento errático', recent: [{r:'W', m:'Decisión', rnd:3}, {r:'L', m:'Sumisión', rnd:1}], ko: 10, sub: 40, dec: 50 },
-                    f2: { name: 'Steve Erceg', country: 'au', age: 28, height: '173cm', reach: '174cm', rec: '12-3-0', odds: '-185', oddsType: 'Favorito', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-05/ERCEG_STEVE_L_05-04.png', style: 'Boxeador Técnico', specialty: 'Precisión quirúrgica', recent: [{r:'L', m:'Decisión', rnd:5}, {r:'W', m:'KO/TKO', rnd:2}], ko: 30, sub: 30, dec: 40 }
+                    f1: { name: 'Tim Elliott', country: 'us', age: 37, height: "5' 7\"", reach: '66"', legReach: '38"', weightLbs: '126.00 LB', rec: '22-13-1', odds: '+155', oddsType: 'Underdog', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2023-12/ELLIOTT_TIM_L_12-09.png', style: 'Unorthodox Wrestler', specialty: 'Movimiento errático', recent: [{r:'W', m:'Decisión', rnd:3}, {r:'L', m:'Sumisión', rnd:1}], ko: 10, sub: 40, dec: 50 },
+                    f2: { name: 'Steve Erceg', country: 'au', age: 28, height: "5' 8\"", reach: '68"', legReach: '38"', weightLbs: '135.50 LB', rec: '13-4-0', odds: '-185', oddsType: 'Favorito', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-05/ERCEG_STEVE_L_05-04.png', style: 'Boxeador Técnico', specialty: 'Precisión quirúrgica', recent: [{r:'L', m:'Decisión', rnd:5}, {r:'W', m:'KO/TKO', rnd:2}], ko: 30, sub: 30, dec: 40 }
                 },
                 { id: 12, type: 'Estelar', round: 3, weight: 'Peso Ligero',
-                    f1: { name: 'Beneil Dariush', country: 'us', age: 35, height: '178cm', reach: '183cm', rec: '22-6-1', odds: '-350', oddsType: 'Favorito', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2023-12/DARIUSH_BENEIL_L_12-02.png', style: 'Cinturón Negro BJJ', specialty: 'Lucha de alto nivel', recent: [{r:'L', m:'KO/TKO', rnd:1}, {r:'L', m:'KO/TKO', rnd:1}, {r:'W', m:'Decisión', rnd:3}], ko: 20, sub: 40, dec: 40 },
-                    f2: { name: 'Quillan Salkilld', country: 'au', age: 24, height: '183cm', reach: '188cm', rec: '7-1-0', odds: '+280', oddsType: 'Underdog', img: '', style: 'AMM Completo', specialty: 'Atleta explosivo', recent: [{r:'W', m:'Sumisión', rnd:2}, {r:'W', m:'KO/TKO', rnd:1}], ko: 50, sub: 30, dec: 20 }
+                    f1: { name: 'Beneil Dariush', country: 'ir', age: 35, height: "5' 10\"", reach: '72"', legReach: '40.5"', weightLbs: '157.20 LB', rec: '23-7-1', odds: '+350', oddsType: 'Underdog', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2023-12/DARIUSH_BENEIL_L_12-02.png', style: 'Cinturón Negro BJJ', specialty: 'Lucha de alto nivel', recent: [{r:'L', m:'KO/TKO', rnd:1}, {r:'L', m:'KO/TKO', rnd:1}, {r:'W', m:'Decisión', rnd:3}], ko: 20, sub: 40, dec: 40 },
+                    f2: { name: 'Quillan Salkilld', country: 'au', age: 24, height: "6' 0\"", reach: '75"', legReach: '42"', weightLbs: '171.50 LB', rec: '11-1-0', odds: '-450', oddsType: 'Favorito', img: '', style: 'AMM Completo', specialty: 'Atleta explosivo', recent: [{r:'W', m:'Sumisión', rnd:2}, {r:'W', m:'KO/TKO', rnd:1}], ko: 50, sub: 30, dec: 20 }
                 },
                 { id: 13, type: 'Estelar', round: 5, weight: 'Peso Wélter', featured: true,
-                    f1: { name: 'Jack Della Maddalena', country: 'au', age: 29, height: '180cm', reach: '185cm', rec: '18-3-0', odds: '-135', oddsType: 'Favorito', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-03/DELLA_MADDALENA_JACK_L_03-09.png', style: 'Boxeador Élite', specialty: 'Ganchos al cuerpo', recent: [{r:'W', m:'KO/TKO', rnd:3}, {r:'W', m:'Decisión', rnd:3}, {r:'W', m:'Sumisión', rnd:1}], ko: 70, sub: 10, dec: 20 },
-                    f2: { name: 'Carlos Prates', country: 'br', age: 30, height: '185cm', reach: '198cm', rec: '23-7-0', odds: '+115', oddsType: 'Underdog', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-08/PRATES_CARLOS_L_08-17.png', style: 'Muay Thai / KO Artist', specialty: 'KOs con rodillas/patadas', recent: [{r:'W', m:'KO/TKO', rnd:2}, {r:'W', m:'KO/TKO', rnd:1}, {r:'W', m:'KO/TKO', rnd:2}], ko: 85, sub: 5, dec: 10 }
+                    f1: { name: 'Jack Della Maddalena', country: 'au', age: 29, height: "5' 11\"", reach: '73"', legReach: '40.5"', weightLbs: '169.80 LB', rec: '18-3-0', odds: '+105', oddsType: 'Underdog', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-03/DELLA_MADDALENA_JACK_L_03-09.png', style: 'Boxeador Élite', specialty: 'Ganchos al cuerpo', recent: [{r:'W', m:'KO/TKO', rnd:3}, {r:'W', m:'Decisión', rnd:3}, {r:'W', m:'Sumisión', rnd:1}], ko: 70, sub: 10, dec: 20 },
+                    f2: { name: 'Carlos Prates', country: 'br', age: 30, height: "6' 1\"", reach: '78"', legReach: '43.5"', weightLbs: '169.60 LB', rec: '23-7-0', odds: '-125', oddsType: 'Favorito', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-08/PRATES_CARLOS_L_08-17.png', style: 'Muay Thai / KO Artist', specialty: 'KOs con rodillas/patadas', recent: [{r:'W', m:'KO/TKO', rnd:2}, {r:'W', m:'KO/TKO', rnd:1}, {r:'W', m:'KO/TKO', rnd:2}], ko: 85, sub: 5, dec: 10 }
                 }
             ];
 
@@ -311,7 +311,7 @@
 
                     {modalFighter && (
                         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-charcoal/70 backdrop-blur-xl" onClick={() => setModalFighter(null)}>
-                            <div className="bg-cream/95 backdrop-blur-3xl rounded-[50px] p-8 md:p-14 w-full max-w-2xl shadow-[0_30px_100px_rgba(0,0,0,0.3)] border border-white relative max-h-[92vh] overflow-y-auto custom-scrollbar flex flex-col animate-fade-in" onClick={e => e.stopPropagation()}>
+                            <div className="bg-cream/95 backdrop-blur-3xl rounded-[50px] p-8 md:p-14 w-full max-w-xl shadow-[0_30px_100px_rgba(0,0,0,0.3)] border border-white relative max-h-[92vh] overflow-y-auto custom-scrollbar flex flex-col animate-fade-in" onClick={e => e.stopPropagation()}>
                                 <button onClick={() => setModalFighter(null)} className="absolute top-10 right-10 w-12 h-12 bg-charcoal text-white rounded-full flex items-center justify-center text-4xl hover:rotate-90 transition-transform">&times;</button>
                                 
                                 <div className="flex items-center gap-8 mb-10 pb-8 border-b border-charcoal/10">
@@ -323,7 +323,7 @@
                                         <div className="flex items-center gap-3">
                                             <img src={getFlag(modalFighter.country)} className="w-12 rounded-lg shadow-md border border-white/40" />
                                             <span className="text-2xl font-serif italic text-secondary">{modalFighter.rec}</span>
-                                            <span className="bg-charcoal text-white text-[10px] font-black px-3 py-1 rounded-full uppercase ml-2 tracking-widest">{getWeightLbs(allFights.find(f => f.f1.name === modalFighter.name || f.f2.name === modalFighter.name)?.weight)}</span>
+                                            <span className="bg-charcoal text-white text-[10px] font-black px-3 py-1 rounded-full uppercase ml-2 tracking-widest">{modalFighter.weightLbs || getWeightLbs(allFights.find(f => f.f1.name === modalFighter.name || f.f2.name === modalFighter.name)?.weight)}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -362,7 +362,7 @@
 
                     {taleOfTape && (
                         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-charcoal/90 backdrop-blur-2xl" onClick={() => setTaleOfTape(null)}>
-                            <div className="bg-charcoal text-white rounded-[50px] p-8 md:p-16 w-full max-w-3xl shadow-[0_50px_100px_rgba(0,0,0,0.5)] relative border border-white/10 overflow-hidden" onClick={e => e.stopPropagation()}>
+                            <div className="bg-charcoal text-white rounded-[50px] p-8 md:p-16 w-full max-w-4xl shadow-[0_50px_100px_rgba(0,0,0,0.5)] relative border border-white/10 overflow-hidden" onClick={e => e.stopPropagation()}>
                                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-500 via-white to-blue-500 opacity-50"></div>
                                 <button onClick={() => setTaleOfTape(null)} className="absolute top-10 right-10 text-5xl opacity-30 hover:opacity-100 transition-opacity">&times;</button>
                                 
@@ -372,8 +372,8 @@
                                     <div className="flex-1 text-center">
                                         <div className="w-24 h-24 md:w-40 md:h-40 mx-auto rounded-full border-4 border-white/10 mb-6 overflow-hidden bg-white/5"><img src={taleOfTape.f1.img || getSilhouette(taleOfTape.f1.name)} className="w-full h-full object-cover" /></div>
                                         <img src={getFlag(taleOfTape.f1.country)} className="w-12 mx-auto mb-4 rounded shadow-xl" />
-                                        <div className="text-2xl md:text-4xl font-black mb-1 uppercase tracking-tighter">{taleOfTape.f1.name.split(' ').pop()}</div>
-                                        <div className="text-xs font-bold opacity-40">{taleOfTape.f1.rec}</div>
+                                        <div className="text-2xl md:text-4xl font-black mb-1 uppercase tracking-tighter leading-none">{taleOfTape.f1.name.split(' ').pop()}</div>
+                                        <div className="text-xs font-bold opacity-40 uppercase tracking-widest">{taleOfTape.f1.rec}</div>
                                     </div>
                                     
                                     <div className="text-xl font-black opacity-10 pb-12 italic tracking-widest">VS</div>
@@ -381,32 +381,49 @@
                                     <div className="flex-1 text-center">
                                         <div className="w-24 h-24 md:w-40 md:h-40 mx-auto rounded-full border-4 border-white/10 mb-6 overflow-hidden bg-white/5"><img src={taleOfTape.f2.img || getSilhouette(taleOfTape.f2.name)} className="w-full h-full object-cover" /></div>
                                         <img src={getFlag(taleOfTape.f2.country)} className="w-12 mx-auto mb-4 rounded shadow-xl" />
-                                        <div className="text-2xl md:text-4xl font-black mb-1 uppercase tracking-tighter">{taleOfTape.f2.name.split(' ').pop()}</div>
-                                        <div className="text-xs font-bold opacity-40">{taleOfTape.f2.rec}</div>
+                                        <div className="text-2xl md:text-4xl font-black mb-1 uppercase tracking-tighter leading-none">{taleOfTape.f2.name.split(' ').pop()}</div>
+                                        <div className="text-xs font-bold opacity-40 uppercase tracking-widest">{taleOfTape.f2.rec}</div>
                                     </div>
                                 </div>
 
-                                <div className="space-y-12">
-                                    {[ ['EDAD', 'age'], ['ALTURA', 'height'], ['ALCANCE', 'reach'] ].map(([label, key]) => (
+                                <div className="space-y-10">
+                                    {[ ['EDAD', 'age'], ['ALTURA', 'height'], ['PESO', 'weightLbs'], ['ALCANCE', 'reach'], ['ALCANCE PIERNA', 'legReach'] ].map(([label, key]) => (
                                         <div key={key} className="relative">
-                                            <div className="flex justify-between text-2xl md:text-3xl font-black mb-4 px-4">
-                                                <span className="text-orange-400">{taleOfTape.f1[key]}</span>
-                                                <span className="text-blue-400">{taleOfTape.f2[key]}</span>
+                                            <div className="flex justify-between text-2xl md:text-3xl font-black mb-3 px-4">
+                                                <span className="text-orange-400">{taleOfTape.f1[key] || '---'}</span>
+                                                <span className="text-blue-400">{taleOfTape.f2[key] || '---'}</span>
                                             </div>
                                             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[10px] font-black tracking-[0.4em] opacity-20 uppercase whitespace-nowrap">{label}</div>
-                                            <div className="h-2 bg-white/5 rounded-full overflow-hidden flex shadow-2xl border border-white/5">
-                                                <div className="h-full bg-gradient-to-r from-orange-700 to-orange-400 shadow-[0_0_15px_rgba(251,146,60,0.5)]" style={{width: '50%'}}></div>
-                                                <div className="h-full bg-gradient-to-r from-blue-400 to-blue-700 shadow-[0_0_15px_rgba(96,165,250,0.5)]" style={{width: '50%'}}></div>
+                                            <div className="h-1.5 bg-white/5 rounded-full overflow-hidden flex shadow-2xl border border-white/5">
+                                                <div className="h-full bg-gradient-to-r from-orange-700 to-orange-400" style={{width: '50%'}}></div>
+                                                <div className="h-full bg-gradient-to-r from-blue-400 to-blue-700" style={{width: '50%'}}></div>
                                             </div>
                                         </div>
                                     ))}
 
                                     <div className="grid grid-cols-3 gap-6 pt-10 border-t border-white/5 mt-10">
-                                        <div className="text-center bg-white/5 p-5 rounded-3xl"><div className="text-[9px] font-black opacity-30 mb-2 tracking-widest uppercase">KO Artist</div><div className="text-xl font-black text-orange-400">{taleOfTape.f1.ko}% <span className="text-white/20">|</span> <span className="text-blue-400">{taleOfTape.f2.ko}%</span></div></div>
-                                        <div className="text-center bg-white/5 p-5 rounded-3xl"><div className="text-[9px] font-black opacity-30 mb-2 tracking-widest uppercase">Submission</div><div className="text-xl font-black text-orange-400">{taleOfTape.f1.sub}% <span className="text-white/20">|</span> <span className="text-blue-400">{taleOfTape.f2.sub}%</span></div></div>
-                                        <div className="text-center bg-white/5 p-5 rounded-3xl"><div className="text-[9px] font-black opacity-30 mb-2 tracking-widest uppercase">Decision</div><div className="text-xl font-black text-orange-400">{taleOfTape.f1.dec}% <span className="text-white/20">|</span> <span className="text-blue-400">{taleOfTape.f2.dec}%</span></div></div>
+                                        <div className="text-center bg-white/5 p-5 rounded-3xl"><div className="text-[9px] font-black opacity-30 mb-2 tracking-widest uppercase">KO Artist</div><div className="text-xl font-black text-orange-400">{taleOfTape.f1.ko || 0}% <span className="text-white/20">|</span> <span className="text-blue-400">{taleOfTape.f2.ko || 0}%</span></div></div>
+                                        <div className="text-center bg-white/5 p-5 rounded-3xl"><div className="text-[9px] font-black opacity-30 mb-2 tracking-widest uppercase">Submission</div><div className="text-xl font-black text-orange-400">{taleOfTape.f1.sub || 0}% <span className="text-white/20">|</span> <span className="text-blue-400">{taleOfTape.f2.sub || 0}%</span></div></div>
+                                        <div className="text-center bg-white/5 p-5 rounded-3xl"><div className="text-[9px] font-black opacity-30 mb-2 tracking-widest uppercase">Decision</div><div className="text-xl font-black text-orange-400">{taleOfTape.f1.dec || 0}% <span className="text-white/20">|</span> <span className="text-blue-400">{taleOfTape.f2.dec || 0}%</span></div></div>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {showLogin && (
+                        <div className="fixed inset-0 bg-charcoal/60 backdrop-blur-md flex items-center justify-center z-[200] p-4" onClick={() => setShowLogin(false)}>
+                            <div className="bg-cream p-8 rounded-[32px] w-full max-w-sm shadow-2xl border border-white relative" onClick={e => e.stopPropagation()}>
+                                <h2 className="font-black uppercase tracking-tight text-3xl mb-1 text-center">Admin Access</h2>
+                                <p className="text-[10px] font-black text-secondary text-center mb-8 uppercase tracking-widest">Autenticación necesaria</p>
+                                <input type="password" placeholder="Contraseña..." className="w-full mb-6 bg-white border-2 border-charcoal/5 focus:border-charcoal rounded-2xl px-5 py-4 text-sm font-bold transition-all" value={password} onChange={e => setPassword(e.target.value)} onKeyDown={e => e.key === 'Enter' && (password === 'ufc2026' ? (setIsAdmin(true), setShowLogin(false), setPassword('')) : alert('Incorrecto'))} />
+                                <div className="flex gap-3"><button className="flex-1 bg-white border-2 border-charcoal/5 font-black py-4 rounded-2xl text-xs uppercase" onClick={() => setShowLogin(false)}>Cancelar</button><button className="flex-1 bg-charcoal text-white font-black py-4 rounded-2xl text-xs uppercase shadow-lg" onClick={() => password === 'ufc2026' ? (setIsAdmin(true), setShowLogin(false), setPassword('')) : alert('Incorrecto')}>Entrar</button></div>
+                                {isAdmin && (
+                                    <div className="mt-6 pt-6 border-t border-charcoal/10 space-y-3">
+                                        <button className="w-full bg-purple-600 hover:bg-purple-700 text-white font-black py-4 rounded-2xl text-xs uppercase shadow-lg transition-all" onClick={async () => { if(window.confirm('¿Actualizar resultados con IA?')) { try { const res = await api.fetchGeminiResults(); alert(res.message); window.location.reload(); } catch(e) { alert(e.message); } } }}>🤖 Actualizar Gemini</button>
+                                        <button className="w-full bg-red-100 hover:bg-red-200 text-red-600 font-black py-4 rounded-2xl text-xs uppercase transition-all" onClick={async () => { if(window.confirm('¿Borrar todo?')) { try { await api.clearAll(); alert('Reset completo.'); window.location.reload(); } catch(e) { alert(e.message); } } }}>⚠️ Reset Total</button>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     )}
