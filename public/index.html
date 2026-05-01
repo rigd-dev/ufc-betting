@@ -310,51 +310,58 @@
                     </div>
 
                     {modalFighter && (
-                        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-charcoal/70 backdrop-blur-xl" onClick={() => setModalFighter(null)}>
-                            <div className="bg-cream/95 backdrop-blur-3xl rounded-[50px] p-8 md:p-14 w-full max-w-xl shadow-[0_30px_100px_rgba(0,0,0,0.3)] border border-white relative max-h-[92vh] overflow-y-auto custom-scrollbar flex flex-col animate-fade-in" onClick={e => e.stopPropagation()}>
-                                <button onClick={() => setModalFighter(null)} className="absolute top-10 right-10 w-12 h-12 bg-charcoal text-white rounded-full flex items-center justify-center text-4xl hover:rotate-90 transition-transform">&times;</button>
+                        <div className="fixed inset-0 z-[100] flex items-start justify-center pt-4 pb-4 px-4 bg-charcoal/70 backdrop-blur-xl overflow-y-auto" onClick={() => setModalFighter(null)}>
+                            <div className="bg-cream/98 backdrop-blur-3xl rounded-[32px] p-6 md:p-10 w-full max-w-lg shadow-[0_30px_100px_rgba(0,0,0,0.3)] border border-white relative animate-fade-in my-auto" onClick={e => e.stopPropagation()}>
+                                <button onClick={() => setModalFighter(null)} className="absolute top-5 right-5 w-10 h-10 bg-charcoal text-white rounded-full flex items-center justify-center text-2xl font-black hover:scale-110 transition-transform z-10">&times;</button>
                                 
-                                <div className="flex items-center gap-8 mb-10 pb-8 border-b border-charcoal/10">
-                                    <div className="w-32 h-32 md:w-44 md:h-44 rounded-full overflow-hidden border-8 border-white shadow-2xl bg-white flex-shrink-0">
-                                        <img src={modalFighter.img || getSilhouette(modalFighter.name)} className="w-full h-full object-cover object-top" />
+                                <div className="flex items-center gap-5 mb-6 pb-6 border-b border-charcoal/10 pr-12">
+                                    <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-white shadow-xl bg-white flex-shrink-0">
+                                        <img src={modalFighter.img || getSilhouette(modalFighter.name)} className="w-full h-full object-cover object-top" onError={e => { e.target.src = getSilhouette(modalFighter.name); }} />
                                     </div>
-                                    <div>
-                                        <h2 className="text-4xl md:text-6xl font-black mb-2 uppercase tracking-tight leading-none">{modalFighter.name}</h2>
-                                        <div className="flex items-center gap-3">
-                                            <img src={getFlag(modalFighter.country)} className="w-12 rounded-lg shadow-md border border-white/40" />
-                                            <span className="text-2xl font-serif italic text-secondary">{modalFighter.rec}</span>
-                                            <span className="bg-charcoal text-white text-[10px] font-black px-3 py-1 rounded-full uppercase ml-2 tracking-widest">{modalFighter.weightLbs || getWeightLbs(allFights.find(f => f.f1.name === modalFighter.name || f.f2.name === modalFighter.name)?.weight)}</span>
+                                    <div className="min-w-0">
+                                        <h2 className="text-2xl md:text-3xl font-black mb-2 uppercase tracking-tight leading-tight break-words">{modalFighter.name}</h2>
+                                        <div className="flex flex-wrap items-center gap-2">
+                                            <img src={getFlag(modalFighter.country)} className="w-8 rounded shadow-md" onError={e => e.target.style.display='none'} />
+                                            <span className="text-lg font-serif italic text-secondary">{modalFighter.rec}</span>
+                                            <span className="bg-charcoal text-white text-[10px] font-black px-2 py-1 rounded-full uppercase tracking-wider">{modalFighter.weightLbs}</span>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-                                    <div className="bg-white/70 p-7 rounded-[35px] border border-white shadow-sm">
-                                        <div className="text-[11px] font-black uppercase mb-2 text-secondary opacity-60 tracking-widest">Estilo Principal</div>
-                                        <div className="text-xl font-black">{modalFighter.style}</div>
+                                <div className="grid grid-cols-2 gap-3 mb-6">
+                                    <div className="bg-white p-4 rounded-2xl border border-charcoal/5 shadow-sm">
+                                        <div className="text-[10px] font-black uppercase mb-1 text-secondary opacity-60 tracking-widest">Estilo</div>
+                                        <div className="text-sm font-black">{modalFighter.style}</div>
                                     </div>
-                                    <div className="bg-white/70 p-7 rounded-[35px] border border-white shadow-sm">
-                                        <div className="text-[11px] font-black uppercase mb-2 text-secondary opacity-60 tracking-widest">Especialidad</div>
-                                        <div className="text-xl font-black">{modalFighter.specialty}</div>
+                                    <div className="bg-white p-4 rounded-2xl border border-charcoal/5 shadow-sm">
+                                        <div className="text-[10px] font-black uppercase mb-1 text-secondary opacity-60 tracking-widest">Especialidad</div>
+                                        <div className="text-sm font-black">{modalFighter.specialty}</div>
                                     </div>
                                 </div>
 
-                                <div className="space-y-5 flex-1">
-                                    <div className="text-xs font-black uppercase tracking-[0.4em] pb-3 border-b-2 border-charcoal/5 opacity-40">Historial Reciente (Últimas 5)</div>
-                                    <div className="space-y-4">
-                                        {modalFighter.recent.map((f, i) => (
-                                            <div key={i} className="flex justify-between items-center p-5 bg-white/40 rounded-3xl border border-white/50">
-                                                <div className="flex items-center gap-5">
-                                                    <span className={`w-12 h-12 flex items-center justify-center font-black rounded-full text-lg border-4 shadow-sm ${f.r === 'W' ? 'bg-success/20 text-success border-success/30' : 'bg-danger/20 text-danger border-danger/30'}`}>{f.r}</span>
-                                                    <div className="font-black text-lg">{f.r === 'W' ? 'Victoria' : 'Derrota'}</div>
-                                                </div>
-                                                <div className="text-right">
-                                                    <div className="text-sm font-black bg-charcoal text-white px-3 py-1 rounded-lg mb-1">{f.m}</div>
-                                                    <div className="text-[11px] font-bold opacity-50 uppercase">Round {f.rnd}</div>
-                                                </div>
+                                <div className="grid grid-cols-3 gap-3 mb-6">
+                                    {[['Altura', modalFighter.height], ['Peso', modalFighter.weightLbs], ['Alcance', modalFighter.reach]].map(([lbl, val]) => (
+                                        <div key={lbl} className="bg-white p-3 rounded-2xl border border-charcoal/5 text-center">
+                                            <div className="text-[9px] font-black uppercase opacity-40 mb-1">{lbl}</div>
+                                            <div className="text-xs font-black">{val || '—'}</div>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                <div className="space-y-3">
+                                    <div className="text-[10px] font-black uppercase tracking-[0.3em] pb-2 border-b border-charcoal/5 opacity-40">Historial Reciente</div>
+                                    {modalFighter.recent.map((f, i) => (
+                                        <div key={i} className="flex justify-between items-center p-4 bg-white rounded-2xl border border-charcoal/5">
+                                            <div className="flex items-center gap-3">
+                                                <span className={`w-9 h-9 flex items-center justify-center font-black rounded-full text-sm border-2 ${f.r === 'W' ? 'bg-green-50 text-green-600 border-green-200' : 'bg-red-50 text-red-500 border-red-200'}`}>{f.r}</span>
+                                                <span className="font-black text-sm">{f.r === 'W' ? 'Victoria' : 'Derrota'}</span>
                                             </div>
-                                        ))}
-                                    </div>
+                                            <div className="text-right">
+                                                <div className="text-xs font-black bg-charcoal text-white px-2 py-1 rounded-lg mb-1">{f.m}</div>
+                                                <div className="text-[10px] font-bold opacity-40 uppercase">Round {f.rnd}</div>
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
                         </div>
@@ -362,26 +369,26 @@
 
                     {taleOfTape && (
                         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-charcoal/90 backdrop-blur-2xl" onClick={() => setTaleOfTape(null)}>
-                            <div className="bg-charcoal text-white rounded-[50px] p-8 md:p-16 w-full max-w-4xl shadow-[0_50px_100px_rgba(0,0,0,0.5)] relative border border-white/10 overflow-hidden" onClick={e => e.stopPropagation()}>
-                                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-500 via-white to-blue-500 opacity-50"></div>
-                                <button onClick={() => setTaleOfTape(null)} className="absolute top-10 right-10 text-5xl opacity-30 hover:opacity-100 transition-opacity">&times;</button>
+                            <div className="bg-charcoal text-white rounded-[50px] p-8 md:p-16 w-full max-w-4xl shadow-[0_50px_100px_rgba(0,0,0,0.5)] relative border border-white/10 max-h-[95vh] overflow-y-auto custom-scrollbar" onClick={e => e.stopPropagation()}>
+                                <div className="sticky top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-500 via-white to-blue-500 opacity-50 -mt-8 md:-mt-16 mb-8"></div>
+                                <button onClick={() => setTaleOfTape(null)} className="sticky top-2 float-right w-12 h-12 bg-white/10 hover:bg-white/20 text-white rounded-full flex items-center justify-center text-3xl font-black transition-all z-10 border border-white/20">&times;</button>
                                 
-                                <h2 className="text-center text-[11px] font-black tracking-[0.8em] uppercase mb-16 opacity-30">Tale of the Tape</h2>
+                                <h2 className="text-center text-[11px] font-black tracking-[0.8em] uppercase mb-8 opacity-30 clear-both pt-4">Tale of the Tape</h2>
                                 
-                                <div className="flex justify-between items-end gap-6 mb-20 relative">
+                                <div className="flex justify-between items-center gap-4 mb-10">
                                     <div className="flex-1 text-center">
-                                        <div className="w-24 h-24 md:w-40 md:h-40 mx-auto rounded-full border-4 border-white/10 mb-6 overflow-hidden bg-white/5"><img src={taleOfTape.f1.img || getSilhouette(taleOfTape.f1.name)} className="w-full h-full object-cover" /></div>
-                                        <img src={getFlag(taleOfTape.f1.country)} className="w-12 mx-auto mb-4 rounded shadow-xl" />
-                                        <div className="text-2xl md:text-4xl font-black mb-1 uppercase tracking-tighter leading-none">{taleOfTape.f1.name.split(' ').pop()}</div>
+                                        <div className="w-20 h-20 md:w-32 md:h-32 mx-auto rounded-full border-4 border-white/10 mb-4 overflow-hidden bg-white/5"><img src={taleOfTape.f1.img || getSilhouette(taleOfTape.f1.name)} className="w-full h-full object-cover" onError={e => { e.target.src = getSilhouette(taleOfTape.f1.name); }} /></div>
+                                        <img src={getFlag(taleOfTape.f1.country)} className="w-10 mx-auto mb-3 rounded shadow-xl" onError={e => e.target.style.display='none'} />
+                                        <div className="text-lg md:text-3xl font-black mb-1 uppercase tracking-tighter leading-tight">{taleOfTape.f1.name}</div>
                                         <div className="text-xs font-bold opacity-40 uppercase tracking-widest">{taleOfTape.f1.rec}</div>
                                     </div>
                                     
-                                    <div className="text-xl font-black opacity-10 pb-12 italic tracking-widest">VS</div>
+                                    <div className="text-base font-black opacity-10 italic">VS</div>
                                     
                                     <div className="flex-1 text-center">
-                                        <div className="w-24 h-24 md:w-40 md:h-40 mx-auto rounded-full border-4 border-white/10 mb-6 overflow-hidden bg-white/5"><img src={taleOfTape.f2.img || getSilhouette(taleOfTape.f2.name)} className="w-full h-full object-cover" /></div>
-                                        <img src={getFlag(taleOfTape.f2.country)} className="w-12 mx-auto mb-4 rounded shadow-xl" />
-                                        <div className="text-2xl md:text-4xl font-black mb-1 uppercase tracking-tighter leading-none">{taleOfTape.f2.name.split(' ').pop()}</div>
+                                        <div className="w-20 h-20 md:w-32 md:h-32 mx-auto rounded-full border-4 border-white/10 mb-4 overflow-hidden bg-white/5"><img src={taleOfTape.f2.img || getSilhouette(taleOfTape.f2.name)} className="w-full h-full object-cover" onError={e => { e.target.src = getSilhouette(taleOfTape.f2.name); }} /></div>
+                                        <img src={getFlag(taleOfTape.f2.country)} className="w-10 mx-auto mb-3 rounded shadow-xl" onError={e => e.target.style.display='none'} />
+                                        <div className="text-lg md:text-3xl font-black mb-1 uppercase tracking-tighter leading-tight">{taleOfTape.f2.name}</div>
                                         <div className="text-xs font-bold opacity-40 uppercase tracking-widest">{taleOfTape.f2.rec}</div>
                                     </div>
                                 </div>
