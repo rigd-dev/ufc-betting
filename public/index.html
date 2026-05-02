@@ -96,6 +96,13 @@
         .tott-gradient {
             background: linear-gradient(180deg, #1A1A1A 0%, #2D2D2D 100%);
         }
+
+        .pin-input {
+            letter-spacing: 1.5em;
+            text-align: center;
+            font-size: 1.5rem;
+            padding-left: 1.5em;
+        }
     </style>
 </head>
 <body>
@@ -104,37 +111,46 @@
     <script type="text/babel">
         const { useState, useEffect } = React;
 
-        const supabase = supabase.createClient(
+        const supabaseClient = supabase.createClient(
             'https://gxgjlxgmqgcqlesdebzw.supabase.co',
             'sb_publishable_vSG7G9i4QxlN-B3wb2XBFQ_-kLLXo6q'
         );
 
         const api = {
-            async getPredictions() { const r = await fetch('/api/predictions'); return r.json(); },
-            async getResults() { const r = await fetch('/api/results'); return r.json(); },
+            async getPredictions() { const {data} = await supabaseClient.from('predictions').select('*'); return data || []; },
+            async getResults() { const {data} = await supabaseClient.from('results').select('*'); return data || []; },
             async savePrediction(fight_id, player, field, value) {
-                return fetch('/api/predictions', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({fight_id, player, field, value}) });
+                const {data: existing} = await supabaseClient.from('predictions').select('*').eq('fight_id', fight_id).eq('player', player).eq('field', field).single();
+                if (existing) return supabaseClient.from('predictions').update({ value }).eq('id', existing.id);
+                return supabaseClient.from('predictions').insert([{ fight_id, player, field, value }]);
             },
             async saveResult(fight_id, field, value) {
-                return fetch('/api/results', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({fight_id, field, value}) });
+                const {data: existing} = await supabaseClient.from('results').select('*').eq('fight_id', fight_id).eq('field', field).single();
+                if (existing) return supabaseClient.from('results').update({ value }).eq('id', existing.id);
+                return supabaseClient.from('results').insert([{ fight_id, field, value }]);
             },
-            async clearAll() { await fetch('/api/predictions', { method: 'DELETE' }); await fetch('/api/results', { method: 'DELETE' }); },
-            async saveConfirmed(fight_id) { return fetch('/api/confirmed', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({fight_id}) }); },
-            async unconfirm(fight_id) { return fetch(`/api/results?fight_id=${fight_id}&field=confirmed`, { method: 'DELETE' }); }
+            async saveConfirmed(fight_id) {
+                return this.saveResult(fight_id, 'confirmed', 'true');
+            },
+            async unconfirm(fight_id) {
+                return supabaseClient.from('results').delete().eq('fight_id', fight_id).eq('field', 'confirmed');
+            }
         };
 
         const UFCApp = () => {
             const [predictions, setPredictions] = useState({});
             const [results, setResults] = useState({});
             const [confirmedResults, setConfirmedResults] = useState({});
-            const [user, setUser] = useState(null);
+            const [isAuthorized, setIsAuthorized] = useState(localStorage.getItem('ufc_auth') === 'true');
+            const [pin, setPin] = useState('');
+            const [error, setError] = useState('');
             const [loading, setLoading] = useState(true);
-            const [email, setEmail] = useState('');
-            const [authMsg, setAuthMsg] = useState('');
             const [modalFighter, setModalFighter] = useState(null);
             const [taleOfTape, setTaleOfTape] = useState(null);
             const [activeTab, setActiveTab] = useState('Preliminar');
             const [activeFightId, setActiveFightId] = useState(1);
+
+            const ACCESS_PIN = 'ufc2026';
 
             const allFights = [
                 { id: 1, type: 'Preliminar', round: 3, weight: 'Peso Ligero',
@@ -192,28 +208,33 @@
             ];
 
             useEffect(() => {
-                const load = async () => {
-                    const [preds, ress] = await Promise.all([api.getPredictions(), api.getResults()]);
-                    const pMap = {}, rMap = {}, cMap = {};
-                    preds.forEach(p => { if(!pMap[p.fight_id]) pMap[p.fight_id]={}; if(!pMap[p.fight_id][p.player]) pMap[p.fight_id][p.player]={}; pMap[p.fight_id][p.player][p.field] = p.value; });
-                    ress.forEach(r => { if(!rMap[r.fight_id]) rMap[r.fight_id]={}; if(r.field==='confirmed') cMap[r.fight_id]=true; else rMap[r.fight_id][r.field] = r.value; });
-                    setPredictions(pMap); setResults(rMap); setConfirmedResults(cMap);
-                };
-                load();
-                supabase.auth.getSession().then(({ data: { session } }) => { setUser(session?.user ?? null); setLoading(false); });
-                const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => { setUser(session?.user ?? null); });
-                return () => subscription.unsubscribe();
-            }, []);
+                if (isAuthorized) {
+                    const load = async () => {
+                        const [preds, ress] = await Promise.all([api.getPredictions(), api.getResults()]);
+                        const pMap = {}, rMap = {}, cMap = {};
+                        preds.forEach(p => { if(!pMap[p.fight_id]) pMap[p.fight_id]={}; if(!pMap[p.fight_id][p.player]) pMap[p.fight_id][p.player]={}; pMap[p.fight_id][p.player][p.field] = p.value; });
+                        ress.forEach(r => { if(!rMap[r.fight_id]) rMap[r.fight_id]={}; if(r.field==='confirmed') cMap[r.fight_id]=true; else rMap[r.fight_id][r.field] = r.value; });
+                        setPredictions(pMap); setResults(rMap); setConfirmedResults(cMap);
+                        setLoading(false);
+                    };
+                    load();
+                } else {
+                    setLoading(false);
+                }
+            }, [isAuthorized]);
 
-            const handleLogin = async (e) => {
+            const handleAuth = (e) => {
                 e.preventDefault();
-                setAuthMsg('Enviando enlace...');
-                const { error } = await supabase.auth.signInWithOtp({ email, options: { emailRedirectTo: window.location.origin } });
-                if (error) setAuthMsg('Error: ' + error.message);
-                else setAuthMsg('¡Revisa tu email para entrar!');
+                if (pin === ACCESS_PIN) {
+                    localStorage.setItem('ufc_auth', 'true');
+                    setIsAuthorized(true);
+                    setError('');
+                } else {
+                    setError('CÓDIGO INCORRECTO');
+                }
             };
 
-            const handleLogout = () => supabase.auth.signOut();
+            const handleLogout = () => { localStorage.removeItem('ufc_auth'); setIsAuthorized(false); };
             const handlePred = (id, pl, f, v) => { setPredictions(prev => ({...prev, [id]: {...prev[id], [pl]: {...(prev[id]?.[pl]||{}), [f]: v}}})); api.savePrediction(id, pl, f, v); };
             const handleRes = (id, f, v) => { setResults(prev => ({...prev, [id]: {...(prev[id]||{}), [f]: v}})); api.saveResult(id, f, v); };
             
@@ -238,7 +259,7 @@
 
             if (loading) return null;
 
-            if (!user) {
+            if (!isAuthorized) {
                 return (
                     <div className="min-h-screen flex items-center justify-center p-6 bg-charcoal relative overflow-hidden">
                         <div className="absolute top-0 left-0 w-full h-full opacity-30">
@@ -246,26 +267,26 @@
                             <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-accentCool rounded-full blur-[150px]"></div>
                         </div>
                         <div className="max-w-md w-full glass-panel !bg-white/5 !border-white/10 p-12 text-center relative z-10 animate-fade-in">
-                            <div className="text-6xl mb-8 animate-float">🥊</div>
-                            <h1 className="text-4xl font-black text-white uppercase tracking-tighter mb-4 leading-none">UFC PERTH<br/><span className="text-accentWarm">TRACKER</span></h1>
-                            <p className="text-white/40 text-[10px] font-bold uppercase tracking-[0.3em] mb-12">Acceso mediante Magic Link</p>
+                            <div className="text-6xl mb-8 animate-float">🔒</div>
+                            <h1 className="text-4xl font-black text-white uppercase tracking-tighter mb-4 leading-none">UFC PERTH<br/><span className="text-accentWarm">PRIVATE</span></h1>
+                            <p className="text-white/40 text-[10px] font-bold uppercase tracking-[0.3em] mb-12">Ingresa el código de acceso</p>
                             
-                            <form onSubmit={handleLogin} className="space-y-4">
+                            <form onSubmit={handleAuth} className="space-y-6">
                                 <input 
-                                    type="email" 
-                                    placeholder="Tu email..." 
-                                    className="w-full bg-white/5 border-2 border-white/10 rounded-2xl px-6 py-5 text-white font-bold outline-none focus:border-accentWarm transition shadow-2xl"
-                                    value={email}
-                                    onChange={e => setEmail(e.target.value)}
+                                    type="password" 
+                                    placeholder="••••••" 
+                                    className="w-full bg-white/5 border-2 border-white/10 rounded-2xl px-6 py-5 text-white font-black text-center text-2xl tracking-[0.5em] outline-none focus:border-accentWarm transition shadow-2xl"
+                                    value={pin}
+                                    onChange={e => setPin(e.target.value)}
                                     required
+                                    autoFocus
                                 />
                                 <button type="submit" className="w-full bg-white text-charcoal font-black py-5 rounded-2xl hover:scale-[1.02] transition shadow-[0_20px_50px_rgba(255,255,255,0.1)] uppercase tracking-widest text-sm">
-                                    Enviar Enlace de Acceso
+                                    Desbloquear Dashboard
                                 </button>
                             </form>
                             
-                            {authMsg && <p className="mt-6 text-accentWarm text-xs font-black uppercase tracking-widest animate-pulse">{authMsg}</p>}
-                            <p className="mt-12 text-white/20 text-[9px] font-bold uppercase tracking-widest">Al entrar aceptas que Papá siempre gana.</p>
+                            {error && <p className="mt-6 text-danger text-xs font-black uppercase tracking-widest animate-pulse">{error}</p>}
                         </div>
                     </div>
                 );
