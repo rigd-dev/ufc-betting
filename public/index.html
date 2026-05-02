@@ -45,40 +45,57 @@
                 radial-gradient(at 0% 0%, hsla(28,100%,74%,0.15) 0px, transparent 50%),
                 radial-gradient(at 100% 0%, hsla(217,100%,60%,0.1) 0px, transparent 50%);
             background-attachment: fixed;
+            min-height: 100vh;
         }
         .glass-panel {
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
             border: 1px solid rgba(255, 255, 255, 0.9);
-            border-radius: 24px;
-            box-shadow: 0 12px 40px 0 rgba(26, 26, 26, 0.06);
+            border-radius: 32px;
+            box-shadow: 0 20px 60px 0 rgba(26, 26, 26, 0.05);
         }
         .sticky-header {
             position: sticky;
             top: 0;
-            z-index: 40;
+            z-index: 50;
             background: rgba(246, 245, 240, 0.85);
             backdrop-filter: blur(16px);
             border-bottom: 1px solid rgba(26, 26, 26, 0.05);
-            padding: 12px 0;
+            padding: 16px 0;
         }
         .score-warm { background: linear-gradient(135deg, #FF6B00, #FFB800); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .score-cool { background: linear-gradient(135deg, #0055FF, #00C3FF); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .leader-glow-warm { box-shadow: 0 0 30px rgba(255, 107, 0, 0.4); border-color: rgba(255, 107, 0, 0.5); }
-        .leader-glow-cool { box-shadow: 0 0 30px rgba(0, 85, 255, 0.4); border-color: rgba(0, 85, 255, 0.5); }
+        
+        .glow-warm { filter: drop-shadow(0 0 15px rgba(255, 107, 0, 0.4)); }
+        .glow-cool { filter: drop-shadow(0 0 15px rgba(0, 85, 255, 0.4)); }
+        
+        .fighter-glow-1 { box-shadow: 0 0 40px rgba(255, 107, 0, 0.3); border-color: rgba(255, 107, 0, 0.4); }
+        .fighter-glow-2 { box-shadow: 0 0 40px rgba(0, 85, 255, 0.3); border-color: rgba(0, 85, 255, 0.4); }
+
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
         
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        .animate-float { animation: float 6s ease-in-out infinite; }
+        
         @keyframes fade-in {
-            from { opacity: 0; transform: translateY(10px); }
+            from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        .animate-fade-in { animation: fade-in 0.4s ease-out forwards; }
+        .animate-fade-in { animation: fade-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         
         .odds-fav { background: #E6F4EA; color: #1E8E3E; }
         .odds-dog { background: #FCE8E6; color: #D93025; }
+
+        .tott-gradient {
+            background: linear-gradient(180deg, #1A1A1A 0%, #2D2D2D 100%);
+        }
     </style>
 </head>
 <body>
@@ -112,6 +129,7 @@
             const [results, setResults] = useState({});
             const [confirmedResults, setConfirmedResults] = useState({});
             const [user, setUser] = useState(null);
+            const [loading, setLoading] = useState(true);
             const [modalFighter, setModalFighter] = useState(null);
             const [taleOfTape, setTaleOfTape] = useState(null);
             const [activeTab, setActiveTab] = useState('Preliminar');
@@ -120,58 +138,58 @@
             const allFights = [
                 // PRELIMS (Peleas 1-7)
                 { id: 1, type: 'Preliminar', round: 3, weight: 'Peso Ligero',
-                    f1: { name: 'Dom Mar Fan', country: 'au', age: 30, height: "5' 11\"", reach: '75"', legReach: '40.5"', weightLbs: '155.00 LB', rec: '9-2-0', odds: '+155', oddsType: 'Underdog', img: '', style: 'MMA / Striker', specialty: 'Boxeo Explosivo', recent: [{r:'W', m:'Decisión', rnd:3}], ko: 60, sub: 20, dec: 20 },
-                    f2: { name: 'Kody Steele', country: 'us', age: 29, height: "5' 9\"", reach: '71"', legReach: '39"', weightLbs: '155.00 LB', rec: '7-1-0', odds: '-190', oddsType: 'Favorito', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-08/STEELE_KODY_L_08-17.png', style: 'Grappler Élite', specialty: 'Lucha Ofensiva', recent: [{r:'W', m:'KO/TKO', rnd:2}], ko: 30, sub: 40, dec: 30 }
+                    f1: { name: 'Dom Mar Fan', country: 'au', age: 30, height: "5' 11\"", reach: '75"', legReach: '40.5"', weightLbs: '155.0 LB', rec: '9-2-0', odds: '+155', oddsType: 'Underdog', img: '', style: 'MMA / Striker', specialty: 'Boxeo Explosivo', recent: [{r:'W', m:'Decisión', rnd:3}], ko: 60, sub: 20, dec: 20 },
+                    f2: { name: 'Kody Steele', country: 'us', age: 29, height: "5' 9\"", reach: '71"', legReach: '39"', weightLbs: '155.0 LB', rec: '7-1-0', odds: '-190', oddsType: 'Favorito', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-08/STEELE_KODY_L_08-17.png', style: 'Grappler Élite', specialty: 'Lucha Ofensiva', recent: [{r:'W', m:'KO/TKO', rnd:2}], ko: 30, sub: 40, dec: 30 }
                 },
                 { id: 2, type: 'Preliminar', round: 3, weight: 'Peso Wélter',
-                    f1: { name: 'Jonathan Micallef', country: 'au', age: 26, height: "6' 0\"", reach: '77"', legReach: '44"', weightLbs: '185.00 LB', rec: '9-1-0', odds: '-245', oddsType: 'Favorito', img: '', style: 'Striker', specialty: 'Contraataque', recent: [{r:'W', m:'KO/TKO', rnd:2}], ko: 80, sub: 0, dec: 20 },
-                    f2: { name: 'Themba Gorimbo', country: 'zw', age: 33, height: "6' 1\"", reach: '77"', legReach: '43"', weightLbs: '170.00 LB', rec: '14-6-0', odds: '+200', oddsType: 'Underdog', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2023-05/GORIMBO_THEMBA_L_05-20.png', style: 'Grappler', specialty: 'Alcance', recent: [{r:'W', m:'Decisión', rnd:3}], ko: 20, sub: 30, dec: 50 }
+                    f1: { name: 'Jonathan Micallef', country: 'au', age: 26, height: "6' 0\"", reach: '77"', legReach: '44"', weightLbs: '185.0 LB', rec: '9-1-0', odds: '-245', oddsType: 'Favorito', img: '', style: 'Striker', specialty: 'Contraataque', recent: [{r:'W', m:'KO/TKO', rnd:2}], ko: 80, sub: 0, dec: 20 },
+                    f2: { name: 'Themba Gorimbo', country: 'zw', age: 33, height: "6' 1\"", reach: '77"', legReach: '43"', weightLbs: '170.0 LB', rec: '14-6-0', odds: '+200', oddsType: 'Underdog', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2023-05/GORIMBO_THEMBA_L_05-20.png', style: 'Grappler', specialty: 'Alcance', recent: [{r:'W', m:'Decisión', rnd:3}], ko: 20, sub: 30, dec: 50 }
                 },
                 { id: 3, type: 'Preliminar', round: 3, weight: 'Peso Medio',
-                    f1: { name: 'Ben Johnston', country: 'au', age: 32, height: "6' 4\"", reach: '0"', legReach: '0"', weightLbs: '185.00 LB', rec: '5-1-0', odds: '-145', oddsType: 'Favorito', img: '', style: 'Brawler', specialty: 'Poder de manos', recent: [{r:'W', m:'Decisión', rnd:3}], ko: 50, sub: 0, dec: 50 },
-                    f2: { name: 'Wes Schultz', country: 'us', age: 27, height: "6' 2\"", reach: '77"', legReach: '42"', weightLbs: '185.00 LB', rec: '8-3-0', odds: '+120', oddsType: 'Underdog', img: '', style: 'Kickboxer', specialty: 'KOs largos', recent: [{r:'W', m:'KO/TKO', rnd:1}], ko: 70, sub: 10, dec: 20 }
+                    f1: { name: 'Ben Johnston', country: 'au', age: 32, height: "6' 4\"", reach: '0"', legReach: '0"', weightLbs: '185.0 LB', rec: '5-1-0', odds: '-145', oddsType: 'Favorito', img: '', style: 'Brawler', specialty: 'Poder de manos', recent: [{r:'W', m:'Decisión', rnd:3}], ko: 50, sub: 0, dec: 50 },
+                    f2: { name: 'Wes Schultz', country: 'us', age: 27, height: "6' 2\"", reach: '77"', legReach: '42"', weightLbs: '185.0 LB', rec: '8-3-0', odds: '+120', oddsType: 'Underdog', img: '', style: 'Kickboxer', specialty: 'KOs largos', recent: [{r:'W', m:'KO/TKO', rnd:1}], ko: 70, sub: 10, dec: 20 }
                 },
                 { id: 4, type: 'Preliminar', round: 3, weight: 'Peso Gallo',
-                    f1: { name: 'Colby Thicknesse', country: 'au', age: 24, height: "5' 7\"", reach: '69"', legReach: '39"', weightLbs: '135.50 LB', rec: '8-1-0', odds: '-140', oddsType: 'Favorito', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-08/THICKNESSE_COLBY_L_08-17.png', style: 'MMA', specialty: 'Velocidad', recent: [{r:'W', m:'Sumisión', rnd:1}], ko: 20, sub: 60, dec: 20 },
-                    f2: { name: 'Vince Morales', country: 'us', age: 33, height: "5' 7\"", reach: '70"', legReach: '36"', weightLbs: '136.00 LB', rec: '16-10-0', odds: '+120', oddsType: 'Underdog', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2021-09/68037%252Fprofile-full-body-static%252FMORALES_VINCE_L_09-25.png', style: 'Boxeador Técnico', specialty: 'Combinaciones', recent: [{r:'W', m:'Decisión', rnd:3}], ko: 40, sub: 10, dec: 50 }
+                    f1: { name: 'Colby Thicknesse', country: 'au', age: 24, height: "5' 7\"", reach: '69"', legReach: '39"', weightLbs: '135.5 LB', rec: '8-1-0', odds: '-140', oddsType: 'Favorito', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-08/THICKNESSE_COLBY_L_08-17.png', style: 'MMA', specialty: 'Velocidad', recent: [{r:'W', m:'Sumisión', rnd:1}], ko: 20, sub: 60, dec: 20 },
+                    f2: { name: 'Vince Morales', country: 'us', age: 33, height: "5' 7\"", reach: '70"', legReach: '36"', weightLbs: '136.0 LB', rec: '16-10-0', odds: '+120', oddsType: 'Underdog', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2021-09/68037%252Fprofile-full-body-static%252FMORALES_VINCE_L_09-25.png', style: 'Boxeador Técnico', specialty: 'Combinaciones', recent: [{r:'W', m:'Decisión', rnd:3}], ko: 40, sub: 10, dec: 50 }
                 },
                 { id: 5, type: 'Preliminar', round: 3, weight: 'Peso Medio',
-                    f1: { name: 'Jacob Malkoun', country: 'au', age: 29, height: "5' 9\"", reach: '73"', legReach: '38"', weightLbs: '197.70 LB', rec: '9-3-0', odds: '-1100', oddsType: 'Favorito', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-03/MALKOUN_JACOB_L_03-30.png', style: 'Grappler', specialty: 'Presión constante', recent: [{r:'W', m:'KO/TKO', rnd:2}], ko: 10, sub: 10, dec: 80 },
-                    f2: { name: 'Gerald Meerschaert', country: 'us', age: 36, height: "6' 1\"", reach: '77.5"', legReach: '40"', weightLbs: '185.60 LB', rec: '37-21-0', odds: '+700', oddsType: 'Underdog', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-03/MEERSCHAERT_GERALD_L_03-16.png', style: 'BJJ Maestro', specialty: 'Sumisiones técnicas', recent: [{r:'W', m:'Sumisión', rnd:2}], ko: 10, sub: 80, dec: 10 }
+                    f1: { name: 'Jacob Malkoun', country: 'au', age: 29, height: "5' 9\"", reach: '73"', legReach: '38"', weightLbs: '197.7 LB', rec: '9-3-0', odds: '-1100', oddsType: 'Favorito', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-03/MALKOUN_JACOB_L_03-30.png', style: 'Grappler', specialty: 'Presión constante', recent: [{r:'W', m:'KO/TKO', rnd:2}], ko: 10, sub: 10, dec: 80 },
+                    f2: { name: 'Gerald Meerschaert', country: 'us', age: 36, height: "6' 1\"", reach: '77.5"', legReach: '40"', weightLbs: '185.6 LB', rec: '37-21-0', odds: '+700', oddsType: 'Underdog', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-03/MEERSCHAERT_GERALD_L_03-16.png', style: 'BJJ Maestro', specialty: 'Sumisiones técnicas', recent: [{r:'W', m:'Sumisión', rnd:2}], ko: 10, sub: 80, dec: 10 }
                 },
                 { id: 6, type: 'Preliminar', round: 3, weight: 'Peso Semicompleto',
-                    f1: { name: 'Junior Tafa', country: 'au', age: 27, height: "6' 3\"", reach: '75"', legReach: '43"', weightLbs: '218.30 LB', rec: '6-5-0', odds: '-205', oddsType: 'Favorito', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2023-02/TAFA_JUNIOR_L_02-11.png', style: 'Striker Poderoso', specialty: 'KO de un golpe', recent: [{r:'L', m:'KO/TKO', rnd:2}, {r:'W', m:'KO/TKO', rnd:1}], ko: 90, sub: 0, dec: 10 },
-                    f2: { name: 'Kevin Christian', country: 'br', age: 29, height: "6' 7\"", reach: '80"', legReach: '49"', weightLbs: '205.00 LB', rec: '9-3-0', odds: '+170', oddsType: 'Underdog', img: '', style: 'Luchador / BJJ', specialty: 'Estrangulaciones', recent: [{r:'W', m:'Sumisión', rnd:1}], ko: 20, sub: 70, dec: 10 }
+                    f1: { name: 'Junior Tafa', country: 'au', age: 27, height: "6' 3\"", reach: '75"', legReach: '43"', weightLbs: '218.3 LB', rec: '6-5-0', odds: '-205', oddsType: 'Favorito', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2023-02/TAFA_JUNIOR_L_02-11.png', style: 'Striker Poderoso', specialty: 'KO de un golpe', recent: [{r:'L', m:'KO/TKO', rnd:2}, {r:'W', m:'KO/TKO', rnd:1}], ko: 90, sub: 0, dec: 10 },
+                    f2: { name: 'Kevin Christian', country: 'br', age: 29, height: "6' 7\"", reach: '80"', legReach: '49"', weightLbs: '205.0 LB', rec: '9-3-0', odds: '+170', oddsType: 'Underdog', img: '', style: 'Luchador / BJJ', specialty: 'Estrangulaciones', recent: [{r:'W', m:'Sumisión', rnd:1}], ko: 20, sub: 70, dec: 10 }
                 },
                 { id: 7, type: 'Preliminar', round: 3, weight: 'Peso Medio',
-                    f1: { name: 'Cam Rowston', country: 'au', age: 30, height: "6' 3\"", reach: '78"', legReach: '45"', weightLbs: '203.00 LB', rec: '14-3-0', odds: '-175', oddsType: 'Favorito', img: '', style: 'All-arounder', specialty: 'Cardio', recent: [{r:'W', m:'Decisión', rnd:3}], ko: 40, sub: 30, dec: 30 },
-                    f2: { name: 'Robert Bryczek', country: 'pl', age: 33, height: "6' 0\"", reach: '75"', legReach: '42"', weightLbs: '186.00 LB', rec: '18-6-0', odds: '+145', oddsType: 'Underdog', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-02/BRYCZEK_ROBERT_L_02-10.png', style: 'Striker', specialty: 'Volumen alto', recent: [{r:'L', m:'Decisión', rnd:3}, {r:'W', m:'KO/TKO', rnd:1}], ko: 60, sub: 10, dec: 30 }
+                    f1: { name: 'Cam Rowston', country: 'au', age: 30, height: "6' 3\"", reach: '78"', legReach: '45"', weightLbs: '203.0 LB', rec: '14-3-0', odds: '-175', oddsType: 'Favorito', img: '', style: 'All-arounder', specialty: 'Cardio', recent: [{r:'W', m:'Decisión', rnd:3}], ko: 40, sub: 30, dec: 30 },
+                    f2: { name: 'Robert Bryczek', country: 'pl', age: 33, height: "6' 0\"", reach: '75"', legReach: '42"', weightLbs: '186.0 LB', rec: '18-6-0', odds: '+145', oddsType: 'Underdog', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-02/BRYCZEK_ROBERT_L_02-10.png', style: 'Striker', specialty: 'Volumen alto', recent: [{r:'L', m:'Decisión', rnd:3}, {r:'W', m:'KO/TKO', rnd:1}], ko: 60, sub: 10, dec: 30 }
                 },
 
                 // ESTELARES (Peleas 8-13)
                 { id: 8, type: 'Estelar', round: 3, weight: 'Peso Completo',
-                    f1: { name: 'Tai Tuivasa', country: 'au', age: 31, height: "6' 2\"", reach: '75"', legReach: '39.5"', weightLbs: '282.00 LB', rec: '15-9-0', odds: '-220', oddsType: 'Favorito', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-03/TUIVASA_TAI_L_03-16.png', style: 'Brawler', specialty: 'Codos y Ganchos', recent: [{r:'L', m:'Sumisión', rnd:1}], ko: 90, sub: 0, dec: 10 },
-                    f2: { name: 'Louie Sutherland', country: 'gb', age: 28, height: "6' 3\"", reach: '76"', legReach: '44.5"', weightLbs: '264.50 LB', rec: '10-5-0', odds: '+180', oddsType: 'Underdog', img: '', style: 'Striker', specialty: 'Presión agresiva', recent: [{r:'W', m:'KO/TKO', rnd:1}], ko: 80, sub: 0, dec: 20 }
+                    f1: { name: 'Tai Tuivasa', country: 'au', age: 31, height: "6' 2\"", reach: '75"', legReach: '39.5"', weightLbs: '282.0 LB', rec: '15-9-0', odds: '-220', oddsType: 'Favorito', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-03/TUIVASA_TAI_L_03-16.png', style: 'Brawler', specialty: 'Codos y Ganchos', recent: [{r:'L', m:'Sumisión', rnd:1}], ko: 90, sub: 0, dec: 10 },
+                    f2: { name: 'Louie Sutherland', country: 'gb', age: 28, height: "6' 3\"", reach: '76"', legReach: '44.5"', weightLbs: '264.5 LB', rec: '10-5-0', odds: '+180', oddsType: 'Underdog', img: '', style: 'Striker', specialty: 'Presión agresiva', recent: [{r:'W', m:'KO/TKO', rnd:1}], ko: 80, sub: 0, dec: 20 }
                 },
                 { id: 9, type: 'Estelar', round: 3, weight: 'Peso Completo',
-                    f1: { name: 'Shamil Gaziev', country: 'bh', age: 34, height: "6' 4\"", reach: '78.5"', legReach: '45"', weightLbs: '262.00 LB', rec: '14-2-0', odds: '+115', oddsType: 'Underdog', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-03/GAZIEV_SHAMIL_L_03-02.png', style: 'Lucha Libre / Sambo', specialty: 'Ground and Pound', recent: [{r:'W', m:'Decisión', rnd:3}], ko: 60, sub: 20, dec: 20 },
-                    f2: { name: 'Brando Pericic', country: 'au', age: 27, height: "6' 5\"", reach: '79.5"', legReach: '46.5"', weightLbs: '261.00 LB', rec: '6-1-0', odds: '-135', oddsType: 'Favorito', img: '', style: 'Kickboxer', specialty: 'Pateo explosivo', recent: [{r:'W', m:'KO/TKO', rnd:1}], ko: 70, sub: 10, dec: 20 }
+                    f1: { name: 'Shamil Gaziev', country: 'bh', age: 34, height: "6' 4\"", reach: '78.5"', legReach: '45"', weightLbs: '262.0 LB', rec: '14-2-0', odds: '+115', oddsType: 'Underdog', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-03/GAZIEV_SHAMIL_L_03-02.png', style: 'Lucha Libre / Sambo', specialty: 'Ground and Pound', recent: [{r:'W', m:'Decisión', rnd:3}], ko: 60, sub: 20, dec: 20 },
+                    f2: { name: 'Brando Pericic', country: 'au', age: 27, height: "6' 5\"", reach: '79.5"', legReach: '46.5"', weightLbs: '261.0 LB', rec: '6-1-0', odds: '-135', oddsType: 'Favorito', img: '', style: 'Kickboxer', specialty: 'Pateo explosivo', recent: [{r:'W', m:'KO/TKO', rnd:1}], ko: 70, sub: 10, dec: 20 }
                 },
                 { id: 10, type: 'Estelar', round: 3, weight: 'Peso Pluma',
-                    f1: { name: 'Marwan Rahiki', country: 'ma', age: 26, height: "5' 8\"", reach: '72"', legReach: '42"', weightLbs: '145.00 LB', rec: '8-0-0', odds: '-800', oddsType: 'Favorito', img: '', style: 'Grappler', specialty: 'Sumisiones rápidas', recent: [{r:'W', m:'Sumisión', rnd:2}], ko: 20, sub: 50, dec: 30 },
-                    f2: { name: 'Ollie Schmid', country: 'nz', age: 25, height: "5' 11\"", reach: '0"', legReach: '0"', weightLbs: '145.00 LB', rec: '4-2-0', odds: '+550', oddsType: 'Underdog', img: '', style: 'Kickboxer', specialty: 'Piernas fuertes', recent: [{r:'W', m:'KO/TKO', rnd:3}], ko: 60, sub: 10, dec: 30 }
+                    f1: { name: 'Marwan Rahiki', country: 'ma', age: 26, height: "5' 8\"", reach: '72"', legReach: '42"', weightLbs: '145.0 LB', rec: '8-0-0', odds: '-800', oddsType: 'Favorito', img: '', style: 'Grappler', specialty: 'Sumisiones rápidas', recent: [{r:'W', m:'Sumisión', rnd:2}], ko: 20, sub: 50, dec: 30 },
+                    f2: { name: 'Ollie Schmid', country: 'nz', age: 25, height: "5' 11\"", reach: '0"', legReach: '0"', weightLbs: '145.0 LB', rec: '4-2-0', odds: '+550', oddsType: 'Underdog', img: '', style: 'Kickboxer', specialty: 'Piernas fuertes', recent: [{r:'W', m:'KO/TKO', rnd:3}], ko: 60, sub: 10, dec: 30 }
                 },
                 { id: 11, type: 'Estelar', round: 3, weight: 'Peso Mosca',
-                    f1: { name: 'Tim Elliott', country: 'us', age: 37, height: "5' 7\"", reach: '66"', legReach: '38"', weightLbs: '126.00 LB', rec: '22-13-1', odds: '+155', oddsType: 'Underdog', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2023-12/ELLIOTT_TIM_L_12-09.png', style: 'Unorthodox Wrestler', specialty: 'Movimiento errático', recent: [{r:'W', m:'Decisión', rnd:3}], ko: 10, sub: 40, dec: 50 },
-                    f2: { name: 'Steve Erceg', country: 'au', age: 28, height: "5' 8\"", reach: '68"', legReach: '38"', weightLbs: '135.50 LB', rec: '13-4-0', odds: '-185', oddsType: 'Favorito', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-05/ERCEG_STEVE_L_05-04.png', style: 'Boxeador Técnico', specialty: 'Precisión quirúrgica', recent: [{r:'L', m:'Decisión', rnd:5}], ko: 30, sub: 30, dec: 40 }
+                    f1: { name: 'Tim Elliott', country: 'us', age: 37, height: "5' 7\"", reach: '66"', legReach: '38"', weightLbs: '126.0 LB', rec: '22-13-1', odds: '+155', oddsType: 'Underdog', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2023-12/ELLIOTT_TIM_L_12-09.png', style: 'Unorthodox Wrestler', specialty: 'Movimiento errático', recent: [{r:'W', m:'Decisión', rnd:3}], ko: 10, sub: 40, dec: 50 },
+                    f2: { name: 'Steve Erceg', country: 'au', age: 28, height: "5' 8\"", reach: '68"', legReach: '38"', weightLbs: '135.5 LB', rec: '13-4-0', odds: '-185', oddsType: 'Favorito', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-05/ERCEG_STEVE_L_05-04.png', style: 'Boxeador Técnico', specialty: 'Precisión quirúrgica', recent: [{r:'L', m:'Decisión', rnd:5}], ko: 30, sub: 30, dec: 40 }
                 },
                 { id: 12, type: 'Estelar', round: 3, weight: 'Peso Ligero',
-                    f1: { name: 'Beneil Dariush', country: 'ir', age: 35, height: "5' 10\"", reach: '72"', legReach: '40.5"', weightLbs: '157.20 LB', rec: '23-7-1', odds: '+350', oddsType: 'Underdog', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2023-12/DARIUSH_BENEIL_L_12-02.png', style: 'Cinturón Negro BJJ', specialty: 'Lucha de alto nivel', recent: [{r:'L', m:'KO/TKO', rnd:1}], ko: 20, sub: 40, dec: 40 },
-                    f2: { name: 'Quillan Salkilld', country: 'au', age: 24, height: "6' 0\"", reach: '75"', legReach: '42"', weightLbs: '171.50 LB', rec: '11-1-0', odds: '-450', oddsType: 'Favorito', img: '', style: 'AMM Completo', specialty: 'Atleta explosivo', recent: [{r:'W', m:'Sumisión', rnd:2}], ko: 50, sub: 30, dec: 20 }
+                    f1: { name: 'Beneil Dariush', country: 'ir', age: 35, height: "5' 10\"", reach: '72"', legReach: '40.5"', weightLbs: '157.2 LB', rec: '23-7-1', odds: '+350', oddsType: 'Underdog', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2023-12/DARIUSH_BENEIL_L_12-02.png', style: 'Cinturón Negro BJJ', specialty: 'Lucha de alto nivel', recent: [{r:'L', m:'KO/TKO', rnd:1}], ko: 20, sub: 40, dec: 40 },
+                    f2: { name: 'Quillan Salkilld', country: 'au', age: 24, height: "6' 0\"", reach: '75"', legReach: '42"', weightLbs: '171.5 LB', rec: '11-1-0', odds: '-450', oddsType: 'Favorito', img: '', style: 'AMM Completo', specialty: 'Atleta explosivo', recent: [{r:'W', m:'Sumisión', rnd:2}], ko: 50, sub: 30, dec: 20 }
                 },
                 { id: 13, type: 'Estelar', round: 5, weight: 'Peso Wélter', featured: true,
-                    f1: { name: 'Jack Della Maddalena', country: 'au', age: 29, height: "5' 11\"", reach: '73"', legReach: '40.5"', weightLbs: '169.80 LB', rec: '18-3-0', odds: '+105', oddsType: 'Underdog', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-03/DELLA_MADDALENA_JACK_L_03-09.png', style: 'Boxeador Élite', specialty: 'Ganchos al cuerpo', recent: [{r:'W', m:'KO/TKO', rnd:3}], ko: 70, sub: 10, dec: 20 },
-                    f2: { name: 'Carlos Prates', country: 'br', age: 30, height: "6' 1\"", reach: '78"', legReach: '43.5"', weightLbs: '169.60 LB', rec: '23-7-0', odds: '-125', oddsType: 'Favorito', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-08/PRATES_CARLOS_L_08-17.png', style: 'Muay Thai / KO Artist', specialty: 'KOs con rodillas/patadas', recent: [{r:'W', m:'KO/TKO', rnd:2}], ko: 85, sub: 5, dec: 10 }
+                    f1: { name: 'Jack Della Maddalena', country: 'au', age: 29, height: "5' 11\"", reach: '73"', legReach: '40.5"', weightLbs: '169.8 LB', rec: '18-3-0', odds: '+105', oddsType: 'Underdog', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-03/DELLA_MADDALENA_JACK_L_03-09.png', style: 'Boxeador Élite', specialty: 'Ganchos al cuerpo', recent: [{r:'W', m:'KO/TKO', rnd:3}], ko: 70, sub: 10, dec: 20 },
+                    f2: { name: 'Carlos Prates', country: 'br', age: 30, height: "6' 1\"", reach: '78"', legReach: '43.5"', weightLbs: '169.6 LB', rec: '23-7-0', odds: '-125', oddsType: 'Favorito', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-08/PRATES_CARLOS_L_08-17.png', style: 'Muay Thai / KO Artist', specialty: 'KOs con rodillas/patadas', recent: [{r:'W', m:'KO/TKO', rnd:2}], ko: 85, sub: 5, dec: 10 }
                 }
             ];
 
@@ -185,12 +203,11 @@
                 };
                 load();
 
-                // Check for existing session
                 supabase.auth.getSession().then(({ data: { session } }) => {
                     setUser(session?.user ?? null);
+                    setLoading(false);
                 });
 
-                // Listen for auth changes
                 const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
                     setUser(session?.user ?? null);
                 });
@@ -214,11 +231,6 @@
                 return allFights.find(f => f.id === id)?.featured ? pts * 2 : pts;
             };
 
-            const getWeightLbs = (weight) => {
-                const map = { 'Peso Mosca': '125.0 lbs', 'Peso Paja Femenino': '115.0 lbs', 'Peso Gallo': '135.0 lbs', 'Peso Pluma': '145.0 lbs', 'Peso Ligero': '155.0 lbs', 'Peso Wélter': '170.0 lbs', 'Peso Medio': '185.0 lbs', 'Peso Semicompleto': '205.0 lbs', 'Peso Completo': '265.0 lbs' };
-                return map[weight] || '';
-            };
-
             const getSilhouette = (name) => `https://ui-avatars.com/api/?name=${name.replace(' ', '+')}&background=1A1A1A&color=F6F5F0&size=256&font-size=0.33&bold=true`;
             const getFlag = (code) => `https://flagcdn.com/w40/${code.toLowerCase()}.png`;
 
@@ -228,27 +240,43 @@
             const filteredFights = allFights.filter(f => f.type === activeTab);
             const currentFight = allFights.find(f => f.id === activeFightId);
 
+            if (loading) return null;
+
+            if (!user) {
+                return (
+                    <div className="min-h-screen flex items-center justify-center p-6 bg-charcoal relative overflow-hidden">
+                        <div className="absolute top-0 left-0 w-full h-full opacity-30">
+                            <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-accentWarm rounded-full blur-[150px]"></div>
+                            <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-accentCool rounded-full blur-[150px]"></div>
+                        </div>
+                        <div className="max-w-md w-full glass-panel !bg-white/5 !border-white/10 p-12 text-center relative z-10">
+                            <div className="text-6xl mb-8 animate-float">🥊</div>
+                            <h1 className="text-4xl font-black text-white uppercase tracking-tighter mb-4 leading-none">UFC PERTH<br/><span className="text-accentWarm">PREDICTIONS</span></h1>
+                            <p className="text-white/40 text-xs font-bold uppercase tracking-[0.3em] mb-12">Papá vs Hijo - Elite Edition</p>
+                            <button onClick={handleLogin} className="w-full bg-white text-charcoal font-black py-5 rounded-2xl flex items-center justify-center gap-4 hover:scale-[1.02] transition shadow-[0_20px_50px_rgba(255,255,255,0.1)]">
+                                <svg className="w-6 h-6" viewBox="0 0 24 24"><path fill="currentColor" d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2C7.021,2,2.543,6.477,2.543,12s4.478,10,10.002,10c8.396,0,10.249-7.85,9.426-11.748L12.545,10.239z"/></svg>
+                                <span>ENTRAR CON GOOGLE</span>
+                            </button>
+                            <p className="mt-8 text-white/20 text-[10px] font-bold uppercase tracking-widest">Acceso Restringido • UFC 2026</p>
+                        </div>
+                    </div>
+                );
+            }
+
             return (
-                <div className="min-h-screen pb-32 relative">
+                <div className="min-h-screen pb-32">
                     <div className="sticky-header">
                         <div className="max-w-4xl mx-auto px-4 flex justify-between items-center gap-4">
-                            <h1 className="text-lg md:text-3xl font-black uppercase tracking-tight">🥊 UFC PERTH</h1>
+                            <h1 className="text-xl md:text-3xl font-black uppercase tracking-tight">🥊 PERTH</h1>
                             <div className={`bg-white/90 p-2 px-4 md:px-8 rounded-2xl border-2 flex gap-4 md:gap-12 transition-all ${papaScore > hijoScore ? 'leader-glow-warm' : hijoScore > papaScore ? 'leader-glow-cool' : 'border-white shadow-xl'}`}>
                                 <div className="text-center"><div className="text-[10px] font-black uppercase opacity-50">Papá {papaScore > hijoScore && '👑'}</div><div className="text-2xl md:text-5xl font-black score-warm leading-none">{papaScore}</div></div>
                                 <div className="w-px bg-charcoal/10"></div>
                                 <div className="text-center"><div className="text-[10px] font-black uppercase opacity-50">Hijo {hijoScore > papaScore && '👑'}</div><div className="text-2xl md:text-5xl font-black score-cool leading-none">{hijoScore}</div></div>
                             </div>
-                            {user ? (
-                                <button onClick={handleLogout} className="flex items-center gap-2 text-xs font-semibold px-3 py-2 bg-charcoal text-cream rounded-lg">
-                                    {user.user_metadata.avatar_url && <img src={user.user_metadata.avatar_url} className="w-5 h-5 rounded-full" />}
-                                    <span className="hidden sm:inline">Salir</span>
-                                </button>
-                            ) : (
-                                <button onClick={handleLogin} className="flex items-center gap-2 text-xs font-semibold px-3 py-2 bg-charcoal text-cream rounded-lg hover:scale-105 transition">
-                                    <svg className="w-4 h-4" viewBox="0 0 24 24"><path fill="currentColor" d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2C7.021,2,2.543,6.477,2.543,12s4.478,10,10.002,10c8.396,0,10.249-7.85,9.426-11.748L12.545,10.239z"/></svg>
-                                    <span className="hidden sm:inline">Entrar</span>
-                                </button>
-                            )}
+                            <button onClick={handleLogout} className="flex items-center gap-2 text-xs font-semibold px-3 py-2 bg-charcoal text-cream rounded-lg hover:bg-charcoal/90 transition">
+                                <span className="hidden sm:inline">Salir</span>
+                                {user.user_metadata.avatar_url && <img src={user.user_metadata.avatar_url} className="w-5 h-5 rounded-full" />}
+                            </button>
                         </div>
                     </div>
 
@@ -263,22 +291,25 @@
 
                         <div className="flex overflow-x-auto gap-2 mb-8 pb-3 custom-scrollbar">
                             {filteredFights.map(f => (
-                                <button key={f.id} onClick={() => setActiveFightId(f.id)} className={`px-6 py-2.5 rounded-full font-black text-[11px] uppercase border-2 transition-all flex-shrink-0 ${activeFightId === f.id ? 'bg-charcoal text-cream border-charcoal shadow-lg scale-105' : 'bg-white border-charcoal/5 hover:border-charcoal/20 opacity-70'}`}>
+                                <button key={f.id} onClick={() => setActiveFightId(f.id)} className={`px-6 py-2.5 rounded-full font-black text-[11px] uppercase border-2 transition-all flex-shrink-0 relative ${activeFightId === f.id ? 'bg-charcoal text-cream border-charcoal shadow-lg scale-105' : 'bg-white border-charcoal/5 hover:border-charcoal/20 opacity-70'}`}>
                                     Pelea {f.id}
+                                    {confirmedResults[f.id] && <span className="absolute -top-1 -right-1 w-4 h-4 bg-success text-white text-[8px] flex items-center justify-center rounded-full border-2 border-white">✓</span>}
                                 </button>
                             ))}
                         </div>
 
                         {currentFight && (
                             <div className="glass-panel p-6 md:p-12 relative animate-fade-in border-white/40">
-                                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-charcoal text-cream text-[11px] font-black uppercase tracking-[0.2em] px-8 py-2.5 rounded-full border-4 border-white shadow-2xl z-20">
-                                    {currentFight.type} {currentFight.featured && '• Doble Puntaje'}
+                                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-charcoal text-cream text-[10px] md:text-[11px] font-black uppercase tracking-[0.2em] px-8 py-2.5 rounded-full border-4 border-white shadow-2xl z-20 flex items-center gap-3">
+                                    {confirmedResults[currentFight.id] ? <span className="text-success">● FINALIZADO</span> : <span className="text-accentWarm animate-pulse">● PENDIENTE</span>}
+                                    <span className="opacity-20">|</span>
+                                    <span>{currentFight.type}</span>
                                 </div>
 
                                 <div className="flex justify-between items-center mb-16 mt-6 gap-2">
                                     <div className="flex-1 text-center group cursor-pointer" onClick={() => setModalFighter(currentFight.f1)}>
                                         <div className="relative inline-block mb-6">
-                                            <div className="w-24 h-24 sm:w-32 sm:h-32 md:w-56 md:h-56 rounded-full border-4 border-white shadow-[0_20px_50px_rgba(0,0,0,0.1)] overflow-hidden bg-white/50 group-hover:scale-[1.02] transition-transform"><img src={currentFight.f1.img || getSilhouette(currentFight.f1.name)} className="w-full h-full object-cover object-top" onError={e => { e.target.src = getSilhouette(currentFight.f1.name); }} /></div>
+                                            <div className="w-24 h-24 sm:w-32 sm:h-32 md:w-52 md:h-52 rounded-full border-4 border-white shadow-[0_20px_50px_rgba(0,0,0,0.1)] overflow-hidden bg-white/50 group-hover:scale-[1.02] transition-transform fighter-glow-1"><img src={currentFight.f1.img || getSilhouette(currentFight.f1.name)} className="w-full h-full object-cover object-top" onError={e => { e.target.src = getSilhouette(currentFight.f1.name); }} /></div>
                                             <img src={getFlag(currentFight.f1.country)} className="absolute bottom-1 right-1 w-8 h-8 md:w-16 md:h-16 border-4 border-white rounded-full shadow-2xl" onError={e => e.target.style.display='none'} />
                                         </div>
                                         <h3 className="text-sm md:text-3xl font-black mb-2 leading-tight uppercase tracking-tight">{currentFight.f1.name}</h3>
@@ -288,7 +319,9 @@
                                     </div>
 
                                     <div className="flex flex-col items-center gap-6">
-                                        <button onClick={() => setTaleOfTape(currentFight)} className="w-12 h-12 md:w-16 md:h-16 bg-white hover:bg-charcoal text-charcoal hover:text-white rounded-full transition-all flex items-center justify-center border-2 border-charcoal/5 shadow-xl text-xl md:text-3xl hover:scale-110">📊</button>
+                                        <button onClick={() => setTaleOfTape(currentFight)} className="w-12 h-12 md:w-16 md:h-16 bg-white hover:bg-charcoal text-charcoal hover:text-white rounded-full transition-all flex items-center justify-center border-2 border-charcoal/5 shadow-xl text-xl md:text-3xl hover:scale-110 active:scale-95 group">
+                                            <span className="group-hover:animate-pulse">📊</span>
+                                        </button>
                                         <div className="text-2xl md:text-6xl font-black opacity-5 italic tracking-tighter">VS</div>
                                         <div className="text-center space-y-1.5">
                                             <div className="text-[10px] md:text-xs font-black bg-white px-4 py-1.5 rounded-full border border-charcoal/10 shadow-sm uppercase tracking-wider">{currentFight.weight}</div>
@@ -298,7 +331,7 @@
 
                                     <div className="flex-1 text-center group cursor-pointer" onClick={() => setModalFighter(currentFight.f2)}>
                                         <div className="relative inline-block mb-6">
-                                            <div className="w-24 h-24 sm:w-32 sm:h-32 md:w-56 md:h-56 rounded-full border-4 border-white shadow-[0_20px_50px_rgba(0,0,0,0.1)] overflow-hidden bg-white/50 group-hover:scale-[1.02] transition-transform"><img src={currentFight.f2.img || getSilhouette(currentFight.f2.name)} className="w-full h-full object-cover object-top" onError={e => { e.target.src = getSilhouette(currentFight.f2.name); }} /></div>
+                                            <div className="w-24 h-24 sm:w-32 sm:h-32 md:w-52 md:h-52 rounded-full border-4 border-white shadow-[0_20px_50px_rgba(0,0,0,0.1)] overflow-hidden bg-white/50 group-hover:scale-[1.02] transition-transform fighter-glow-2"><img src={currentFight.f2.img || getSilhouette(currentFight.f2.name)} className="w-full h-full object-cover object-top" onError={e => { e.target.src = getSilhouette(currentFight.f2.name); }} /></div>
                                             <img src={getFlag(currentFight.f2.country)} className="absolute bottom-1 right-1 w-8 h-8 md:w-16 md:h-16 border-4 border-white rounded-full shadow-2xl" onError={e => e.target.style.display='none'} />
                                         </div>
                                         <h3 className="text-sm md:text-3xl font-black mb-2 leading-tight uppercase tracking-tight">{currentFight.f2.name}</h3>
@@ -328,54 +361,35 @@
                                     ))}
                                 </div>
 
-                                <div className={`p-8 rounded-[40px] border-4 border-dotted transition-all ${user ? 'bg-charcoal text-cream border-charcoal/20' : 'bg-charcoal/5 border-charcoal/10 opacity-50'}`}>
-                                    <div className="flex justify-between items-center mb-6">
-                                        <div className="text-[11px] font-black uppercase tracking-[0.2em] opacity-60">Manual: Resultado Oficial</div>
-                                        {!user && <span className="text-[9px] font-black bg-charcoal text-cream px-2 py-1 rounded">Login Requerido</span>}
+                                <div className="p-8 rounded-[40px] bg-charcoal text-cream shadow-2xl relative overflow-hidden group">
+                                    <div className="absolute top-0 right-0 w-32 h-32 bg-accentWarm/20 rounded-full blur-3xl -mr-10 -mt-10 transition-all group-hover:scale-150"></div>
+                                    <div className="flex justify-between items-center mb-6 relative z-10">
+                                        <div className="text-[11px] font-black uppercase tracking-[0.2em] opacity-40">Oficial: Resultado de la Pelea</div>
+                                        <span className="text-[9px] font-black bg-white/10 px-3 py-1.5 rounded-full backdrop-blur-sm border border-white/10 uppercase tracking-widest">Admin Control</span>
                                     </div>
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                        <select 
-                                            className="bg-white text-charcoal border-2 border-charcoal/10 rounded-2xl px-6 py-4 text-sm font-black shadow-lg disabled:opacity-50" 
-                                            value={results[currentFight.id]?.winner || ''} 
-                                            onChange={e => handleRes(currentFight.id, 'winner', e.target.value)} 
-                                            disabled={!user || confirmedResults[currentFight.id]}
-                                        >
-                                            <option value="">GANADOR...</option>
-                                            <option value={currentFight.f1.name}>{currentFight.f1.name}</option>
-                                            <option value={currentFight.f2.name}>{currentFight.f2.name}</option>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 relative z-10">
+                                        <select className="bg-white/5 border-2 border-white/10 rounded-2xl px-6 py-4 text-sm font-black shadow-lg disabled:opacity-30 focus:border-accentWarm outline-none transition" value={results[currentFight.id]?.winner || ''} onChange={e => handleRes(currentFight.id, 'winner', e.target.value)} disabled={confirmedResults[currentFight.id]}>
+                                            <option value="" className="text-charcoal">GANADOR...</option>
+                                            <option value={currentFight.f1.name} className="text-charcoal">{currentFight.f1.name}</option>
+                                            <option value={currentFight.f2.name} className="text-charcoal">{currentFight.f2.name}</option>
                                         </select>
-                                        <select 
-                                            className="bg-white text-charcoal border-2 border-charcoal/10 rounded-2xl px-6 py-4 text-sm font-black shadow-lg disabled:opacity-50" 
-                                            value={results[currentFight.id]?.method || ''} 
-                                            onChange={e => handleRes(currentFight.id, 'method', e.target.value)} 
-                                            disabled={!user || confirmedResults[currentFight.id]}
-                                        >
-                                            <option value="">MÉTODO...</option>
-                                            <option value="Decisión">Decisión</option>
-                                            <option value="KO/TKO">KO/TKO</option>
-                                            <option value="Sumisión">Sumisión</option>
+                                        <select className="bg-white/5 border-2 border-white/10 rounded-2xl px-6 py-4 text-sm font-black shadow-lg disabled:opacity-30 focus:border-accentWarm outline-none transition" value={results[currentFight.id]?.method || ''} onChange={e => handleRes(currentFight.id, 'method', e.target.value)} disabled={confirmedResults[currentFight.id]}>
+                                            <option value="" className="text-charcoal">MÉTODO...</option>
+                                            <option value="Decisión" className="text-charcoal">Decisión</option>
+                                            <option value="KO/TKO" className="text-charcoal">KO/TKO</option>
+                                            <option value="Sumisión" className="text-charcoal">Sumisión</option>
                                         </select>
-                                        <select 
-                                            className="bg-white text-charcoal border-2 border-charcoal/10 rounded-2xl px-6 py-4 text-sm font-black shadow-lg disabled:opacity-50" 
-                                            value={results[currentFight.id]?.round || ''} 
-                                            onChange={e => handleRes(currentFight.id, 'round', e.target.value)} 
-                                            disabled={!user || confirmedResults[currentFight.id]}
-                                        >
-                                            <option value="">ROUND...</option>
-                                            {Array.from({length: currentFight.round}, (_, i) => <option key={i+1} value={i+1}>R{i+1}</option>)}
-                                            <option value="final">Final</option>
+                                        <select className="bg-white/5 border-2 border-white/10 rounded-2xl px-6 py-4 text-sm font-black shadow-lg disabled:opacity-30 focus:border-accentWarm outline-none transition" value={results[currentFight.id]?.round || ''} onChange={e => handleRes(currentFight.id, 'round', e.target.value)} disabled={confirmedResults[currentFight.id]}>
+                                            <option value="" className="text-charcoal">ROUND...</option>
+                                            {Array.from({length: currentFight.round}, (_, i) => <option key={i+1} value={i+1} className="text-charcoal">R{i+1}</option>)}
+                                            <option value="final" className="text-charcoal">Final</option>
                                         </select>
                                     </div>
-                                    {user && (
-                                        <div className="mt-6 flex justify-center">
-                                            <button 
-                                                onClick={() => { setConfirmedResults(p=>({...p,[currentFight.id]:!p[currentFight.id]})); confirmedResults[currentFight.id] ? api.unconfirm(currentFight.id) : api.saveConfirmed(currentFight.id); }} 
-                                                className={`px-10 py-3 rounded-2xl text-xs font-black uppercase tracking-widest transition shadow-xl ${confirmedResults[currentFight.id] ? 'bg-danger text-white' : 'bg-success text-white'}`}
-                                            >
-                                                {confirmedResults[currentFight.id] ? '🔓 Editar Resultado' : '🔒 Confirmar y Sumar Puntos'}
-                                            </button>
-                                        </div>
-                                    )}
+                                    <div className="mt-8 flex justify-center relative z-10">
+                                        <button onClick={() => { setConfirmedResults(p=>({...p,[currentFight.id]:!p[currentFight.id]})); confirmedResults[currentFight.id] ? api.unconfirm(currentFight.id) : api.saveConfirmed(currentFight.id); }} className={`px-12 py-4 rounded-2xl text-xs font-black uppercase tracking-widest transition-all shadow-2xl transform active:scale-95 ${confirmedResults[currentFight.id] ? 'bg-danger text-white border-2 border-danger/50' : 'bg-success text-white border-2 border-success/50'}`}>
+                                            {confirmedResults[currentFight.id] ? '🔓 Editar Resultado' : '🔒 Confirmar y Sumar Puntos'}
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         )}
@@ -401,11 +415,11 @@
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-3 mb-6">
-                                    <div className="bg-white p-4 rounded-2xl border border-charcoal/5 shadow-sm">
+                                    <div className="bg-white p-4 rounded-2xl border border-charcoal/5 shadow-sm text-center">
                                         <div className="text-[10px] font-black uppercase mb-1 text-secondary opacity-60 tracking-widest">Estilo</div>
                                         <div className="text-sm font-black">{modalFighter.style}</div>
                                     </div>
-                                    <div className="bg-white p-4 rounded-2xl border border-charcoal/5 shadow-sm">
+                                    <div className="bg-white p-4 rounded-2xl border border-charcoal/5 shadow-sm text-center">
                                         <div className="text-[10px] font-black uppercase mb-1 text-secondary opacity-60 tracking-widest">Especialidad</div>
                                         <div className="text-sm font-black">{modalFighter.specialty}</div>
                                     </div>
@@ -440,50 +454,73 @@
                     )}
 
                     {taleOfTape && (
-                        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-charcoal/90 backdrop-blur-2xl" onClick={() => setTaleOfTape(null)}>
-                            <div className="bg-charcoal text-white rounded-[50px] p-8 md:p-16 w-full max-w-4xl shadow-[0_50px_100px_rgba(0,0,0,0.5)] relative border border-white/10 max-h-[95vh] overflow-y-auto custom-scrollbar" onClick={e => e.stopPropagation()}>
-                                <div className="sticky top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-500 via-white to-blue-500 opacity-50 -mt-8 md:-mt-16 mb-8"></div>
-                                <button onClick={() => setTaleOfTape(null)} className="sticky top-2 float-right w-12 h-12 bg-white/10 hover:bg-white/20 text-white rounded-full flex items-center justify-center text-3xl font-black transition-all z-10 border border-white/20">&times;</button>
+                        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-charcoal/95 backdrop-blur-2xl overflow-y-auto" onClick={() => setTaleOfTape(null)}>
+                            <div className="tott-gradient text-white rounded-[40px] md:rounded-[60px] p-8 md:p-16 w-full max-w-4xl shadow-[0_0_100px_rgba(0,0,0,1)] relative border border-white/5 max-h-[95vh] overflow-y-auto custom-scrollbar animate-fade-in" onClick={e => e.stopPropagation()}>
+                                <div className="sticky top-0 left-0 w-full h-1.5 bg-gradient-to-r from-accentWarm via-white to-accentCool opacity-80 -mt-8 md:-mt-16 mb-12 rounded-full"></div>
+                                <button onClick={() => setTaleOfTape(null)} className="sticky top-2 float-right w-12 h-12 bg-white/10 hover:bg-white text-white hover:text-charcoal rounded-full flex items-center justify-center text-3xl font-black transition-all z-20 border border-white/20 hover:scale-110 active:scale-95 shadow-2xl backdrop-blur-md">&times;</button>
                                 
-                                <h2 className="text-center text-[11px] font-black tracking-[0.8em] uppercase mb-8 opacity-30 clear-both pt-4">Tale of the Tape</h2>
+                                <h2 className="text-center text-[11px] font-black tracking-[1em] uppercase mb-12 opacity-30 clear-both pt-4">Tale of the Tape</h2>
                                 
-                                <div className="flex justify-between items-center gap-4 mb-10">
-                                    <div className="flex-1 text-center">
-                                        <div className="w-20 h-20 md:w-32 md:h-32 mx-auto rounded-full border-4 border-white/10 mb-4 overflow-hidden bg-white/5"><img src={taleOfTape.f1.img || getSilhouette(taleOfTape.f1.name)} className="w-full h-full object-cover" onError={e => { e.target.src = getSilhouette(taleOfTape.f1.name); }} /></div>
-                                        <img src={getFlag(taleOfTape.f1.country)} className="w-10 mx-auto mb-3 rounded shadow-xl" onError={e => e.target.style.display='none'} />
-                                        <div className="text-lg md:text-3xl font-black mb-1 uppercase tracking-tighter leading-tight">{taleOfTape.f1.name}</div>
-                                        <div className="text-xs font-bold opacity-40 uppercase tracking-widest">{taleOfTape.f1.rec}</div>
+                                <div className="flex justify-between items-center gap-4 mb-16 relative">
+                                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                        <div className="text-6xl md:text-9xl font-black opacity-[0.03] italic tracking-tighter">VERSUS</div>
                                     </div>
                                     
-                                    <div className="text-base font-black opacity-10 italic">VS</div>
+                                    <div className="flex-1 text-center relative z-10">
+                                        <div className="w-24 h-24 md:w-40 md:h-40 mx-auto rounded-full border-4 border-accentWarm/30 mb-6 overflow-hidden bg-white/5 fighter-glow-1 p-1"><img src={taleOfTape.f1.img || getSilhouette(taleOfTape.f1.name)} className="w-full h-full object-cover object-top rounded-full" onError={e => { e.target.src = getSilhouette(taleOfTape.f1.name); }} /></div>
+                                        <img src={getFlag(taleOfTape.f1.country)} className="w-10 mx-auto mb-4 rounded shadow-2xl border border-white/10" onError={e => e.target.style.display='none'} />
+                                        <div className="text-xl md:text-4xl font-black mb-1 uppercase tracking-tighter leading-tight text-accentWarm">{taleOfTape.f1.name}</div>
+                                        <div className="text-xs font-bold opacity-40 uppercase tracking-widest italic">{taleOfTape.f1.rec}</div>
+                                    </div>
                                     
-                                    <div className="flex-1 text-center">
-                                        <div className="w-20 h-20 md:w-32 md:h-32 mx-auto rounded-full border-4 border-white/10 mb-4 overflow-hidden bg-white/5"><img src={taleOfTape.f2.img || getSilhouette(taleOfTape.f2.name)} className="w-full h-full object-cover" onError={e => { e.target.src = getSilhouette(taleOfTape.f2.name); }} /></div>
-                                        <img src={getFlag(taleOfTape.f2.country)} className="w-10 mx-auto mb-3 rounded shadow-xl" onError={e => e.target.style.display='none'} />
-                                        <div className="text-lg md:text-3xl font-black mb-1 uppercase tracking-tighter leading-tight">{taleOfTape.f2.name}</div>
-                                        <div className="text-xs font-bold opacity-40 uppercase tracking-widest">{taleOfTape.f2.rec}</div>
+                                    <div className="flex-1 text-center relative z-10">
+                                        <div className="w-24 h-24 md:w-40 md:h-40 mx-auto rounded-full border-4 border-accentCool/30 mb-6 overflow-hidden bg-white/5 fighter-glow-2 p-1"><img src={taleOfTape.f2.img || getSilhouette(taleOfTape.f2.name)} className="w-full h-full object-cover object-top rounded-full" onError={e => { e.target.src = getSilhouette(taleOfTape.f2.name); }} /></div>
+                                        <img src={getFlag(taleOfTape.f2.country)} className="w-10 mx-auto mb-4 rounded shadow-2xl border border-white/10" onError={e => e.target.style.display='none'} />
+                                        <div className="text-xl md:text-4xl font-black mb-1 uppercase tracking-tighter leading-tight text-accentCool">{taleOfTape.f2.name}</div>
+                                        <div className="text-xs font-bold opacity-40 uppercase tracking-widest italic">{taleOfTape.f2.rec}</div>
                                     </div>
                                 </div>
 
-                                <div className="space-y-10">
+                                <div className="space-y-12">
                                     {[ ['EDAD', 'age'], ['ALTURA', 'height'], ['PESO', 'weightLbs'], ['ALCANCE', 'reach'], ['ALCANCE PIERNA', 'legReach'] ].map(([label, key]) => (
-                                        <div key={key} className="relative">
-                                            <div className="flex justify-between text-2xl md:text-3xl font-black mb-3 px-4">
-                                                <span className="text-orange-400">{taleOfTape.f1[key] || '---'}</span>
-                                                <span className="text-blue-400">{taleOfTape.f2[key] || '---'}</span>
+                                        <div key={key} className="relative group">
+                                            <div className="flex justify-between text-2xl md:text-4xl font-black mb-4 px-2">
+                                                <span className="text-accentWarm glow-warm">{taleOfTape.f1[key] || '---'}</span>
+                                                <span className="text-accentCool glow-cool">{taleOfTape.f2[key] || '---'}</span>
                                             </div>
-                                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[10px] font-black tracking-[0.4em] opacity-20 uppercase whitespace-nowrap">{label}</div>
-                                            <div className="h-1.5 bg-white/5 rounded-full overflow-hidden flex shadow-2xl border border-white/5">
-                                                <div className="h-full bg-gradient-to-r from-orange-700 to-orange-400" style={{width: '50%'}}></div>
-                                                <div className="h-full bg-gradient-to-r from-blue-400 to-blue-700" style={{width: '50%'}}></div>
+                                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[10px] font-black tracking-[0.5em] opacity-30 uppercase whitespace-nowrap bg-[#222] px-4 py-1 rounded-full border border-white/5">{label}</div>
+                                            <div className="h-1.5 bg-white/5 rounded-full overflow-hidden flex shadow-2xl border border-white/5 backdrop-blur-sm">
+                                                <div className="h-full bg-gradient-to-r from-orange-700 to-accentWarm" style={{width: '50%'}}></div>
+                                                <div className="h-full bg-gradient-to-r from-accentCool to-blue-800" style={{width: '50%'}}></div>
                                             </div>
                                         </div>
                                     ))}
 
-                                    <div className="grid grid-cols-3 gap-6 pt-10 border-t border-white/5 mt-10">
-                                        <div className="text-center bg-white/5 p-5 rounded-3xl"><div className="text-[9px] font-black opacity-30 mb-2 tracking-widest uppercase">KO Artist</div><div className="text-xl font-black text-orange-400">{taleOfTape.f1.ko || 0}% <span className="text-white/20">|</span> <span className="text-blue-400">{taleOfTape.f2.ko || 0}%</span></div></div>
-                                        <div className="text-center bg-white/5 p-5 rounded-3xl"><div className="text-[9px] font-black opacity-30 mb-2 tracking-widest uppercase">Submission</div><div className="text-xl font-black text-orange-400">{taleOfTape.f1.sub || 0}% <span className="text-white/20">|</span> <span className="text-blue-400">{taleOfTape.f2.sub || 0}%</span></div></div>
-                                        <div className="text-center bg-white/5 p-5 rounded-3xl"><div className="text-[9px] font-black opacity-30 mb-2 tracking-widest uppercase">Decision</div><div className="text-xl font-black text-orange-400">{taleOfTape.f1.dec || 0}% <span className="text-white/20">|</span> <span className="text-blue-400">{taleOfTape.f2.dec || 0}%</span></div></div>
+                                    <div className="grid grid-cols-3 gap-6 pt-16 border-t border-white/5 mt-16">
+                                        <div className="text-center bg-white/[0.03] p-8 rounded-[35px] border border-white/5 backdrop-blur-xl group hover:border-accentWarm/20 transition">
+                                            <div className="text-[10px] font-black opacity-30 mb-3 tracking-[0.2em] uppercase">KO Artist</div>
+                                            <div className="text-2xl md:text-3xl font-black flex items-center justify-center gap-3">
+                                                <span className="text-accentWarm">{taleOfTape.f1.ko || 0}%</span>
+                                                <span className="text-white/10">|</span>
+                                                <span className="text-accentCool">{taleOfTape.f2.ko || 0}%</span>
+                                            </div>
+                                        </div>
+                                        <div className="text-center bg-white/[0.03] p-8 rounded-[35px] border border-white/5 backdrop-blur-xl group hover:border-white/20 transition">
+                                            <div className="text-[10px] font-black opacity-30 mb-3 tracking-[0.2em] uppercase">Submission</div>
+                                            <div className="text-2xl md:text-3xl font-black flex items-center justify-center gap-3">
+                                                <span className="text-accentWarm">{taleOfTape.f1.sub || 0}%</span>
+                                                <span className="text-white/10">|</span>
+                                                <span className="text-accentCool">{taleOfTape.f2.sub || 0}%</span>
+                                            </div>
+                                        </div>
+                                        <div className="text-center bg-white/[0.03] p-8 rounded-[35px] border border-white/5 backdrop-blur-xl group hover:border-accentCool/20 transition">
+                                            <div className="text-[10px] font-black opacity-30 mb-3 tracking-[0.2em] uppercase">Decision</div>
+                                            <div className="text-2xl md:text-3xl font-black flex items-center justify-center gap-3">
+                                                <span className="text-accentWarm">{taleOfTape.f1.dec || 0}%</span>
+                                                <span className="text-white/10">|</span>
+                                                <span className="text-accentCool">{taleOfTape.f2.dec || 0}%</span>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
