@@ -8,6 +8,7 @@
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -86,6 +87,12 @@
     <script type="text/babel">
         const { useState, useEffect } = React;
 
+        // Initialize Supabase Client
+        const supabase = supabase.createClient(
+            'https://gxgjlxgmqgcqlesdebzw.supabase.co',
+            'sb_publishable_vSG7G9i4QxlN-B3wb2XBFQ_-kLLXo6q'
+        );
+
         const api = {
             async getPredictions() { const r = await fetch('/api/predictions'); return r.json(); },
             async getResults() { const r = await fetch('/api/results'); return r.json(); },
@@ -97,17 +104,14 @@
             },
             async clearAll() { await fetch('/api/predictions', { method: 'DELETE' }); await fetch('/api/results', { method: 'DELETE' }); },
             async saveConfirmed(fight_id) { return fetch('/api/confirmed', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({fight_id}) }); },
-            async unconfirm(fight_id) { return fetch(`/api/results?fight_id=${fight_id}&field=confirmed`, { method: 'DELETE' }); },
-            async fetchGeminiResults() { const r = await fetch('/api/gemini-update', { method: 'POST' }); return r.json(); }
+            async unconfirm(fight_id) { return fetch(`/api/results?fight_id=${fight_id}&field=confirmed`, { method: 'DELETE' }); }
         };
 
         const UFCApp = () => {
             const [predictions, setPredictions] = useState({});
             const [results, setResults] = useState({});
             const [confirmedResults, setConfirmedResults] = useState({});
-            const [isAdmin, setIsAdmin] = useState(false);
-            const [showLogin, setShowLogin] = useState(false);
-            const [password, setPassword] = useState('');
+            const [user, setUser] = useState(null);
             const [modalFighter, setModalFighter] = useState(null);
             const [taleOfTape, setTaleOfTape] = useState(null);
             const [activeTab, setActiveTab] = useState('Preliminar');
@@ -128,7 +132,7 @@
                     f2: { name: 'Wes Schultz', country: 'us', age: 27, height: "6' 2\"", reach: '77"', legReach: '42"', weightLbs: '185.00 LB', rec: '8-3-0', odds: '+120', oddsType: 'Underdog', img: '', style: 'Kickboxer', specialty: 'KOs largos', recent: [{r:'W', m:'KO/TKO', rnd:1}], ko: 70, sub: 10, dec: 20 }
                 },
                 { id: 4, type: 'Preliminar', round: 3, weight: 'Peso Gallo',
-                    f1: { name: 'Colby Thicknesse', country: 'au', age: 24, height: "5' 7\"", reach: '69"', legReach: '39"', weightLbs: '135.50 LB', rec: '8-1-0', odds: '-140', oddsType: 'Favorito', img: '', style: 'MMA', specialty: 'Velocidad', recent: [{r:'W', m:'Sumisión', rnd:1}], ko: 20, sub: 60, dec: 20 },
+                    f1: { name: 'Colby Thicknesse', country: 'au', age: 24, height: "5' 7\"", reach: '69"', legReach: '39"', weightLbs: '135.50 LB', rec: '8-1-0', odds: '-140', oddsType: 'Favorito', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-08/THICKNESSE_COLBY_L_08-17.png', style: 'MMA', specialty: 'Velocidad', recent: [{r:'W', m:'Sumisión', rnd:1}], ko: 20, sub: 60, dec: 20 },
                     f2: { name: 'Vince Morales', country: 'us', age: 33, height: "5' 7\"", reach: '70"', legReach: '36"', weightLbs: '136.00 LB', rec: '16-10-0', odds: '+120', oddsType: 'Underdog', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2021-09/68037%252Fprofile-full-body-static%252FMORALES_VINCE_L_09-25.png', style: 'Boxeador Técnico', specialty: 'Combinaciones', recent: [{r:'W', m:'Decisión', rnd:3}], ko: 40, sub: 10, dec: 50 }
                 },
                 { id: 5, type: 'Preliminar', round: 3, weight: 'Peso Medio',
@@ -136,7 +140,7 @@
                     f2: { name: 'Gerald Meerschaert', country: 'us', age: 36, height: "6' 1\"", reach: '77.5"', legReach: '40"', weightLbs: '185.60 LB', rec: '37-21-0', odds: '+700', oddsType: 'Underdog', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2024-03/MEERSCHAERT_GERALD_L_03-16.png', style: 'BJJ Maestro', specialty: 'Sumisiones técnicas', recent: [{r:'W', m:'Sumisión', rnd:2}], ko: 10, sub: 80, dec: 10 }
                 },
                 { id: 6, type: 'Preliminar', round: 3, weight: 'Peso Semicompleto',
-                    f1: { name: 'Junior Tafa', country: 'au', age: 27, height: "6' 3\"", reach: '75"', legReach: '43"', weightLbs: '218.30 LB', rec: '6-5-0', odds: '-205', oddsType: 'Favorito', img: '', style: 'Striker Poderoso', specialty: 'KO de un golpe', recent: [{r:'L', m:'KO/TKO', rnd:2}, {r:'W', m:'KO/TKO', rnd:1}], ko: 90, sub: 0, dec: 10 },
+                    f1: { name: 'Junior Tafa', country: 'au', age: 27, height: "6' 3\"", reach: '75"', legReach: '43"', weightLbs: '218.30 LB', rec: '6-5-0', odds: '-205', oddsType: 'Favorito', img: 'https://dmxg5wxfqgb4u.cloudfront.net/styles/athlete_bio_full_body/s3/2023-02/TAFA_JUNIOR_L_02-11.png', style: 'Striker Poderoso', specialty: 'KO de un golpe', recent: [{r:'L', m:'KO/TKO', rnd:2}, {r:'W', m:'KO/TKO', rnd:1}], ko: 90, sub: 0, dec: 10 },
                     f2: { name: 'Kevin Christian', country: 'br', age: 29, height: "6' 7\"", reach: '80"', legReach: '49"', weightLbs: '205.00 LB', rec: '9-3-0', odds: '+170', oddsType: 'Underdog', img: '', style: 'Luchador / BJJ', specialty: 'Estrangulaciones', recent: [{r:'W', m:'Sumisión', rnd:1}], ko: 20, sub: 70, dec: 10 }
                 },
                 { id: 7, type: 'Preliminar', round: 3, weight: 'Peso Medio',
@@ -180,10 +184,26 @@
                     setPredictions(pMap); setResults(rMap); setConfirmedResults(cMap);
                 };
                 load();
+
+                // Check for existing session
+                supabase.auth.getSession().then(({ data: { session } }) => {
+                    setUser(session?.user ?? null);
+                });
+
+                // Listen for auth changes
+                const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+                    setUser(session?.user ?? null);
+                });
+
+                return () => subscription.unsubscribe();
             }, []);
+
+            const handleLogin = () => supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin } });
+            const handleLogout = () => supabase.auth.signOut();
 
             const handlePred = (id, pl, f, v) => { setPredictions(prev => ({...prev, [id]: {...prev[id], [pl]: {...(prev[id]?.[pl]||{}), [f]: v}}})); api.savePrediction(id, pl, f, v); };
             const handleRes = (id, f, v) => { setResults(prev => ({...prev, [id]: {...(prev[id]||{}), [f]: v}})); api.saveResult(id, f, v); };
+            
             const calcPts = (id, pl) => {
                 const p = predictions[id]?.[pl], r = results[id];
                 if (!p?.winner || !r?.winner || !confirmedResults[id]) return 0;
@@ -218,7 +238,17 @@
                                 <div className="w-px bg-charcoal/10"></div>
                                 <div className="text-center"><div className="text-[10px] font-black uppercase opacity-50">Hijo {hijoScore > papaScore && '👑'}</div><div className="text-2xl md:text-5xl font-black score-cool leading-none">{hijoScore}</div></div>
                             </div>
-                            <button onClick={() => setShowLogin(true)} className="hidden md:block text-xs font-semibold px-4 py-2 bg-charcoal text-cream rounded-lg">{isAdmin ? 'Admin ✅' : 'Admin Access'}</button>
+                            {user ? (
+                                <button onClick={handleLogout} className="flex items-center gap-2 text-xs font-semibold px-3 py-2 bg-charcoal text-cream rounded-lg">
+                                    {user.user_metadata.avatar_url && <img src={user.user_metadata.avatar_url} className="w-5 h-5 rounded-full" />}
+                                    <span className="hidden sm:inline">Salir</span>
+                                </button>
+                            ) : (
+                                <button onClick={handleLogin} className="flex items-center gap-2 text-xs font-semibold px-3 py-2 bg-charcoal text-cream rounded-lg hover:scale-105 transition">
+                                    <svg className="w-4 h-4" viewBox="0 0 24 24"><path fill="currentColor" d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2C7.021,2,2.543,6.477,2.543,12s4.478,10,10.002,10c8.396,0,10.249-7.85,9.426-11.748L12.545,10.239z"/></svg>
+                                    <span className="hidden sm:inline">Entrar</span>
+                                </button>
+                            )}
                         </div>
                     </div>
 
@@ -248,8 +278,8 @@
                                 <div className="flex justify-between items-center mb-16 mt-6 gap-2">
                                     <div className="flex-1 text-center group cursor-pointer" onClick={() => setModalFighter(currentFight.f1)}>
                                         <div className="relative inline-block mb-6">
-                                            <div className="w-24 h-24 sm:w-32 sm:h-32 md:w-56 md:h-56 rounded-full border-4 border-white shadow-[0_20px_50px_rgba(0,0,0,0.1)] overflow-hidden bg-white/50 group-hover:scale-[1.02] transition-transform"><img src={currentFight.f1.img || getSilhouette(currentFight.f1.name)} className="w-full h-full object-cover object-top" /></div>
-                                            <img src={getFlag(currentFight.f1.country)} className="absolute bottom-1 right-1 w-8 h-8 md:w-16 md:h-16 border-4 border-white rounded-full shadow-2xl" />
+                                            <div className="w-24 h-24 sm:w-32 sm:h-32 md:w-56 md:h-56 rounded-full border-4 border-white shadow-[0_20px_50px_rgba(0,0,0,0.1)] overflow-hidden bg-white/50 group-hover:scale-[1.02] transition-transform"><img src={currentFight.f1.img || getSilhouette(currentFight.f1.name)} className="w-full h-full object-cover object-top" onError={e => { e.target.src = getSilhouette(currentFight.f1.name); }} /></div>
+                                            <img src={getFlag(currentFight.f1.country)} className="absolute bottom-1 right-1 w-8 h-8 md:w-16 md:h-16 border-4 border-white rounded-full shadow-2xl" onError={e => e.target.style.display='none'} />
                                         </div>
                                         <h3 className="text-sm md:text-3xl font-black mb-2 leading-tight uppercase tracking-tight">{currentFight.f1.name}</h3>
                                         <div className={`text-[10px] md:text-xs font-black px-3 py-1 rounded-md inline-block shadow-sm ${currentFight.f1.oddsType === 'Favorito' ? 'odds-fav' : 'odds-dog'}`}>
@@ -268,8 +298,8 @@
 
                                     <div className="flex-1 text-center group cursor-pointer" onClick={() => setModalFighter(currentFight.f2)}>
                                         <div className="relative inline-block mb-6">
-                                            <div className="w-24 h-24 sm:w-32 sm:h-32 md:w-56 md:h-56 rounded-full border-4 border-white shadow-[0_20px_50px_rgba(0,0,0,0.1)] overflow-hidden bg-white/50 group-hover:scale-[1.02] transition-transform"><img src={currentFight.f2.img || getSilhouette(currentFight.f2.name)} className="w-full h-full object-cover object-top" /></div>
-                                            <img src={getFlag(currentFight.f2.country)} className="absolute bottom-1 right-1 w-8 h-8 md:w-16 md:h-16 border-4 border-white rounded-full shadow-2xl" />
+                                            <div className="w-24 h-24 sm:w-32 sm:h-32 md:w-56 md:h-56 rounded-full border-4 border-white shadow-[0_20px_50px_rgba(0,0,0,0.1)] overflow-hidden bg-white/50 group-hover:scale-[1.02] transition-transform"><img src={currentFight.f2.img || getSilhouette(currentFight.f2.name)} className="w-full h-full object-cover object-top" onError={e => { e.target.src = getSilhouette(currentFight.f2.name); }} /></div>
+                                            <img src={getFlag(currentFight.f2.country)} className="absolute bottom-1 right-1 w-8 h-8 md:w-16 md:h-16 border-4 border-white rounded-full shadow-2xl" onError={e => e.target.style.display='none'} />
                                         </div>
                                         <h3 className="text-sm md:text-3xl font-black mb-2 leading-tight uppercase tracking-tight">{currentFight.f2.name}</h3>
                                         <div className={`text-[10px] md:text-xs font-black px-3 py-1 rounded-md inline-block shadow-sm ${currentFight.f2.oddsType === 'Favorito' ? 'odds-fav' : 'odds-dog'}`}>
@@ -278,7 +308,7 @@
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
                                     {['player1', 'player2'].map((p, i) => (
                                         <div key={p} className={`p-8 rounded-[32px] border-2 transition-all hover:shadow-2xl ${i === 0 ? 'bg-orange-50/50 border-orange-100 hover:border-orange-300' : 'bg-blue-50/50 border-blue-100 hover:border-blue-300'}`}>
                                             <div className="flex justify-between items-center mb-6">
@@ -298,13 +328,55 @@
                                     ))}
                                 </div>
 
-                                {isAdmin && (
-                                    <div className="mt-16 pt-10 border-t-4 border-dotted border-charcoal/10 flex flex-wrap gap-4 items-center justify-center bg-charcoal/5 p-8 rounded-[40px]">
-                                        <div className="text-[11px] font-black uppercase tracking-widest opacity-40 w-full text-center mb-2">Panel de Control Oficial</div>
-                                        <select className="bg-white border-2 border-charcoal/20 rounded-2xl px-6 py-3 text-sm font-black shadow-lg" value={results[currentFight.id]?.winner || ''} onChange={e => handleRes(currentFight.id, 'winner', e.target.value)} disabled={confirmedResults[currentFight.id]}><option value="">RESULTADO FINAL...</option><option value={currentFight.f1.name}>{currentFight.f1.name}</option><option value={currentFight.f2.name}>{currentFight.f2.name}</option></select>
-                                        <button onClick={() => { setConfirmedResults(p=>({...p,[currentFight.id]:!p[currentFight.id]})); confirmedResults[currentFight.id] ? api.unconfirm(currentFight.id) : api.saveConfirmed(currentFight.id); }} className={`px-10 py-3 rounded-2xl text-xs font-black uppercase tracking-widest transition shadow-xl ${confirmedResults[currentFight.id] ? 'bg-charcoal text-white' : 'bg-success text-white'}`}>{confirmedResults[currentFight.id] ? '🔓 Editar' : '🔒 Confirmar Resultado'}</button>
+                                <div className={`p-8 rounded-[40px] border-4 border-dotted transition-all ${user ? 'bg-charcoal text-cream border-charcoal/20' : 'bg-charcoal/5 border-charcoal/10 opacity-50'}`}>
+                                    <div className="flex justify-between items-center mb-6">
+                                        <div className="text-[11px] font-black uppercase tracking-[0.2em] opacity-60">Manual: Resultado Oficial</div>
+                                        {!user && <span className="text-[9px] font-black bg-charcoal text-cream px-2 py-1 rounded">Login Requerido</span>}
                                     </div>
-                                )}
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <select 
+                                            className="bg-white text-charcoal border-2 border-charcoal/10 rounded-2xl px-6 py-4 text-sm font-black shadow-lg disabled:opacity-50" 
+                                            value={results[currentFight.id]?.winner || ''} 
+                                            onChange={e => handleRes(currentFight.id, 'winner', e.target.value)} 
+                                            disabled={!user || confirmedResults[currentFight.id]}
+                                        >
+                                            <option value="">GANADOR...</option>
+                                            <option value={currentFight.f1.name}>{currentFight.f1.name}</option>
+                                            <option value={currentFight.f2.name}>{currentFight.f2.name}</option>
+                                        </select>
+                                        <select 
+                                            className="bg-white text-charcoal border-2 border-charcoal/10 rounded-2xl px-6 py-4 text-sm font-black shadow-lg disabled:opacity-50" 
+                                            value={results[currentFight.id]?.method || ''} 
+                                            onChange={e => handleRes(currentFight.id, 'method', e.target.value)} 
+                                            disabled={!user || confirmedResults[currentFight.id]}
+                                        >
+                                            <option value="">MÉTODO...</option>
+                                            <option value="Decisión">Decisión</option>
+                                            <option value="KO/TKO">KO/TKO</option>
+                                            <option value="Sumisión">Sumisión</option>
+                                        </select>
+                                        <select 
+                                            className="bg-white text-charcoal border-2 border-charcoal/10 rounded-2xl px-6 py-4 text-sm font-black shadow-lg disabled:opacity-50" 
+                                            value={results[currentFight.id]?.round || ''} 
+                                            onChange={e => handleRes(currentFight.id, 'round', e.target.value)} 
+                                            disabled={!user || confirmedResults[currentFight.id]}
+                                        >
+                                            <option value="">ROUND...</option>
+                                            {Array.from({length: currentFight.round}, (_, i) => <option key={i+1} value={i+1}>R{i+1}</option>)}
+                                            <option value="final">Final</option>
+                                        </select>
+                                    </div>
+                                    {user && (
+                                        <div className="mt-6 flex justify-center">
+                                            <button 
+                                                onClick={() => { setConfirmedResults(p=>({...p,[currentFight.id]:!p[currentFight.id]})); confirmedResults[currentFight.id] ? api.unconfirm(currentFight.id) : api.saveConfirmed(currentFight.id); }} 
+                                                className={`px-10 py-3 rounded-2xl text-xs font-black uppercase tracking-widest transition shadow-xl ${confirmedResults[currentFight.id] ? 'bg-danger text-white' : 'bg-success text-white'}`}
+                                            >
+                                                {confirmedResults[currentFight.id] ? '🔓 Editar Resultado' : '🔒 Confirmar y Sumar Puntos'}
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         )}
                     </div>
@@ -414,23 +486,6 @@
                                         <div className="text-center bg-white/5 p-5 rounded-3xl"><div className="text-[9px] font-black opacity-30 mb-2 tracking-widest uppercase">Decision</div><div className="text-xl font-black text-orange-400">{taleOfTape.f1.dec || 0}% <span className="text-white/20">|</span> <span className="text-blue-400">{taleOfTape.f2.dec || 0}%</span></div></div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {showLogin && (
-                        <div className="fixed inset-0 bg-charcoal/60 backdrop-blur-md flex items-center justify-center z-[200] p-4" onClick={() => setShowLogin(false)}>
-                            <div className="bg-cream p-8 rounded-[32px] w-full max-w-sm shadow-2xl border border-white relative" onClick={e => e.stopPropagation()}>
-                                <h2 className="font-black uppercase tracking-tight text-3xl mb-1 text-center">Admin Access</h2>
-                                <p className="text-[10px] font-black text-secondary text-center mb-8 uppercase tracking-widest">Autenticación necesaria</p>
-                                <input type="password" placeholder="Contraseña..." className="w-full mb-6 bg-white border-2 border-charcoal/5 focus:border-charcoal rounded-2xl px-5 py-4 text-sm font-bold transition-all" value={password} onChange={e => setPassword(e.target.value)} onKeyDown={e => e.key === 'Enter' && (password === 'ufc2026' ? (setIsAdmin(true), setShowLogin(false), setPassword('')) : alert('Incorrecto'))} />
-                                <div className="flex gap-3"><button className="flex-1 bg-white border-2 border-charcoal/5 font-black py-4 rounded-2xl text-xs uppercase" onClick={() => setShowLogin(false)}>Cancelar</button><button className="flex-1 bg-charcoal text-white font-black py-4 rounded-2xl text-xs uppercase shadow-lg" onClick={() => password === 'ufc2026' ? (setIsAdmin(true), setShowLogin(false), setPassword('')) : alert('Incorrecto')}>Entrar</button></div>
-                                {isAdmin && (
-                                    <div className="mt-6 pt-6 border-t border-charcoal/10 space-y-3">
-                                        <button className="w-full bg-purple-600 hover:bg-purple-700 text-white font-black py-4 rounded-2xl text-xs uppercase shadow-lg transition-all" onClick={async () => { if(window.confirm('¿Actualizar resultados con IA?')) { try { const res = await api.fetchGeminiResults(); alert(res.message); window.location.reload(); } catch(e) { alert(e.message); } } }}>🤖 Actualizar Gemini</button>
-                                        <button className="w-full bg-red-100 hover:bg-red-200 text-red-600 font-black py-4 rounded-2xl text-xs uppercase transition-all" onClick={async () => { if(window.confirm('¿Borrar todo?')) { try { await api.clearAll(); alert('Reset completo.'); window.location.reload(); } catch(e) { alert(e.message); } } }}>⚠️ Reset Total</button>
-                                    </div>
-                                )}
                             </div>
                         </div>
                     )}
