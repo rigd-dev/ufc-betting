@@ -94,14 +94,18 @@
         .odds-dog { background: #FCE8E6; color: #D93025; }
 
         .tott-gradient {
-            background: linear-gradient(180deg, #1A1A1A 0%, #2D2D2D 100%);
+            background: radial-gradient(circle at 0% 0%, rgba(255, 107, 0, 0.08) 0%, transparent 40%),
+                        radial-gradient(circle at 100% 100%, rgba(0, 85, 255, 0.08) 0%, transparent 40%),
+                        rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
         }
 
-        .pin-input {
-            letter-spacing: 1.5em;
-            text-align: center;
-            font-size: 1.5rem;
-            padding-left: 1.5em;
+        .modal-blur {
+            background: rgba(26, 26, 26, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
         }
     </style>
 </head>
@@ -425,10 +429,10 @@
                     </div>
 
                     {modalFighter && (
-                        <div className="fixed inset-0 z-[100] flex items-start justify-center pt-4 pb-4 px-4 bg-charcoal/70 backdrop-blur-xl overflow-y-auto" onClick={() => setModalFighter(null)}>
-                            <div className="bg-cream/98 backdrop-blur-3xl rounded-[32px] p-6 md:p-10 w-full max-w-lg shadow-[0_30px_100px_rgba(0,0,0,0.3)] border border-white relative animate-fade-in my-auto" onClick={e => e.stopPropagation()}>
-                                <button onClick={() => setModalFighter(null)} className="absolute top-5 right-5 w-10 h-10 bg-charcoal text-white rounded-full flex items-center justify-center text-2xl font-black hover:scale-110 transition-transform z-10">&times;</button>
-                                <div className="flex items-center gap-5 mb-6 pb-6 border-b border-charcoal/10 pr-12">
+                        <div className="fixed inset-0 z-[100] flex items-start justify-center pt-4 pb-4 px-4 modal-blur overflow-y-auto" onClick={() => setModalFighter(null)}>
+                            <div className="bg-white/95 backdrop-blur-3xl rounded-[40px] p-8 md:p-12 w-full max-w-lg shadow-[0_30px_100px_rgba(0,0,0,0.15)] border border-white relative animate-fade-in my-auto" onClick={e => e.stopPropagation()}>
+                                <button onClick={() => setModalFighter(null)} className="absolute top-6 right-6 w-12 h-12 bg-charcoal text-white rounded-full flex items-center justify-center text-3xl font-black hover:scale-110 transition-all z-10 shadow-xl">&times;</button>
+                                <div className="flex items-center gap-6 mb-8 pb-8 border-b border-charcoal/5 pr-12">
                                     <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-white shadow-xl bg-white flex-shrink-0">
                                         <img src={modalFighter.img || getSilhouette(modalFighter.name)} className="w-full h-full object-cover object-top" onError={e => { e.target.src = getSilhouette(modalFighter.name); }} />
                                     </div>
@@ -504,65 +508,72 @@
                     )}
 
                     {taleOfTape && (
-                        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-charcoal/95 backdrop-blur-2xl overflow-y-auto" onClick={() => setTaleOfTape(null)}>
-                            <div className="tott-gradient text-white rounded-[40px] md:rounded-[60px] p-8 md:p-16 w-full max-w-4xl shadow-[0_0_100px_rgba(0,0,0,1)] relative border border-white/5 max-h-[95vh] overflow-y-auto custom-scrollbar animate-fade-in" onClick={e => e.stopPropagation()}>
-                                <div className="sticky top-0 left-0 w-full h-1.5 bg-gradient-to-r from-accentWarm via-white to-accentCool opacity-80 -mt-8 md:-mt-16 mb-12 rounded-full"></div>
-                                <button onClick={() => setTaleOfTape(null)} className="sticky top-2 float-right w-12 h-12 bg-white/10 hover:bg-white text-white hover:text-charcoal rounded-full flex items-center justify-center text-3xl font-black transition-all z-20 border border-white/20 hover:scale-110 active:scale-95 shadow-2xl backdrop-blur-md">&times;</button>
-                                <h2 className="text-center text-[11px] font-black tracking-[1em] uppercase mb-12 opacity-30 clear-both pt-4">Tale of the Tape</h2>
+                        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 modal-blur overflow-y-auto" onClick={() => setTaleOfTape(null)}>
+                            <div className="tott-gradient text-charcoal rounded-[40px] md:rounded-[60px] p-8 md:p-16 w-full max-w-4xl shadow-[0_40px_120px_rgba(0,0,0,0.1)] relative border border-white max-h-[95vh] overflow-y-auto custom-scrollbar animate-fade-in" onClick={e => e.stopPropagation()}>
+                                <div className="sticky top-0 left-0 w-full h-1.5 bg-gradient-to-r from-accentWarm via-charcoal/5 to-accentCool opacity-80 -mt-8 md:-mt-16 mb-12 rounded-full"></div>
+                                <button onClick={() => setTaleOfTape(null)} className="sticky top-2 float-right w-14 h-14 bg-charcoal text-white rounded-full flex items-center justify-center text-4xl font-black transition-all z-20 hover:scale-110 active:scale-95 shadow-2xl">&times;</button>
+                                
+                                <h2 className="text-center text-[11px] font-black tracking-[1em] uppercase mb-12 opacity-20 clear-both pt-4">Tale of the Tape</h2>
+                                
                                 <div className="flex justify-between items-center gap-4 mb-16 relative">
-                                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none"><div className="text-6xl md:text-9xl font-black opacity-[0.03] italic tracking-tighter">VERSUS</div></div>
-                                    <div className="flex-1 text-center relative z-10">
-                                        <div className="w-24 h-24 md:w-40 md:h-40 mx-auto rounded-full border-4 border-accentWarm/30 mb-6 overflow-hidden bg-white/5 fighter-glow-1 p-1"><img src={taleOfTape.f1.img || getSilhouette(taleOfTape.f1.name)} className="w-full h-full object-cover object-top rounded-full" onError={e => { e.target.src = getSilhouette(taleOfTape.f1.name); }} /></div>
-                                        <img src={getFlag(taleOfTape.f1.country)} className="w-10 mx-auto mb-4 rounded shadow-2xl border border-white/10" onError={e => e.target.style.display='none'} />
-                                        <div className="text-xl md:text-4xl font-black mb-1 uppercase tracking-tighter leading-tight text-accentWarm">{taleOfTape.f1.name}</div>
-                                        <div className="text-xs font-bold opacity-40 uppercase tracking-widest italic">{taleOfTape.f1.rec}</div>
+                                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                        <div className="text-6xl md:text-9xl font-black opacity-[0.05] italic tracking-tighter">VERSUS</div>
                                     </div>
+                                    
                                     <div className="flex-1 text-center relative z-10">
-                                        <div className="w-24 h-24 md:w-40 md:h-40 mx-auto rounded-full border-4 border-accentCool/30 mb-6 overflow-hidden bg-white/5 fighter-glow-2 p-1"><img src={taleOfTape.f2.img || getSilhouette(taleOfTape.f2.name)} className="w-full h-full object-cover object-top rounded-full" onError={e => { e.target.src = getSilhouette(taleOfTape.f2.name); }} /></div>
-                                        <img src={getFlag(taleOfTape.f2.country)} className="w-10 mx-auto mb-4 rounded shadow-2xl border border-white/10" onError={e => e.target.style.display='none'} />
+                                        <div className="w-24 h-24 md:w-44 md:h-44 mx-auto rounded-full border-4 border-accentWarm/20 mb-6 overflow-hidden bg-white shadow-2xl p-1"><img src={taleOfTape.f1.img || getSilhouette(taleOfTape.f1.name)} className="w-full h-full object-cover object-top rounded-full" onError={e => { e.target.src = getSilhouette(taleOfTape.f1.name); }} /></div>
+                                        <img src={getFlag(taleOfTape.f1.country)} className="w-10 mx-auto mb-4 rounded shadow-lg border-2 border-white" onError={e => e.target.style.display='none'} />
+                                        <div className="text-xl md:text-4xl font-black mb-1 uppercase tracking-tighter leading-tight text-accentWarm">{taleOfTape.f1.name}</div>
+                                        <div className="text-[10px] md:text-xs font-bold opacity-30 uppercase tracking-widest italic">{taleOfTape.f1.rec}</div>
+                                    </div>
+                                    
+                                    <div className="flex-1 text-center relative z-10">
+                                        <div className="w-24 h-24 md:w-44 md:h-44 mx-auto rounded-full border-4 border-accentCool/20 mb-6 overflow-hidden bg-white shadow-2xl p-1"><img src={taleOfTape.f2.img || getSilhouette(taleOfTape.f2.name)} className="w-full h-full object-cover object-top rounded-full" onError={e => { e.target.src = getSilhouette(taleOfTape.f2.name); }} /></div>
+                                        <img src={getFlag(taleOfTape.f2.country)} className="w-10 mx-auto mb-4 rounded shadow-lg border-2 border-white" onError={e => e.target.style.display='none'} />
                                         <div className="text-xl md:text-4xl font-black mb-1 uppercase tracking-tighter leading-tight text-accentCool">{taleOfTape.f2.name}</div>
-                                        <div className="text-xs font-bold opacity-40 uppercase tracking-widest italic">{taleOfTape.f2.rec}</div>
+                                        <div className="text-[10px] md:text-xs font-bold opacity-30 uppercase tracking-widest italic">{taleOfTape.f2.rec}</div>
                                     </div>
                                 </div>
+
                                 <div className="space-y-10 md:space-y-14">
                                     {[ ['EDAD', 'age'], ['ALTURA', 'height'], ['PESO', 'weightLbs'], ['ALCANCE', 'reach'], ['ALCAN. PIERNA', 'legReach'] ].map(([label, key]) => (
                                         <div key={key} className="relative group">
                                             <div className="grid grid-cols-3 items-center mb-4 px-2">
-                                                <div className="text-xl md:text-4xl font-black text-accentWarm glow-warm text-left">{taleOfTape.f1[key] || '---'}</div>
+                                                <div className="text-xl md:text-4xl font-black text-accentWarm text-left">{taleOfTape.f1[key] || '---'}</div>
                                                 <div className="text-center">
-                                                    <span className="text-[8px] md:text-[10px] font-black tracking-[0.2em] md:tracking-[0.5em] opacity-40 uppercase whitespace-nowrap bg-white/5 px-3 py-1 rounded-full border border-white/10">{label}</span>
+                                                    <span className="text-[8px] md:text-[10px] font-black tracking-[0.2em] md:tracking-[0.5em] opacity-40 uppercase whitespace-nowrap bg-charcoal/5 px-4 py-1.5 rounded-full border border-charcoal/5">{label}</span>
                                                 </div>
-                                                <div className="text-xl md:text-4xl font-black text-accentCool glow-cool text-right">{taleOfTape.f2[key] || '---'}</div>
+                                                <div className="text-xl md:text-4xl font-black text-accentCool text-right">{taleOfTape.f2[key] || '---'}</div>
                                             </div>
-                                            <div className="h-1.5 bg-white/5 rounded-full overflow-hidden flex shadow-2xl border border-white/5 backdrop-blur-sm">
-                                                <div className="h-full bg-gradient-to-r from-orange-700 to-accentWarm" style={{width: '50%', borderRight: '1px solid rgba(255,255,255,0.1)'}}></div>
-                                                <div className="h-full bg-gradient-to-r from-accentCool to-blue-800" style={{width: '50%'}}></div>
+                                            <div className="h-2 bg-charcoal/5 rounded-full overflow-hidden flex shadow-inner border border-charcoal/5">
+                                                <div className="h-full bg-gradient-to-r from-orange-500 to-accentWarm" style={{width: '50%', borderRight: '1px solid rgba(255,255,255,0.2)'}}></div>
+                                                <div className="h-full bg-gradient-to-r from-accentCool to-blue-600" style={{width: '50%'}}></div>
                                             </div>
                                         </div>
                                     ))}
 
-                                    <div className="grid grid-cols-3 gap-3 md:gap-6 pt-12 border-t border-white/5 mt-12">
-                                        <div className="text-center bg-white/[0.03] p-4 md:p-8 rounded-2xl md:rounded-[35px] border border-white/5 backdrop-blur-xl group hover:border-accentWarm/20 transition">
-                                            <div className="text-[8px] md:text-[10px] font-black opacity-30 mb-2 md:mb-3 tracking-[0.1em] md:tracking-[0.2em] uppercase">KO/TKO</div>
-                                            <div className="text-sm md:text-3xl font-black flex flex-col md:flex-row items-center justify-center gap-1 md:gap-3">
+                                    <div className="grid grid-cols-3 gap-3 md:gap-6 pt-12 border-t border-charcoal/5 mt-12">
+                                        <div className="text-center bg-white p-6 md:p-10 rounded-3xl md:rounded-[40px] border border-charcoal/5 shadow-xl group hover:scale-[1.02] transition-all">
+                                            <div className="text-[8px] md:text-[10px] font-black opacity-30 mb-3 tracking-widest uppercase">KO/TKO</div>
+                                            <div className="text-base md:text-4xl font-black flex flex-col md:flex-row items-center justify-center gap-1 md:gap-4">
                                                 <span className="text-accentWarm">{taleOfTape.f1.ko || 0}%</span>
-                                                <span className="hidden md:inline text-white/10">|</span>
+                                                <span className="hidden md:inline text-charcoal/10">|</span>
                                                 <span className="text-accentCool">{taleOfTape.f2.ko || 0}%</span>
                                             </div>
                                         </div>
-                                        <div className="text-center bg-white/[0.03] p-4 md:p-8 rounded-2xl md:rounded-[35px] border border-white/5 backdrop-blur-xl group hover:border-white/20 transition">
-                                            <div className="text-[8px] md:text-[10px] font-black opacity-30 mb-2 md:mb-3 tracking-[0.1em] md:tracking-[0.2em] uppercase">SUBM.</div>
-                                            <div className="text-sm md:text-3xl font-black flex flex-col md:flex-row items-center justify-center gap-1 md:gap-3">
+                                        <div className="text-center bg-white p-6 md:p-10 rounded-3xl md:rounded-[40px] border border-charcoal/5 shadow-xl group hover:scale-[1.02] transition-all">
+                                            <div className="text-[8px] md:text-[10px] font-black opacity-30 mb-3 tracking-widest uppercase">SUBM.</div>
+                                            <div className="text-base md:text-4xl font-black flex flex-col md:flex-row items-center justify-center gap-1 md:gap-4">
                                                 <span className="text-accentWarm">{taleOfTape.f1.sub || 0}%</span>
-                                                <span className="hidden md:inline text-white/10">|</span>
+                                                <span className="hidden md:inline text-charcoal/10">|</span>
                                                 <span className="text-accentCool">{taleOfTape.f2.sub || 0}%</span>
                                             </div>
                                         </div>
-                                        <div className="text-center bg-white/[0.03] p-4 md:p-8 rounded-2xl md:rounded-[35px] border border-white/5 backdrop-blur-xl group hover:border-accentCool/20 transition">
-                                            <div className="text-[8px] md:text-[10px] font-black opacity-30 mb-2 md:mb-3 tracking-[0.1em] md:tracking-[0.2em] uppercase">DECIS.</div>
-                                            <div className="text-sm md:text-3xl font-black flex flex-col md:flex-row items-center justify-center gap-1 md:gap-3">
+                                        <div className="text-center bg-white p-6 md:p-10 rounded-3xl md:rounded-[40px] border border-charcoal/5 shadow-xl group hover:scale-[1.02] transition-all">
+                                            <div className="text-[8px] md:text-[10px] font-black opacity-30 mb-3 tracking-widest uppercase">DECIS.</div>
+                                            <div className="text-base md:text-4xl font-black flex flex-col md:flex-row items-center justify-center gap-1 md:gap-4">
                                                 <span className="text-accentWarm">{taleOfTape.f1.dec || 0}%</span>
-                                                <span className="hidden md:inline text-white/10">|</span>
+                                                <span className="hidden md:inline text-charcoal/10">|</span>
                                                 <span className="text-accentCool">{taleOfTape.f2.dec || 0}%</span>
                                             </div>
                                         </div>
