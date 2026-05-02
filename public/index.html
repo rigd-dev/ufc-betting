@@ -442,28 +442,59 @@
                                     </div>
                                 </div>
                                 <div className="grid grid-cols-2 gap-3 mb-6">
-                                    <div className="bg-white p-4 rounded-2xl border border-charcoal/5 shadow-sm text-center"><div className="text-[10px] font-black uppercase mb-1 text-secondary opacity-60 tracking-widest">Estilo</div><div className="text-sm font-black">{modalFighter.style}</div></div>
-                                    <div className="bg-white p-4 rounded-2xl border border-charcoal/5 shadow-sm text-center"><div className="text-[10px] font-black uppercase mb-1 text-secondary opacity-60 tracking-widest">Especialidad</div><div className="text-sm font-black">{modalFighter.specialty}</div></div>
+                                    <div className="bg-white p-4 rounded-2xl border border-charcoal/5 shadow-sm">
+                                        <div className="text-[9px] font-black uppercase mb-1 text-secondary opacity-40 tracking-widest">Estilo Principal</div>
+                                        <div className="text-xs md:text-sm font-black text-charcoal">{modalFighter.style}</div>
+                                    </div>
+                                    <div className="bg-white p-4 rounded-2xl border border-charcoal/5 shadow-sm">
+                                        <div className="text-[9px] font-black uppercase mb-1 text-secondary opacity-40 tracking-widest">Especialidad</div>
+                                        <div className="text-xs md:text-sm font-black text-charcoal">{modalFighter.specialty}</div>
+                                    </div>
                                 </div>
-                                <div className="grid grid-cols-3 gap-3 mb-6">
-                                    {[['Altura', modalFighter.height], ['Peso', modalFighter.weightLbs], ['Alcance', modalFighter.reach]].map(([lbl, val]) => (
-                                        <div key={lbl} className="bg-white p-3 rounded-2xl border border-charcoal/5 text-center">
-                                            <div className="text-[9px] font-black uppercase opacity-40 mb-1">{lbl}</div>
-                                            <div className="text-xs font-black">{val || '—'}</div>
+
+                                <div className="bg-charcoal/5 p-6 rounded-3xl mb-6 border border-charcoal/5">
+                                    <div className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40 mb-5 border-b border-charcoal/10 pb-2">Distribución de Victorias</div>
+                                    <div className="space-y-4">
+                                        {[ {l: 'KO/TKO', v: modalFighter.ko, c: 'bg-accentWarm'}, {l: 'Sumisión', v: modalFighter.sub, c: 'bg-accentCool'}, {l: 'Decisión', v: modalFighter.dec, c: 'bg-secondary'} ].map(stat => (
+                                            <div key={stat.l}>
+                                                <div className="flex justify-between text-[10px] font-black mb-1.5 uppercase">
+                                                    <span>{stat.l}</span>
+                                                    <span>{stat.v}%</span>
+                                                </div>
+                                                <div className="h-2 bg-charcoal/10 rounded-full overflow-hidden">
+                                                    <div className={`h-full ${stat.c} rounded-full transition-all duration-1000`} style={{width: `${stat.v}%`}}></div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-3 gap-3 mb-8">
+                                    {[['ALTURA', modalFighter.height], ['PESO', modalFighter.weightLbs], ['ALCANCE', modalFighter.reach]].map(([lbl, val]) => (
+                                        <div key={lbl} className="bg-white p-4 rounded-2xl border border-charcoal/5 text-center shadow-sm">
+                                            <div className="text-[8px] font-black uppercase opacity-40 mb-1 tracking-tighter">{lbl}</div>
+                                            <div className="text-xs font-black text-charcoal">{val || '—'}</div>
                                         </div>
                                     ))}
                                 </div>
+
                                 <div className="space-y-3">
-                                    <div className="text-[10px] font-black uppercase tracking-[0.3em] pb-2 border-b border-charcoal/5 opacity-40">Historial Reciente</div>
+                                    <div className="flex justify-between items-center pb-2 border-b border-charcoal/5">
+                                        <div className="text-[10px] font-black uppercase tracking-[0.3em] opacity-40">Últimos Combates</div>
+                                        <div className="text-[9px] font-bold text-secondary italic">Actualizado UFC 2026</div>
+                                    </div>
                                     {modalFighter.recent.map((f, i) => (
-                                        <div key={i} className="flex justify-between items-center p-4 bg-white rounded-2xl border border-charcoal/5">
-                                            <div className="flex items-center gap-3">
-                                                <span className={`w-9 h-9 flex items-center justify-center font-black rounded-full text-sm border-2 ${f.r === 'W' ? 'bg-green-50 text-green-600 border-green-200' : 'bg-red-50 text-red-500 border-red-200'}`}>{f.r}</span>
-                                                <span className="font-black text-sm">{f.r === 'W' ? 'Victoria' : 'Derrota'}</span>
+                                        <div key={i} className="flex justify-between items-center p-4 bg-white rounded-2xl border border-charcoal/5 hover:border-charcoal/20 transition-all shadow-sm">
+                                            <div className="flex items-center gap-4">
+                                                <span className={`w-10 h-10 flex items-center justify-center font-black rounded-xl text-sm border-2 ${f.r === 'W' ? 'bg-green-50 text-green-600 border-green-200' : 'bg-red-50 text-red-500 border-red-200'}`}>{f.r}</span>
+                                                <div>
+                                                    <div className="font-black text-xs uppercase">{f.r === 'W' ? 'Victoria' : 'Derrota'}</div>
+                                                    <div className="text-[10px] font-medium opacity-50">Combate Oficial</div>
+                                                </div>
                                             </div>
                                             <div className="text-right">
-                                                <div className="text-xs font-black bg-charcoal text-white px-2 py-1 rounded-lg mb-1">{f.m}</div>
-                                                <div className="text-[10px] font-bold opacity-40 uppercase">Round {f.rnd}</div>
+                                                <div className="text-[10px] font-black bg-charcoal text-white px-3 py-1 rounded-lg mb-1 inline-block uppercase tracking-tight">{f.m}</div>
+                                                <div className="text-[10px] font-bold opacity-40 uppercase tracking-tighter">Round {f.rnd}</div>
                                             </div>
                                         </div>
                                     ))}
